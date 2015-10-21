@@ -1,0 +1,29 @@
+[ironic]
+admin_user=<ironic user's username>
+admin_password=<ironic user's password>
+admin_tenant_name=<ironic user's tenant name>
+auth_uri=<keystone url authentication>
+insecure=<allows insecure https connectinos to Ironic API>
+default_deploy_kernel_id=<your deploy kernel id>
+default_deploy_ramdisk_id=<your deploy ramdisk id>
+default_sync_driver=<default driver which will synchronize the nodes[fake_oneview_driver, pxe_oneview]>
+
+
+[nova]
+auth_url=<keystone url authentication>
+username=<nova user's username>
+password=<nova user's password>
+tenant_name=<nova user's tenant name>
+insecure=allows insecure https connectinos to Nova API>
+
+[oneview]
+manager_url=<your oneview url>
+username=<your oneview user name>
+password=<your oneview password>
+allow_insecure_connections=<default option to secure connection[true/false]>
+tls_cacert_file=<path to a ca certificate valid[optional if allow_insecure_connections is true]>
+
+[rabbit]
+ca_filename=<your ca file>
+certificate_filename=<your certificate file>
+key_filename=<your key file>

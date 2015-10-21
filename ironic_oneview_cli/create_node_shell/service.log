@@ -1,0 +1,627 @@
+2015-10-15 11:39:38,366 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 11:41:51,069 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 11:43:03,908 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 11:43:04,143 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 11:43:04,143 - oneview_client - WARNING - Using insecure connection
+2015-10-15 11:43:04,391 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 11:43:04,392 - oneview_client - WARNING - Using insecure connection
+2015-10-15 11:43:04,590 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 11:43:04,591 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:08:13,798 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 12:08:16,515 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:08:16,515 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:08:16,618 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:08:16,618 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:08:16,721 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:08:16,722 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:11:09,800 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 12:11:10,031 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:11:10,031 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:11:10,172 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:11:10,172 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:11:10,267 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:11:10,267 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:13:44,695 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 12:13:44,883 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:13:44,883 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:13:44,993 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:13:44,993 - oneview_client - WARNING - Using insecure connection
+2015-10-15 12:13:45,081 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 12:13:45,081 - oneview_client - WARNING - Using insecure connection
+2015-10-15 15:29:45,171 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 18:42:28,684 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 18:42:28,925 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 18:42:28,925 - oneview_client - WARNING - Using insecure connection
+2015-10-15 18:42:29,066 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 18:42:29,066 - oneview_client - WARNING - Using insecure connection
+2015-10-15 18:42:29,173 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 18:42:29,173 - oneview_client - WARNING - Using insecure connection
+2015-10-15 18:42:30,212 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 18:42:30,212 - oneview_client - WARNING - Using insecure connection
+2015-10-15 18:42:30,316 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 18:42:30,317 - oneview_client - WARNING - Using insecure connection
+2015-10-15 18:42:30,426 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 18:42:30,426 - oneview_client - WARNING - Using insecure connection
+2015-10-15 18:44:53,072 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 18:44:53,316 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 18:47:13,287 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 18:47:13,569 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:05:51,661 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:05:51,916 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:05:52,099 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:05:52,219 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:05:53,443 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:05:53,541 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:05:53,659 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:08:28,372 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:08:28,619 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:08:28,769 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:08:28,895 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:08:29,982 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:08:30,060 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:08:30,158 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:10:44,703 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:10:44,966 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:10:45,106 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:10:45,223 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:10:46,330 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:10:46,477 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:10:46,563 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:11:55,370 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:11:55,583 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:11:55,712 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:11:56,031 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:11:57,245 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:11:57,339 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:11:57,440 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:12:36,825 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:12:37,034 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:12:37,179 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:12:37,312 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:12:38,444 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:12:38,547 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:12:38,643 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:14:47,777 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:14:48,007 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:14:48,019 - oneview_client - ERROR - Can't connect to OneView: certificate verify failed
+2015-10-15 19:15:07,864 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:15:08,096 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:15:08,112 - oneview_client - ERROR - Can't connect to OneView: certificate verify failed
+2015-10-15 19:16:01,589 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:16:01,813 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:16:01,827 - oneview_client - ERROR - Can't connect to OneView: certificate verify failed
+2015-10-15 19:18:02,028 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:18:02,254 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:18:02,271 - oneview_client - ERROR - Can't connect to OneView: certificate verify failed
+2015-10-15 19:18:09,343 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-15 19:18:09,553 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-15 19:18:09,568 - oneview_client - ERROR - Can't connect to OneView: certificate verify failed
+2015-10-19 17:39:02,021 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-19 17:39:33,971 - openstack_client - DEBUG - Using OpenStack credentials specified in synch.conf to get an Ironic Client
+2015-10-19 17:39:34,197 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-19 17:39:34,211 - oneview_client - ERROR - Can't connect to OneView: certificate verify failed
+2015-10-20 17:50:49,786 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:51:53,743 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:53:07,125 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:53:21,831 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:56:41,268 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:57:29,142 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:57:49,486 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:58:19,594 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:58:19,777 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 17:58:44,774 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:58:44,959 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 17:59:51,220 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 17:59:51,447 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:01:00,227 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:01:00,434 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:02:35,817 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:02:36,014 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:02:36,029 - oneview_client - ERROR - Can't connect to OneView: certificate verify failed
+2015-10-20 18:02:52,257 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:02:52,412 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:02:52,413 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:03:18,274 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:03:18,738 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:03:18,739 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:03:18,864 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:03:18,864 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:03:18,990 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:03:18,990 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:05:53,531 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:22:07,485 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:24:05,419 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:24:05,573 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:24:56,317 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:24:56,530 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:24:56,531 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:24:56,650 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:24:56,650 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:24:56,768 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:24:56,768 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:26:31,625 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:26:31,775 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:26:31,775 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:26:31,882 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:26:31,882 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:26:31,969 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:26:31,969 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:27:42,195 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:27:42,391 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:27:42,391 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:27:42,514 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:27:42,514 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:27:42,637 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:27:42,637 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:28:26,997 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:28:27,180 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:28:27,180 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:28:27,353 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:28:27,353 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:28:27,483 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:28:27,484 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:29:02,294 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:29:02,492 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:29:02,492 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:29:02,600 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:29:02,600 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:29:02,685 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:29:02,685 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:29:22,795 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:29:22,932 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:29:22,933 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:29:23,098 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:29:23,098 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:29:23,182 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:29:23,182 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:31:43,967 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-20 18:31:44,186 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:31:44,186 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:31:44,325 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:31:44,325 - oneview_client - WARNING - Using insecure connection
+2015-10-20 18:31:44,431 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-20 18:31:44,432 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:04:14,602 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:04:14,834 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:04:14,834 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:04:14,958 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:04:14,958 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:04:15,066 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:04:15,066 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:19,714 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:10:19,986 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:19,987 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:20,107 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:20,107 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:20,195 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:20,195 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:21,126 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:21,126 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:21,206 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:21,206 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:21,283 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:21,283 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:41,538 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:10:41,784 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:41,784 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:42,200 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:42,200 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:42,599 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:42,599 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:44,225 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:44,225 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:44,298 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:44,298 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:44,402 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:44,402 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:57,240 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:10:57,419 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:57,420 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:57,546 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:57,546 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:57,638 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:57,639 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:58,457 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:58,457 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:58,539 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:58,539 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:10:58,639 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:10:58,639 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:13:30,689 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:13:30,903 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:13:30,903 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:13:31,026 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:13:31,026 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:13:31,124 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:13:31,124 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:13:32,048 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:13:32,048 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:14:40,404 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:14:40,604 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:14:40,604 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:14:40,746 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:14:40,746 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:14:40,938 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:14:40,938 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:14:41,986 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:14:41,986 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:14:42,070 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:14:42,071 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:14:42,190 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:14:42,190 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:16:55,523 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:16:55,735 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:16:55,735 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:16:55,844 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:16:55,844 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:16:55,931 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:16:55,931 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:16:56,763 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:16:56,763 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:16:56,861 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:16:56,861 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:16:56,956 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:16:56,956 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:17:32,352 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:17:32,535 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:17:32,535 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:17:32,643 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:17:32,643 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:17:32,756 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:17:32,756 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:17:33,684 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:17:33,684 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:17:33,760 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:17:33,760 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:17:33,836 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:17:33,836 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:18:17,123 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:18:17,502 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:18:17,503 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:18:17,599 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:18:17,599 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:18:17,684 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:18:17,684 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:18:18,508 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:18:18,508 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:18:18,577 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:18:18,578 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:18:18,661 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 09:18:18,661 - oneview_client - WARNING - Using insecure connection
+2015-10-21 09:24:16,772 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:27:46,499 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:28:25,223 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:30:50,669 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:31:01,774 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:31:33,533 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 09:31:49,463 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 11:19:30,294 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 11:19:30,513 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:19:30,513 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:19:30,656 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:19:30,657 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:19:30,780 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:19:30,780 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:05,453 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:05,453 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:05,555 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:05,555 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:05,661 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:05,661 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:06,332 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 11:35:31,566 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:31,566 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:31,707 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:31,707 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:31,834 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:31,834 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:32,379 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 11:35:32,989 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:32,990 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:33,069 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:33,069 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:35:34,730 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:35:34,730 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:36:17,322 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:36:17,322 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:36:17,465 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:36:17,465 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:36:17,555 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:36:17,555 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:36:18,212 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 11:36:18,826 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:36:18,826 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:36:18,928 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:36:18,928 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:36:19,009 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:36:19,009 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:37:26,638 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:37:26,638 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:37:26,744 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:37:26,744 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:37:26,851 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:37:26,851 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:37:27,466 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 11:38:32,663 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:38:32,663 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:38:32,787 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:38:32,788 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:38:32,866 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 11:38:32,866 - oneview_client - WARNING - Using insecure connection
+2015-10-21 11:38:33,476 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:18:32,277 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:32,277 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:32,430 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:32,431 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:32,621 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:32,621 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:33,575 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:18:34,076 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:34,077 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:34,185 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:34,185 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:34,326 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:34,326 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:49,571 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:49,571 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:49,713 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:49,713 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:49,839 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:49,839 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:50,829 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:18:51,262 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:51,262 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:51,351 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:51,351 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:18:51,452 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:18:51,452 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:27,553 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:27,553 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:27,679 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:27,679 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:27,783 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:27,783 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:28,532 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:19:28,956 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:28,956 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:29,078 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:29,078 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:29,177 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:29,177 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:55,530 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:55,531 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:55,712 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:55,712 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:55,836 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:55,836 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:56,603 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:19:57,256 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:57,256 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:57,340 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:57,340 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:19:57,441 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:19:57,441 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:20:23,782 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:20:23,782 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:20:23,975 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:20:23,975 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:20:24,094 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:20:24,094 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:20:24,770 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:20:25,196 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:20:25,196 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:20:25,327 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:20:25,328 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:20:25,432 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:20:25,433 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:25:42,981 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:25:42,981 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:25:43,102 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:25:43,102 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:25:43,196 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:25:43,196 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:25:43,930 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:25:44,390 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:25:44,390 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:25:44,465 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:25:44,465 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:25:44,550 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:25:44,550 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:27:35,355 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:27:35,356 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:27:35,471 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:27:35,471 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:27:35,564 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:27:35,564 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:27:36,413 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:27:36,997 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:27:36,997 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:27:37,073 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:27:37,073 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:27:37,154 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:27:37,154 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:28:08,355 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:28:08,355 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:28:08,495 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:28:08,495 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:28:08,585 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:28:08,585 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:28:09,238 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:28:09,657 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:28:09,657 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:28:09,743 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:28:09,743 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:28:09,843 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:28:09,843 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:38:33,464 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:38:33,465 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:38:33,627 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:38:33,627 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:38:33,721 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:38:33,721 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:38:34,429 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:38:34,914 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:38:34,914 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:38:34,980 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:38:34,980 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:38:35,071 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:38:35,071 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:44:10,786 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:44:10,786 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:44:10,966 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:44:10,966 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:44:11,051 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:44:11,051 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:44:11,747 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 15:44:12,192 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:44:12,192 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:44:12,262 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:44:12,262 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:44:12,343 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:44:12,344 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:45:35,132 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:45:35,133 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:45:35,265 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:45:35,265 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:45:35,372 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 15:45:35,372 - oneview_client - WARNING - Using insecure connection
+2015-10-21 15:45:36,076 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 16:28:27,714 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 16:28:27,714 - oneview_client - WARNING - Using insecure connection
+2015-10-21 16:28:27,838 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 16:28:27,838 - oneview_client - WARNING - Using insecure connection
+2015-10-21 16:28:27,981 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 16:28:27,981 - oneview_client - WARNING - Using insecure connection
+2015-10-21 16:28:28,809 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:05:19,432 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:05:19,432 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:05:19,595 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:05:19,595 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:05:19,692 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:05:19,692 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:05:20,308 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:05:20,865 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:05:20,865 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:05:20,970 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:05:20,970 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:05:21,072 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:05:21,072 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:08:58,384 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:08:58,384 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:08:58,519 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:08:58,519 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:08:58,629 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:08:58,629 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:08:59,252 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:08:59,729 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:08:59,729 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:08:59,808 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:08:59,809 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:08:59,959 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:08:59,959 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:09:01,490 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:09:48,367 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:09:48,367 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:09:49,116 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:09:49,116 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:09:49,233 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:09:49,233 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:09:50,079 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:09:56,190 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:09:56,190 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:09:56,256 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:09:56,256 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:09:56,331 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:09:56,331 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:10:22,565 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:10:24,021 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:12:44,637 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:12:44,637 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:12:44,822 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:12:44,822 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:12:44,963 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:12:44,963 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:12:46,404 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:12:47,126 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:12:47,127 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:12:47,246 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:12:47,246 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:12:47,407 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:12:47,407 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:12:49,791 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:12:51,334 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:13:28,082 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:13:28,082 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:13:28,221 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:13:28,221 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:13:28,334 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:13:28,334 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:13:29,041 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:13:29,529 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:13:29,529 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:13:29,628 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:13:29,628 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:13:29,708 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:13:29,708 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:13:32,686 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:13:33,725 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:14:38,441 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:14:38,441 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:14:38,564 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:14:38,564 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:14:38,661 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:14:38,661 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:14:39,359 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:14:39,784 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:14:39,784 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:14:39,860 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:14:39,860 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:14:39,964 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:14:39,964 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:14:41,153 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:14:42,184 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:24:42,637 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:24:42,637 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:24:42,812 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:24:42,813 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:24:42,902 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:24:42,903 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:24:43,614 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:24:44,165 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:24:44,166 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:24:44,264 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:24:44,265 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:24:44,481 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:24:44,481 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:24:45,987 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:24:47,042 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:25:03,903 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:25:03,903 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:25:04,025 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:25:04,025 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:25:04,119 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:25:04,119 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:25:04,773 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:25:07,709 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:25:07,709 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:25:07,797 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:25:07,797 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:25:07,894 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:25:07,894 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:25:09,152 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:25:10,318 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:31:02,157 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:31:02,157 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:31:02,288 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:31:02,288 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:31:02,420 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:31:02,420 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:31:03,018 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:31:03,597 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:31:03,597 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:31:03,666 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:31:03,666 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:31:03,755 - oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-21 17:31:03,755 - oneview_client - WARNING - Using insecure connection
+2015-10-21 17:31:04,976 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-21 17:31:06,251 - openstack - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
