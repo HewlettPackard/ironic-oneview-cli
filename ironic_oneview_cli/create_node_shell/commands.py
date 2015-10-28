@@ -266,5 +266,5 @@ def do_node_create(args):
         )
 
         node_uuid =  node_creator.create_node(server_hardware_selected,
-                                 template_selected)
+                                              template_selected)
         print 'Node created!'

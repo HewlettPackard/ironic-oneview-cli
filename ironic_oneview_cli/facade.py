@@ -56,7 +56,6 @@ class Facade(object):
 
     def is_nova_flavor_available(self, server_hardware_info):
         return os_client._is_flavor_available(server_hardware_info)
-
     #===============================================================================
     # OneView actions
     #===============================================================================
