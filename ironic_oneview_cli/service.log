@@ -406,3 +406,18 @@
 2015-10-28 14:44:21,767 - ironic_oneview_cli.oneview_client - WARNING - Using insecure connection
 2015-10-28 14:44:21,886 - ironic_oneview_cli.oneview_client - INFO - Using OneView credentials specified in synch.conf
 2015-10-28 14:44:21,886 - ironic_oneview_cli.oneview_client - WARNING - Using insecure connection
+2015-10-28 19:35:06,023 - ironic_oneview_cli.oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-28 19:35:06,023 - ironic_oneview_cli.oneview_client - WARNING - Using insecure connection
+2015-10-28 19:35:06,197 - ironic_oneview_cli.oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-28 19:35:06,197 - ironic_oneview_cli.oneview_client - WARNING - Using insecure connection
+2015-10-28 19:35:06,322 - ironic_oneview_cli.oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-28 19:35:06,322 - ironic_oneview_cli.oneview_client - WARNING - Using insecure connection
+2015-10-28 19:35:07,130 - ironic_oneview_cli.openstack_client - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-28 19:35:07,486 - ironic_oneview_cli.oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-28 19:35:07,486 - ironic_oneview_cli.oneview_client - WARNING - Using insecure connection
+2015-10-28 19:35:07,590 - ironic_oneview_cli.oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-28 19:35:07,590 - ironic_oneview_cli.oneview_client - WARNING - Using insecure connection
+2015-10-28 19:35:07,707 - ironic_oneview_cli.oneview_client - INFO - Using OneView credentials specified in synch.conf
+2015-10-28 19:35:07,707 - ironic_oneview_cli.oneview_client - WARNING - Using insecure connection
+2015-10-28 19:35:09,990 - ironic_oneview_cli.openstack_client - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client
+2015-10-28 19:35:11,678 - ironic_oneview_cli.openstack_client - DEBUG - Using OpenStack credentials specified in the configuration file to get Ironic Client

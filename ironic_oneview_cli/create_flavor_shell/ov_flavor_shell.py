@@ -22,31 +22,35 @@ Command-line interface to the OneView Sync.
 from __future__ import print_function
 
 import argparse
+import getpass
+import logging
 import sys
 import six
 
-from openstack.common import cliutils
-from openstack.common._i18n import _
+from os import environ
+
+from ironicclient.common import utils
+from ironicclient.openstack.common import cliutils
+from ironicclient import client as ironic_client
+from novaclient.client import Client as nova_client
+
 from oslo_utils import encodeutils
 
-from create_node_shell import commands as node_create_commands
-from create_flavor_shell import commands as flavor_create_commands
+import commands
 
 
 VERSION = '1.0'
 
 COMMAND_MODULES = [
-    node_create_commands, flavor_create_commands
+    commands
 ]
 
-
-class IronicOneView(object):
-
+class OneViewSyncShell(object):
     def get_base_parser(self):
         parser = argparse.ArgumentParser(
-            prog='ironic-oneview',
+            prog='ov-flavor',
             description=__doc__.strip(),
-            epilog='See "ironic-oneview --help COMMAND" '
+            epilog='See "ov-flavor help COMMAND" '
                    'for help on a specific command.',
             add_help=False,
             formatter_class=HelpFormatter,
@@ -58,14 +62,25 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS,
                             )
 
+        parser.add_argument('--os-tenant-name',
+                            default=environ.get('OS_TENANT_NAME'),
+                            help='Defaults to env[OS_TENANT_NAME]')
+
+        parser.add_argument('--os-username',
+                            default=environ.get('OS_USERNAME'),
+                            help='Defaults to env[OS_USERNAME]')
+
+        parser.add_argument('--os-password',
+                            default=environ.get('OS_PASSWORD'),
+                            help='Defaults to env[OS_PASSWORD]')
+
+        parser.add_argument('--os-auth-url',
+                            default=environ.get('OS_AUTH_URL'),
+                            help='Defaults to env[OS_AUTH_URL]')
+
         parser.add_argument('--version',
                             action='version',
                             version=VERSION)
-
-        parser.add_argument('-c', '--config-file',
-                            default='/etc/ironic-oneview-cli/'
-                                    'ironic-oneview-cli.conf',
-                            help='Default path to configuration file')
 
         return parser
 
@@ -74,21 +89,8 @@ class IronicOneView(object):
         self.subcommands = {}
         subparsers = parser.add_subparsers(metavar='<subcommand>')
         enhance_parser(parser, subparsers, self.subcommands)
-        define_commands_from_module(subparsers, self, self.subcommands)
+        utils.define_commands_from_module(subparsers, self, self.subcommands)
         return parser
-
-    @cliutils.arg('command', metavar='<subcommand>', nargs='?',
-                  help='Display help for <subcommand>')
-    def do_help(self, args):
-        """Display help about this program or one of its subcommands."""
-        if getattr(args, 'command', None):
-            if args.command in self.subcommands:
-                self.subcommands[args.command].print_help()
-            else:
-                raise Exception(_("'%s' is not a valid subcommand") %
-                                args.command)
-        else:
-            self.parser.print_help()
 
     def main(self, argv):
         parser = self.get_base_parser()
@@ -105,45 +107,37 @@ class IronicOneView(object):
         if args.func == self.do_help:
             self.do_help(args)
             return 0
-        args.func(args)
 
+        kwargs = {'os_username': args.os_username,
+                  'os_password': args.os_password,
+                  'os_auth_url': args.os_auth_url,
+                  'os_tenant_name': args.os_tenant_name}
 
-def define_command(subparsers, command, callback, cmd_mapper):
-    '''Define a command in the subparsers collection.
-    :param subparsers: subparsers collection where the command will go
-    :param command: command name
-    :param callback: function that will be used to process the command
-    '''
-    desc = callback.__doc__ or ''
-    help = desc.strip().split('\n')[0]
-    arguments = getattr(callback, 'arguments', [])
+        ironic = ironic_client.get_client(1, **kwargs)
 
-    subparser = subparsers.add_parser(command, help=help,
-                                      description=desc,
-                                      add_help=False,
-                                      formatter_class=HelpFormatter)
-    subparser.add_argument('-h', '--help', action='help',
-                           help=argparse.SUPPRESS)
-    cmd_mapper[command] = subparser
-    for (args, kwargs) in arguments:
-        subparser.add_argument(*args, **kwargs)
-    subparser.set_defaults(func=callback)
+        nova = nova_client(2,
+                           args.os_username,
+                           args.os_password,
+                           args.os_tenant_name,
+                           args.os_auth_url)
+        
+        args.func(ironic, nova, args)
 
-
-def define_commands_from_module(subparsers, command_module, cmd_mapper):
-    """Add *do_* methods in a module and add as commands into a subparsers."""
-
-    for method_name in (a for a in dir(command_module) if a.startswith('do_')):
-        # Commands should be hypen-separated instead of underscores.
-        command = method_name[3:].replace('_', '-')
-        callback = getattr(command_module, method_name)
-        define_command(subparsers, command, callback, cmd_mapper)
-
+    def do_help(self, args):
+        """Display help about this program or one of its subcommands."""
+        if getattr(args, 'command', None):
+            if args.command in self.subcommands:
+                self.subcommands[args.command].print_help()
+            else:
+                raise exc.CommandError(_("'%s' is not a valid subcommand") %
+                                       args.command)
+        else:
+            self.parser.print_help()
 
 def enhance_parser(parser, subparsers, cmd_mapper):
     for command_module in COMMAND_MODULES:
-        define_commands_from_module(subparsers, command_module, cmd_mapper)
-
+         utils.define_commands_from_module(subparsers, command_module,
+                                           cmd_mapper)
 
 class HelpFormatter(argparse.HelpFormatter):
     def start_section(self, heading):
@@ -151,12 +145,11 @@ class HelpFormatter(argparse.HelpFormatter):
         heading = '%s%s' % (heading[0].upper(), heading[1:])
         super(HelpFormatter, self).start_section(heading)
 
-
 def main():
     try:
-        IronicOneView().main(sys.argv[1:])
+        OneViewSyncShell().main(sys.argv[1:])
     except KeyboardInterrupt:
-        print("... terminating OneView node creation tool", file=sys.stderr)
+        print("... terminating ironic client", file=sys.stderr)
         sys.exit(130)
     except Exception as e:
         print(encodeutils.safe_encode(six.text_type(e)), file=sys.stderr)
