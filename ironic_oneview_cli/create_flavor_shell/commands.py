@@ -79,7 +79,6 @@ def get_flavor_list(ironic_client):
 
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
               help="Show detailed information about the nodes.")
-#def do_flavor_create(ironic_cli, novaclient, args):
 def do_flavor_create(args):
     """
     Show a list with suggested flavors to be created based on OneView's Server
@@ -100,6 +99,7 @@ def do_flavor_create(args):
     facade = Facade(conf)
     ironic_cli = facade.ironicclient
     nova_cli = facade.novaclient
+    print nova_cli
     create_another_flavor_flag = True
     flavor_list = get_flavor_list(ironic_cli)
     flavor_list = list(flavor_list)
@@ -155,12 +155,19 @@ def do_flavor_create(args):
         
         if len(flavor_name) == 0:
             flavor_name = flavor_name_default
-        nova_flavor = novaclient.flavors.create(
-            flavor_name, flavor.ram_mb, flavor.cpus, flavor.disk)
-        
-        nova_flavor.set_keys(flavor.extra_specs())
 
+        nova_flavor = nova_cli.flavors.create(
+            flavor_name, flavor.ram_mb, flavor.cpus, flavor.disk)
+        nova_flavor.set_keys(flavor.extra_specs())
+        
         print('Flavor created!\n')
-        response = raw_input('To Create a new flavor press y> ')
-        if response == 'y':
-            create_another_flavor_flag = True
+        while True:
+            response = raw_input('Would you like to create another flavor? [Y/n] ')
+            if response == 'n':
+                create_another_flavor_flag = False
+                break
+            elif response.lower() == 'y':
+                create_another_flavor_flag = True
+                break
+            else:
+                print 'Invalid option'
