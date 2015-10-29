@@ -29,79 +29,68 @@ from ironic_oneview_cli.objects import ServerProfileManager
 import mock
 import requests
 import unittest
-import time 
+import time
 
 from ironicclient import client as ironic_client
+
+
+# TEST_CONFIG_PATH = 'ironic_oneview_cli/tests/ironic-oneview-cli-tests.conf'
+TEST_CONFIG_PATH = '~/sync.conf'
 
 def delay(delay_time):
     time.sleep(delay_time)
 
+
 class TestIronic_oneview_cli(base.TestCase):
 
     def setUp(self):
+        self.created_nodes = []
         defaults = {
-           "ca_file": "",
-           "insecure": False,
-           "tls_cacert_file": "",
-           "allow_insecure_connections": False,
+            "ca_file": "",
+            "insecure": False,
+            "tls_cacert_file": "",
+            "allow_insecure_connections": False,
         }
-        self.config_client = ConfClient('ironic_oneview_cli/tests/'
-                                   'ironic-oneview-cli-tests.conf', defaults)
-        ironic_configuration_dict = self.config_client.__getattr__('ironic')
+        self.config = ConfClient(TEST_CONFIG_PATH, defaults)
 
         ironic_client_kwargs = {
-            'os_username': ironic_configuration_dict.admin_user,
-            'os_password': ironic_configuration_dict.admin_password,
-            'os_auth_url': ironic_configuration_dict.auth_uri,
-            'os_tenant_name': ironic_configuration_dict.admin_tenant_name,
-            'os_ironic_api_version': 1.11
+            'os_username': self.config.ironic.admin_user,
+            'os_password': self.config.ironic.admin_password,
+            'os_auth_url': self.config.ironic.auth_uri,
+            'os_tenant_name': self.config.ironic.admin_tenant_name,
+            'os_ironic_api_version': 1.11,
+            'insecure': self.config.ironic.insecure
         }
 
-        self.ironic_client = ironic_client.get_client(1, **ironic_client_kwargs)
-        ironic_node_list = self.ironic_client.node.list()
-        for ironic_node in ironic_node_list:
-            try:
-                self.ironic_client.node.delete(ironic_node.uuid)
-            except Exception:
-                continue
+        self.ironic_client = ironic_client.get_client(1,
+                                                      **ironic_client_kwargs)
+
+    def tearDown(self):
+        while self.created_nodes:
+            node_uuid = self.created_nodes.pop()
+            self.ironic_client.node.delete(node_uuid)
 
     def test_list_server_hardware_not_enrolled(self):
-        defaults = {
-           "ca_file": "",
-           "insecure": False,
-           "tls_cacert_file": "",
-           "allow_insecure_connections": False,
-        }
-        config_client = ConfClient('ironic_oneview_cli/tests/'
-                                   'ironic-oneview-cli-tests.conf', defaults)
-        node_creator = NodeCreator(config_client)
-        hardware_manager = ServerHardwareManager(config_client)
+        node_creator = NodeCreator(self.config)
+        hardware_manager = ServerHardwareManager(self.config)
         server_hardwares_not_enrolled = node_creator.list_server_hardware_not_enrolled(
             hardware_manager.list(only_available=True)
         )
         self.assertEqual(10, len(server_hardwares_not_enrolled))
 
     def test_list_server_hardware_not_enrolled_with_one_sh_already_created(self):
-        defaults = {
-           "ca_file": "",
-           "insecure": False,
-           "tls_cacert_file": "",
-           "allow_insecure_connections": False,
-        }
-        config_client = ConfClient('ironic_oneview_cli/tests/'
-                                   'ironic-oneview-cli-tests.conf', defaults)
-        node_creator = NodeCreator(config_client)
-        hardware_manager = ServerHardwareManager(config_client)
-        profile_manager = ServerProfileManager(config_client)
-        server_hardwares_not_created= node_creator.list_server_hardware_not_enrolled(
+        node_creator = NodeCreator(self.config)
+        hardware_manager = ServerHardwareManager(self.config)
+        profile_manager = ServerProfileManager(self.config)
+        server_hardwares_not_created = node_creator.list_server_hardware_not_enrolled(
             hardware_manager.list(only_available=True)
         )
         compatible_templates = profile_manager.list_templates_compatible_with(
-             server_hardwares_not_created
+            server_hardwares_not_created
         )
 
         node = node_creator.create_node(server_hardwares_not_created[0],
-                                             compatible_templates[0])
+                                        compatible_templates[0])
         server_hardwares_not_enrolled = node_creator.list_server_hardware_not_enrolled(
             hardware_manager.list(only_available=True)
         )
@@ -109,34 +98,26 @@ class TestIronic_oneview_cli(base.TestCase):
         self.ironic_client.node.delete(node.uuid)
 
     def test_list_templates_compatible_with(self):
-        #Facade(self.config) -> mockar o self.config
-        #deletar todos os ironic nodes
-        #get a node_creator instance
-        pass 
-
+        # Facade(self.config) -> mockar o self.config
+        # deletar todos os ironic nodes
+        # get a node_creator instance
+        pass
 
     def test_create_one_node(self):
-        defaults = {
-           "ca_file": "",
-           "insecure": False,
-           "tls_cacert_file": "",
-           "allow_insecure_connections": False,
-        }
-        config_client = ConfClient('ironic_oneview_cli/tests/'
-                                   'ironic-oneview-cli-tests.conf', defaults)
-        node_creator = NodeCreator(config_client)
-        hardware_manager = ServerHardwareManager(config_client)
-        profile_manager = ServerProfileManager(config_client)
-        server_hardwares_not_created= node_creator.list_server_hardware_not_enrolled(
+        node_creator = NodeCreator(self.config)
+        hardware_manager = ServerHardwareManager(self.config)
+        profile_manager = ServerProfileManager(self.config)
+        server_hardwares_not_created = node_creator.list_server_hardware_not_enrolled(
             hardware_manager.list(only_available=True)
         )
         compatible_templates = profile_manager.list_templates_compatible_with(
-             server_hardwares_not_created
+            server_hardwares_not_created
         )
 
         node = node_creator.create_node(server_hardwares_not_created[0],
-                                             compatible_templates[0])
-        server_hardwares_not_created= node_creator.list_server_hardware_not_enrolled(
+                                        compatible_templates[0])
+        self.created_nodes.append(node.uuid)
+        server_hardwares_not_created = node_creator.list_server_hardware_not_enrolled(
             hardware_manager.list(only_available=True)
         )
         self.assertEqual(9, len(server_hardwares_not_created))
@@ -147,8 +128,29 @@ class TestIronic_oneview_cli(base.TestCase):
                 node_was_created = True
                 break
         self.assertEqual(node_was_created, True)
-        ironic_port_list = self.ironic_client.port.list()
-        self.ironic_client.node.delete(node.uuid)
 
-if __name__ == '__main__':
-    base.main() 
+    def test_create_node_retrieve_n_check(self):
+        node_creator = NodeCreator(self.config)
+        hardware_manager = ServerHardwareManager(self.config)
+        profile_manager = ServerProfileManager(self.config)
+        server_hardwares_not_created = node_creator.list_server_hardware_not_enrolled(
+            hardware_manager.list(only_available=True)
+        )
+        hardware_selected = server_hardwares_not_created[0]
+        compatible_templates = profile_manager.list_templates_compatible_with(
+            server_hardwares_not_created
+        )
+        template_selected = compatible_templates[0]
+
+        node = node_creator.create_node(hardware_selected, template_selected)
+        self.created_nodes.append(node.uuid)
+
+        self.assertEquals(node.driver_info.get('server_hardware_uri'),
+                          hardware_selected.uri)
+        self.assertEquals(node.driver_info.get('deploy_kernel'),
+                          self.config.ironic.default_deploy_kernel_id)
+        self.assertEquals(node.driver_info.get('deploy_ramdisk'),
+                          self.config.ironic.default_deploy_ramdisk_id)
+        capabilities = node.properties.get('capabilities')
+        self.assertIn('server_profile_template_uri:' + template_selected.uri,
+                      capabilities)

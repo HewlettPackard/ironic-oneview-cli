@@ -103,7 +103,7 @@ class NodeCreator(object):
             server_profile_selected = self.get_element_by_id(
                 server_profile_list, input_id)
 
-        print "\nYou choose the following Server Profile Template:"
+        print("\nYou choose the following Server Profile Template: ")
         cliutils.print_list(
             [server_profile_selected],
             ['name', 'enclosureGroupName', 'serverHardwareTypeName'],
@@ -222,7 +222,7 @@ def do_node_create(args):
     template_selected = node_creator.select_server_profile_template(
         template_list
     )
-    print '\nListing compatible Server Hardware objects..'
+    print('\nListing compatible Server Hardware objects..')
 
     # FIXME(thiagop): doesn't uses facade or node_creator
     available_server_hardware_by_field = hardware_manager.list(
@@ -245,7 +245,7 @@ def do_node_create(args):
     for server_hardware_id in server_hardware_ids_selected:
         server_hardware_selected = node_creator.get_element_by_id(
             server_hardware_list, server_hardware_id)
-        print '\nCreating a node to represent the following Server Hardware...'
+        print('\nCreating a node to represent the following Server Hardware..')
         cliutils.print_list(
             [server_hardware_selected],
             ['name', 'cpus', 'memoryMb', 'local_gb', 'serverGroupName',
@@ -265,6 +265,6 @@ def do_node_create(args):
             ]
         )
 
-        node_uuid =  node_creator.create_node(server_hardware_selected,
+        node_uuid = node_creator.create_node(server_hardware_selected,
                                               template_selected)
-        print 'Node created!'
+        print('Node created!')

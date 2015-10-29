@@ -16,11 +16,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import ConfigParser
+import configparser as ConfigParser
 
 import os
 
-import service_logging as logging
+import ironic_oneview_cli.service_logging as logging
 
 
 LOG = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 class ConfClient:
     def __init__(self, configname, defaults={}):
         self._CONF = ConfigParser.ConfigParser(defaults)
-        path = os.path.realpath(configname)
+        path = os.path.realpath(os.path.expanduser(configname))
         self._CONF.readfp(open(path))
 
     def __getattr__(self, section):
