@@ -47,7 +47,6 @@ class Flavor:
         if hasattr(self, 'enclosure_group_uri'):
             extra_specs['capabilities:enclosure_group_uri'] = \
                 self.enclosure_group_uri
-
         return extra_specs
 
     def __repr__(self):

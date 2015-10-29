@@ -18,13 +18,14 @@ test_ironic-oneview-cli
 
 Tests for `ironic-oneview-cli` module.
 """
-
 from ironic_oneview_cli.tests import base
 from ironic_oneview_cli.facade import Facade
 from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
+from ironic_oneview_cli.create_flavor_shell import commands as flavor_commands
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
+from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 
 import mock
 import requests
@@ -46,9 +47,9 @@ class TestIronic_oneview_cli(base.TestCase):
            "allow_insecure_connections": False,
         }
         self.config_client = ConfClient('ironic_oneview_cli/tests/'
-                                   'ironic-oneview-cli-tests.conf', defaults)
+                                        'ironic-oneview-cli-tests.conf',
+                                         defaults)
         ironic_configuration_dict = self.config_client.__getattr__('ironic')
-
         ironic_client_kwargs = {
             'os_username': ironic_configuration_dict.admin_user,
             'os_password': ironic_configuration_dict.admin_password,
@@ -57,6 +58,9 @@ class TestIronic_oneview_cli(base.TestCase):
             'os_ironic_api_version': 1.11
         }
 
+        self.node_creator = NodeCreator(self.config_client)
+        self.hardware_manager = ServerHardwareManager(self.config_client)
+        self.profile_manager = ServerProfileManager(self.config_client)
         self.ironic_client = ironic_client.get_client(1, **ironic_client_kwargs)
         ironic_node_list = self.ironic_client.node.list()
         for ironic_node in ironic_node_list:
@@ -149,6 +153,36 @@ class TestIronic_oneview_cli(base.TestCase):
         self.assertEqual(node_was_created, True)
         ironic_port_list = self.ironic_client.port.list()
         self.ironic_client.node.delete(node.uuid)
+
+    def test_get_flavor_name(self):
+        flavor_info = {'cpu_arch':'x64', 'ram_mb':'32000',
+                       'cpus':'8', 'disk':'120'}
+        flavor = Flavor(1, flavor_info)
+        flavor_name = flavor_commands._get_flavor_name(flavor)
+        self.assertEqual('32000MB-RAM_8_x64_120', flavor_name)
+
+    def test_get_flavor_from_ironic_node(self):
+        server_hardwares_not_created = self.node_creator.list_server_hardware_not_enrolled(
+            self.hardware_manager.list(only_available=True)
+        )
+        server_hardware_for_test = server_hardwares_not_created[0]
+        compatible_templates = self.profile_manager.list_templates_compatible_with(
+            server_hardwares_not_created
+        )
+        node = self.node_creator.create_node(server_hardware_for_test,
+                                             compatible_templates[0])
+        server_profile_for_test = compatible_templates[0]
+        flavor = flavor_commands.get_flavor_from_ironic_node(1, node)
+        self.assertEqual(server_hardware_for_test.memoryMb, flavor.ram_mb)
+        self.assertEqual(server_hardware_for_test.cpus, flavor.cpus)
+        self.assertEqual(120, flavor.disk)
+        self.assertEqual(server_hardware_for_test.cpu_arch, flavor.cpu_arch)
+        self.assertEqual(server_hardware_for_test.serverHardwareTypeUri,
+                         flavor.server_hardware_type_uri)
+        self.assertEqual(server_hardware_for_test.serverGroupUri,
+                         flavor.enclosure_group_uri)
+        self.assertEqual(server_profile_for_test.uri,
+                         flavor.server_profile_template_uri)
 
 if __name__ == '__main__':
     base.main() 
