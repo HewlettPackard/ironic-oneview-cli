@@ -40,7 +40,7 @@ class TestCommands(unittest.TestCase):
             commands._get_element_by_id([1], 1)
 
     def test_get_flavor_from_ironic_node(self):
-        node = Node(10, 20, 30, 'server_hardware_type_uri:any', {'server_profile_template_uri': 'any'})
+        node = Node(10, 20, 30, 'server_hardware_type_uri:any,server_profile_template_uri:any',{})
         flavor = commands.get_flavor_from_ironic_node(1, node)
         self.assertEquals(flavor.cpu_arch, 'x86_64')
         self.assertEquals(flavor.cpus, 10)
