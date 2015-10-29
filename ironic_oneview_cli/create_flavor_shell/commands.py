@@ -18,6 +18,8 @@
 
 import argparse
 
+from ironic_oneview_cli.facade import Facade
+from ironic_oneview_cli.config import ConfClient
 from ironicclient.openstack.common import cliutils
 from objects import Flavor
 
@@ -77,12 +79,27 @@ def get_flavor_list(ironic_client):
 
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
               help="Show detailed information about the nodes.")
-def do_flavor_create(ironic_cli, novaclient, args):
+#def do_flavor_create(ironic_cli, novaclient, args):
+def do_flavor_create(args):
     """
     Show a list with suggested flavors to be created based on OneView's Server
     Profile Templates. The user can then select a flavor to create based on
     it's ID.
     """
+    if args.config_file is not "":
+        config_file = args.config_file
+
+    defaults = {
+        "ca_file": "",
+        "insecure": False,
+        "tls_cacert_file": "",
+        "allow_insecure_connections": False,
+    }
+
+    conf = ConfClient(config_file, defaults)
+    facade = Facade(conf)
+    ironic_cli = facade.ironicclient
+    nova_cli = facade.novaclient
     create_another_flavor_flag = True
     flavor_list = get_flavor_list(ironic_cli)
     flavor_list = list(flavor_list)

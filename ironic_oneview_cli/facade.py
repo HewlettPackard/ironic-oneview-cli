@@ -21,13 +21,13 @@
 from ironic_oneview_cli.oneview_client import OneViewClient
 from ironic_oneview_cli.openstack_client import OpenstackClient
 from ironic_oneview_cli.openstack_client import get_ironic_client
-
+from ironic_oneview_cli.openstack_client import get_nova_client
 
 class Facade(object):
 
     def __init__(self, config):
         self.ironicclient = get_ironic_client(config)
-#         self.oneviewclient =
+        self.novaclient = get_nova_client(config)
 
     #===============================================================================
     # Ironic actions
