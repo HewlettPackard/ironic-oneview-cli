@@ -40,7 +40,7 @@ class TestObjects(unittest.TestCase):
         self.assertEquals(extra_specs.get('cpu_arch'), 'arch')
         self.assertEquals(
             extra_specs.get('capabilities:server_profile_template_uri'),
-            's!= spt_uri')
+            'spt_uri')
         self.assertEquals(
             extra_specs.get('capabilities:server_hardware_type_uri'),
             'sht_uri')
@@ -54,7 +54,7 @@ class TestObjects(unittest.TestCase):
         self.assertEquals(extra_specs.get('cpu_arch'), 'arch')
         self.assertEquals(
             extra_specs.get('capabilities:server_profile_template_uri'),
-            's!= spt_uri')
+            'spt_uri')
         self.assertEquals(
             extra_specs.get('capabilities:server_hardware_type_uri'),
             'sht_uri')
