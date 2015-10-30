@@ -99,7 +99,6 @@ def do_flavor_create(args):
     facade = Facade(conf)
     ironic_cli = facade.ironicclient
     nova_cli = facade.novaclient
-    print nova_cli
     create_another_flavor_flag = True
     flavor_list = get_flavor_list(ironic_cli)
     flavor_list = list(flavor_list)
@@ -119,9 +118,11 @@ def do_flavor_create(args):
 
     while create_another_flavor_flag:
         create_another_flavor_flag = False
+        print flavor_list
         cliutils.print_list(
             flavor_list,
             ['id', 'cpus', 'disk', 'ram_mb'],
+            field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB'], 
             sortby_index=1)
         id = raw_input(
             "Insert flavor Id to add in OneView. Press 'q' to quit> ")

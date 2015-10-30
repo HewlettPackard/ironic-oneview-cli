@@ -146,8 +146,8 @@ class NodeCreator(object):
                     'Name',
                     'CPUs',
                     'Memory MB',
-                    'Local GB',
-                    'Server Group Name',
+                    'Disk GB',
+                    'Enclosure Group Name',
                     'Server Hardware Type Name'
                 ]
             )
