@@ -18,11 +18,11 @@
 
 import json
 import requests
-import oneview_uri
 
-import service_logging as logging
+from ironic_oneview_cli import oneview_uri
+from ironic_oneview_cli import service_logging as logging
+from ironic_oneview_cli.sync_exceptions import OneViewConnectionError
 
-from sync_exceptions import OneViewConnectionError
 
 LOG = logging.getLogger(__name__)
 
