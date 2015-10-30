@@ -16,15 +16,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from config import ConfClient
-
 from ironicclient import client as ironic_client
-
 from novaclient import client as nova_client
 
-from oneview_client import OneViewServerHardwareAPI
-
-import service_logging as logging
+from ironic_oneview_cli.config import ConfClient
+from ironic_oneview_cli.oneview_client import OneViewServerHardwareAPI
+from ironic_oneview_cli import service_logging as logging
 
 
 LOG = logging.getLogger(__name__)

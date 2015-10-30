@@ -145,6 +145,7 @@ def do_flavor_create(args):
         cliutils.print_list(
             [flavor],
             ['cpus', 'disk', 'ram_mb'],
+            field_labels=['CPUs', 'Disk GB', 'Memory MB'],
             sortby_index=2)
         flavor_name_default = _get_flavor_name(flavor)
         flavor_name = raw_input(

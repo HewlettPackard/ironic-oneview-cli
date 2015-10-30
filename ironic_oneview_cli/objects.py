@@ -1,6 +1,6 @@
 import abc
 import six
-from oneview_client import OneViewClient
+from ironic_oneview_cli.oneview_client import OneViewClient
 
 
 class Resource:
@@ -53,7 +53,7 @@ class Manager:
         objects = []
         items = self.api.list(**kwargs)
 
-        for i in xrange(len(items)):
+        for i in range(len(items)):
             objects.append(self._dict_to_object(items[i], i))
 
         return objects
@@ -87,7 +87,7 @@ class ServerProfileManager(Manager):
         objects = []
         templates = self.api.template_list()
 
-        for i in xrange(len(templates)):
+        for i in range(len(templates)):
             objects.append(self._dict_to_object(templates[i], i))
 
         return objects
