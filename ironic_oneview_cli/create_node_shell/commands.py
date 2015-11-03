@@ -164,7 +164,7 @@ class NodeCreator(object):
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
-            'driver': self.config.ironic.default_sync_driver,
+            'driver': self.config.ironic.default_driver,
             'driver_info': {
                 'deploy_kernel': self.config.ironic.default_deploy_kernel_id,
                 'deploy_ramdisk':
@@ -203,6 +203,8 @@ def do_node_create(args):
         "allow_insecure_connections": False,
     }
 
+    if not os.path.isfile(config_file):
+        do_genconfig(args)
     conf = ConfClient(config_file, defaults)
     node_creator = NodeCreator(conf)
     hardware_manager = ServerHardwareManager(conf)

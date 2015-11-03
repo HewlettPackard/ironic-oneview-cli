@@ -16,12 +16,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-# from oslo_config import cfg
-
 from ironic_oneview_cli.oneview_client import OneViewClient
 from ironic_oneview_cli.openstack_client import OpenstackClient
 from ironic_oneview_cli.openstack_client import get_ironic_client
 from ironic_oneview_cli.openstack_client import get_nova_client
+
 
 class Facade(object):
 
@@ -47,6 +46,8 @@ class Facade(object):
     def create_ironic_node(self, **attrs):
         return self.ironicclient.node.create(**attrs)
 
+    def get_drivers(self):
+        return self.ironicclient.driver.list()
     #===============================================================================
     # Nova actions
     #===============================================================================
@@ -74,3 +75,4 @@ class Facade(object):
 
     def get_ov_server_power_state(self, driver_info):
         return ov_client.server_hardware_api.get_node_power_state(driver_info)
+

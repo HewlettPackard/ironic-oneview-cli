@@ -6,7 +6,7 @@ auth_uri=<keystone url authentication>
 insecure=<allows insecure https connectinos to Ironic API>
 default_deploy_kernel_id=<your deploy kernel id>
 default_deploy_ramdisk_id=<your deploy ramdisk id>
-default_sync_driver=<default driver which will synchronize the nodes[fake_oneview_driver, pxe_oneview]>
+default_driver=<default driver which will synchronize the nodes[fake_oneview_driver, pxe_oneview]>
 
 
 [nova]
