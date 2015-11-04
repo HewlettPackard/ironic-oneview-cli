@@ -60,7 +60,7 @@ class TestIronic_oneview_cli(base.TestCase):
         ironic_client_kwargs = {
             'os_username': self.config.ironic.admin_user,
             'os_password': self.config.ironic.admin_password,
-            'os_auth_url': self.config.ironic.auth_uri,
+            'os_auth_url': self.config.ironic.auth_url,
             'os_tenant_name': self.config.ironic.admin_tenant_name,
             'os_ironic_api_version': 1.11,
             'insecure': self.config.ironic.insecure

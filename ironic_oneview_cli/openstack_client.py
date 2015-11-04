@@ -31,9 +31,9 @@ IRONIC_API_VERSION = '1.11'
 
 def get_ironic_client(conf):
     kwargs = {
-        'os_username': conf.ironic.admin_user,
+        'os_username': conf.ironic.admin_username,
         'os_password': conf.ironic.admin_password,
-        'os_auth_url': conf.ironic.auth_uri,
+        'os_auth_url': conf.ironic.auth_url,
         'os_tenant_name': conf.ironic.admin_tenant_name,
         'os_ironic_api_version': IRONIC_API_VERSION,
     }

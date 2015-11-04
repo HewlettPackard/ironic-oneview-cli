@@ -118,7 +118,6 @@ def do_flavor_create(args):
 
     while create_another_flavor_flag:
         create_another_flavor_flag = False
-        print flavor_list
         cliutils.print_list(
             flavor_list,
             ['id', 'cpus', 'disk', 'ram_mb'],

@@ -28,12 +28,13 @@ LOG = logging.getLogger(__name__)
 
 class ConfClient:
     def __init__(self, configname, defaults={}):
-        self._CONF = ConfigParser.ConfigParser()
+        #self._CONF = ConfigParser.ConfigParser()
+        self._CONF = ConfigParser.SafeConfigParser(defaults)
         if os.path.exists(configname):
             path = os.path.realpath(os.path.expanduser(configname))
-            self._CONF.read_file(open(path))
-        self._CONF.read_dict(defaults)
-        raise Exception(self._CONF.items())
+            self._CONF.readfp(open(path))
+        #self._CONF.read_dict(defaults)
+        #raise Exception(self._CONF.items())
 
     def __getattr__(self, section):
 
@@ -50,3 +51,4 @@ class ConfClient:
 
         ret = Section(self._CONF.items(section))
         return ret
+
