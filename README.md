@@ -1,6 +1,6 @@
 # ironic-oneview CLI
 
-## Introduction
+## Overview
 
 The ironic-oneview is a command line interface tool for easing the use of OneView Driver for Ironic. 
 It allows a OneView Driver user to create Ironic nodes and Nova flavors which are compatible with 
@@ -20,7 +20,15 @@ Ironic, Nova and OneView, after get this credentials the tool creates a default 
 the default python path.
 
 ## Configuration
-how configure?
+
+You can generate a configuration file using the follow command:
+
+```
+ironic-oneview genconfig
+```
+
+The tool will now prompt you to type each credential needed to run it. In the end the tool prompt
+you to type the path where the config file will be saved.
 
 If you want to pass a configuration file you can execute the CLI tool commands passing a --config-file or -c
 parameter as in the example below:
