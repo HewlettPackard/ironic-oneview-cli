@@ -26,7 +26,7 @@ class Facade(object):
     def __init__(self, config):
         self.ironicclient = get_ironic_client(config)
         self.novaclient = get_nova_client(config)
-        self.oneviewclient = get_oneview_client(config)
+        self.ovclient = get_oneview_client(config)
 
     # =========================================================================
     # Ironic actions
@@ -61,41 +61,35 @@ class Facade(object):
     # =========================================================================
     def prepare_and_do_ov_requests(self, uri, body={}, request_type='GET',
                                    api_version='120'):
-        return self.oneviewclient.prepare_and_do_request(uri,
-                                                         body,
-                                                         request_type,
-                                                         api_version)
+        return self.ovclient.prepare_and_do_request(uri,
+                                                    body,
+                                                    request_type,
+                                                    api_version)
 
     def get_server_hardware(self, uri):
-        return self.oneviewclient.server_hardware.get_server_hardware(uri)
+        return self.ovclient.server_hardware.get_server_hardware(uri)
 
     def get_server_profile_assigned_to_sh(self, server_hardware_uri):
-        return self.oneviewclient.server_hardware.get_server_profile_assigned_to_sh(server_hardware_uri)
+        return self.ovclient.server_hardware.get_server_profile_assigned_to_sh(
+            server_hardware_uri)
 
     def parse_server_hardware_to_dict(self, server_hardware_json):
-        return self.oneviewclient.server_hardware.parse_server_hardware_to_dict(server_hardware_json)
+        return self.ovclient.server_hardware.parse_server_hardware_to_dict(
+            server_hardware_json)
 
     def get_ov_server_hardware_list(self,):
-        return self.oneviewclient.server_hardware.get_server_hardware_list()
-
-#     def get_ov_server_power_state(self, driver_info):
-#         return self.oneviewclient.server_hardware.get_node_power_state(driver_info)
+        return self.ovclient.server_hardware.get_server_hardware_list()
 
     def get_server_profile(self, server_profile_uri):
-        return self.oneviewclient.server_profile.get_server_profile_template(server_profile_uri)
-
-    def generate_and_assign_server_profile_from_server_profile_template(
-            self, server_profile_template_uri, server_profile_name,
-            server_profile_server_hardware_uri):
-        return self.oneviewclient.server_profile.generate_and_assign_server_profile_from_server_profile_template(
-            server_profile_template_uri, server_profile_name,
-            server_profile_server_hardware_uri)
+        return self.ovclient.server_profile.get_server_profile_template(
+            server_profile_uri)
 
     def clone_and_assign_server_profile(self, server_hardware_uri,
-                                        server_profile_template_uri, node_uuid):
-        return self.oneviewclient.server_profile.clone_and_assign(
+                                        server_profile_template_uri,
+                                        node_uuid):
+        return self.ovclient.server_profile.clone_and_assign(
             server_hardware_uri, server_profile_template_uri, node_uuid)
 
     def unassign_server_profile(self, server_hardware_uri, server_profile_uri):
-        return self.oneviewclient.server_profile.unassign_server_profile(
+        return self.ovclient.server_profile.unassign_server_profile(
             server_hardware_uri, server_profile_uri)
