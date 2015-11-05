@@ -31,12 +31,15 @@ from oslo_utils import encodeutils
 
 from create_node_shell import commands as node_create_commands
 from create_flavor_shell import commands as flavor_create_commands
+from genconfig import commands as genconfig_commands
 
 
 VERSION = '1.0'
 
 COMMAND_MODULES = [
-    node_create_commands, flavor_create_commands
+    node_create_commands,
+    flavor_create_commands,
+    genconfig_commands
 ]
 
 
@@ -63,9 +66,9 @@ class IronicOneView(object):
                             version=VERSION)
 
         parser.add_argument('-c', '--config-file',
-                            default='/etc/ironic-oneview-cli/'
-                                    'ironic-oneview-cli.conf',
-                            help='Default path to configuration file')
+                            default='~/ironic-oneview-cli.conf',
+                            help=('Default path to configuration file. '
+                                  'Defaults to `~/ironic-oneview-cli.conf`'))
 
         return parser
 

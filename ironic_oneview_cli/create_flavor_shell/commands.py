@@ -118,11 +118,10 @@ def do_flavor_create(args):
 
     while create_another_flavor_flag:
         create_another_flavor_flag = False
-        print flavor_list
         cliutils.print_list(
             flavor_list,
             ['id', 'cpus', 'disk', 'ram_mb'],
-            field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB'], 
+            field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB'],
             sortby_index=1)
         id = raw_input(
             "Insert flavor Id to add in OneView. Press 'q' to quit> ")
@@ -154,14 +153,14 @@ def do_flavor_create(args):
 
         if flavor_name == "q":
             break
-        
+
         if len(flavor_name) == 0:
             flavor_name = flavor_name_default
 
         nova_flavor = nova_cli.flavors.create(
             flavor_name, flavor.ram_mb, flavor.cpus, flavor.disk)
         nova_flavor.set_keys(flavor.extra_specs())
-        
+
         print('Flavor created!\n')
         while True:
             response = raw_input('Would you like to create another flavor? [Y/n] ')
@@ -172,4 +171,4 @@ def do_flavor_create(args):
                 create_another_flavor_flag = True
                 break
             else:
-                print 'Invalid option'
+                print('Invalid option')

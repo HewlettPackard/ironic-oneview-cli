@@ -16,6 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
 import sys
 
 from ironic_oneview_cli.facade import Facade
@@ -23,6 +24,7 @@ from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.openstack.common import cliutils
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
+from ironic_oneview_cli.genconfig.commands import do_genconfig
 
 
 server_hardware_manager = None
@@ -164,7 +166,7 @@ class NodeCreator(object):
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
-            'driver': self.config.ironic.default_sync_driver,
+            'driver': self.config.ironic.default_driver,
             'driver_info': {
                 'deploy_kernel': self.config.ironic.default_deploy_kernel_id,
                 'deploy_ramdisk':
@@ -194,7 +196,7 @@ def do_node_create(args):
     """Show a list of OneView servers to be created as nodes in Ironic
     """
     if args.config_file is not "":
-        config_file = args.config_file
+        config_file = os.path.realpath(os.path.expanduser(args.config_file))
 
     defaults = {
         "ca_file": "",
@@ -202,6 +204,14 @@ def do_node_create(args):
         "tls_cacert_file": "",
         "allow_insecure_connections": False,
     }
+
+    if not os.path.isfile(config_file):
+        create = raw_input("Config file not found on `%s`. Would you like to"
+                           " create one now [Y/n]?: " % config_file) or 'y'
+        if create.lower() == 'y':
+            do_genconfig(args)
+        else:
+            return
 
     conf = ConfClient(config_file, defaults)
     node_creator = NodeCreator(conf)
