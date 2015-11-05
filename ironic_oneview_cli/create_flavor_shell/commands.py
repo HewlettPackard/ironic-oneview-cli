@@ -16,12 +16,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import argparse
-
-from ironic_oneview_cli.facade import Facade
-from ironic_oneview_cli.config import ConfClient
 from ironicclient.openstack.common import cliutils
-from objects import Flavor
+
+from ironic_oneview_cli.config import ConfClient
+from ironic_oneview_cli.create_flavor_shell.objects import Flavor
+from ironic_oneview_cli.facade import Facade
 
 
 def _get_flavor_name(flavor):
@@ -80,10 +79,12 @@ def get_flavor_list(ironic_client):
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
               help="Show detailed information about the nodes.")
 def do_flavor_create(args):
-    """
+    """Creates flavors based on OneView available Server Hardware.
+
     Show a list with suggested flavors to be created based on OneView's Server
     Profile Templates. The user can then select a flavor to create based on
     it's ID.
+
     """
     if args.config_file is not "":
         config_file = args.config_file
@@ -148,8 +149,8 @@ def do_flavor_create(args):
             sortby_index=2)
         flavor_name_default = _get_flavor_name(flavor)
         flavor_name = raw_input(
-            "Insert the name of the flavor. Leave blank for [" + flavor_name_default +
-            "] (press 'q' to quit)> ")
+            "Insert the name of the flavor. Leave blank for [" +
+            flavor_name_default + "] (press 'q' to quit)> ")
 
         if flavor_name == "q":
             break
@@ -163,7 +164,8 @@ def do_flavor_create(args):
 
         print('Flavor created!\n')
         while True:
-            response = raw_input('Would you like to create another flavor? [Y/n] ')
+            response = raw_input('Would you like to create another flavor '
+                                 '[Y/n]?: ')
             if response == 'n':
                 create_another_flavor_flag = False
                 break

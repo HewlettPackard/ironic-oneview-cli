@@ -72,7 +72,7 @@ def get_nova_client(conf):
     return nova
 
 
-class OpenstackClient:
+class OpenstackClient(object):
     def __init__(self, configname, **kwargs):
         self.conf_client = ConfClient(configname)
         self.ca_file = kwargs.get('os_cacert')
@@ -93,20 +93,19 @@ class OpenstackClient:
             extra_specs = flavor.get_keys()
             if('capabilities:server_hardware_type_uri' in extra_specs):
                 if(extra_specs.get('capabilities:server_hardware_type_uri') !=
-                    server_hardware_info.get('server_hardware_type_uri')):
+                   server_hardware_info.get('server_hardware_type_uri')):
                     continue
                 if(extra_specs.get('cpu_arch') !=
-                    server_hardware_info.get('cpu_arch')):
+                   server_hardware_info.get('cpu_arch')):
                     continue
                 if(flavor._info.get('vcpus') !=
-                    server_hardware_info.get('cpus')):
+                   server_hardware_info.get('cpus')):
                     continue
                 if(flavor._info.get('ram') !=
-                    server_hardware_info.get('memory_mb')):
+                   server_hardware_info.get('memory_mb')):
                     continue
                 return True
         return False
-
 
     def flavor_list(self):
         nova_client = self.get_nova_client()

@@ -20,18 +20,19 @@ Command-line interface to the OneView Sync.
 """
 
 from __future__ import print_function
-
 import argparse
-import sys
 import six
+import sys
 
-from openstack.common import cliutils
-from openstack.common._i18n import _
 from oslo_utils import encodeutils
 
-from create_node_shell import commands as node_create_commands
-from create_flavor_shell import commands as flavor_create_commands
-from genconfig import commands as genconfig_commands
+from ironic_oneview_cli.create_flavor_shell import commands \
+    as flavor_create_commands
+from ironic_oneview_cli.create_node_shell import commands \
+    as node_create_commands
+from ironic_oneview_cli.genconfig import commands as genconfig_commands
+from ironic_oneview_cli.openstack.common._i18n import _
+from ironic_oneview_cli.openstack.common import cliutils
 
 
 VERSION = '1.0'
@@ -112,11 +113,13 @@ class IronicOneView(object):
 
 
 def define_command(subparsers, command, callback, cmd_mapper):
-    '''Define a command in the subparsers collection.
+    """Define a command in the subparsers collection.
+
     :param subparsers: subparsers collection where the command will go
     :param command: command name
     :param callback: function that will be used to process the command
-    '''
+
+    """
     desc = callback.__doc__ or ''
     help = desc.strip().split('\n')[0]
     arguments = getattr(callback, 'arguments', [])

@@ -15,12 +15,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslotest import base
-
 import unittest
 
+
 class TestCase(unittest.TestCase):
-
-#class TestCase(base.BaseTestCase):
-
     """Test case base class for all unit tests."""
+    pass

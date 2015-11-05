@@ -19,12 +19,12 @@
 import os
 import sys
 
-from ironic_oneview_cli.facade import Facade
 from ironic_oneview_cli.config import ConfClient
-from ironic_oneview_cli.openstack.common import cliutils
+from ironic_oneview_cli.facade import Facade
+from ironic_oneview_cli.genconfig.commands import do_genconfig
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
-from ironic_oneview_cli.genconfig.commands import do_genconfig
+from ironic_oneview_cli.openstack.common import cliutils
 
 
 server_hardware_manager = None
@@ -57,7 +57,7 @@ class NodeCreator(object):
             for element in element_list:
                 if element.id == int(element_id):
                     return element
-        except:
+        except Exception:
             return None
 
     def assign_elements_with_new_id(self, element_list):
@@ -194,6 +194,7 @@ class NodeCreator(object):
               help="Show detailed information about the nodes.")
 def do_node_create(args):
     """Show a list of OneView servers to be created as nodes in Ironic
+
     """
     if args.config_file is not "":
         config_file = os.path.realpath(os.path.expanduser(args.config_file))
@@ -275,6 +276,5 @@ def do_node_create(args):
             ]
         )
 
-        node_uuid = node_creator.create_node(server_hardware_selected,
-                                              template_selected)
+        node_creator.create_node(server_hardware_selected, template_selected)
         print('Node created!')

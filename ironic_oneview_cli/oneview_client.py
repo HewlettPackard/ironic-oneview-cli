@@ -31,7 +31,22 @@ ONEVIEW_POWER_OFF = 'Off'
 ONEWVIE_REST_API_VERSION = '200'
 
 
-class OneViewRequestAPI:
+def get_oneview_client(conf):
+    kwargs = {
+        'username': conf.oneview.username,
+        'password': conf.oneview.password,
+        'manager_url': conf.oneview.manager_url,
+        'allow_insecure_connections': False,
+        'tls_cacert_file': ''
+    }
+    if conf.oneview.allow_insecure_connections.lower() == 'true':
+        kwargs['allow_insecure_connections'] = True
+    if conf.oneview.tls_cacert_file:
+        kwargs['tls_cacert_file'] = conf.oneview.tls_cacert_file
+    return OneViewClient(**kwargs)
+
+
+class OneViewRequestAPI(object):
     def __init__(self, manager_url, username, password,
                  allow_insecure_connections, tls_cacert_file):
         self.token = None
@@ -85,7 +100,7 @@ class OneViewRequestAPI:
             try:
                 json_response = r.json()
                 repeat = self._check_request_status(r)
-            except:
+            except Exception:
                 repeat = True
         return json_response.get('sessionID')
 
@@ -137,7 +152,7 @@ class OneViewRequestAPI:
             try:
                 json_response = r.json()
                 repeat = self._check_request_status(r)
-            except Exception as ex:
+            except Exception:
                 repeat = True
         return json_response
 
@@ -203,18 +218,18 @@ class OneViewServerHardwareAPI(ResourceAPI):
             fields['serverProfileUri'] = None
         return self._list(uri, fields)
 
-    def get_node_power_state(self, server_hardware_uri):
-        power_state = self.prepare_and_do_request(
-            uri=server_hardware_uri,
-            request_type='GET').get('powerState')
-        if power_state == 'On' or power_state == 'PoweringOff':
-            return states.POWER_ON
-        elif power_state == 'Off' or power_state == 'PoweringOn':
-            return states.POWER_OFF
-        elif power_state == 'Resetting':
-            return states.REBOOT
-        else:
-            return states.ERROR
+#     def get_node_power_state(self, server_hardware_uri):
+#         power_state = self.prepare_and_do_request(
+#             uri=server_hardware_uri,
+#             request_type='GET').get('powerState')
+#         if power_state == 'On' or power_state == 'PoweringOff':
+#             return states.POWER_ON
+#         elif power_state == 'Off' or power_state == 'PoweringOn':
+#             return states.POWER_OFF
+#         elif power_state == 'Resetting':
+#             return states.REBOOT
+#         else:
+#             return states.ERROR
 
     def parse_server_hardware_to_dict(self, server_hardware):
         port_map = server_hardware.get('portMap')
@@ -250,7 +265,7 @@ class OneViewServerProfileAPI(ResourceAPI):
                 server_profile.get('serverHardwareUri') is None]
 
 
-class OneViewClient:
+class OneViewClient(object):
     def __init__(self, manager_url, username, password,
                  allow_insecure_connections, tls_cacert_file):
         self.certificate = OneViewCertificateAPI(

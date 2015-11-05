@@ -25,7 +25,7 @@ import ironic_oneview_cli.service_logging as logging
 LOG = logging.getLogger(__name__)
 
 
-class ConfClient:
+class ConfClient(object):
     def __init__(self, configname, defaults={}):
         self._CONF = ConfigParser.SafeConfigParser(defaults)
         if os.path.exists(configname):

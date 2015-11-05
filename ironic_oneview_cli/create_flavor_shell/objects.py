@@ -19,7 +19,7 @@
 import six
 
 
-class Flavor:
+class Flavor(object):
     def __init__(self, id, info):
         self.id = id
         self._info = info
@@ -65,7 +65,7 @@ class Flavor:
         self.id = id
 
 
-class ServerProfile:
+class ServerProfile(object):
     def __init__(self, info):
         self._info = info
         self._add_details(info)
