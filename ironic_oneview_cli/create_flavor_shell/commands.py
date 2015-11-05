@@ -16,11 +16,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from ironicclient.openstack.common import cliutils
+import os
 
 from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.facade import Facade
+from ironic_oneview_cli.openstack.common import cliutils
 
 
 def _get_flavor_name(flavor):
@@ -76,8 +77,6 @@ def get_flavor_list(ironic_client):
     return set(flavors)
 
 
-@cliutils.arg('--detail', dest='detail', action='store_true', default=False,
-              help="Show detailed information about the nodes.")
 def do_flavor_create(args):
     """Creates flavors based on OneView available Server Hardware.
 
@@ -87,7 +86,7 @@ def do_flavor_create(args):
 
     """
     if args.config_file is not "":
-        config_file = args.config_file
+        config_file = os.path.realpath(os.path.expanduser(args.config_file))
 
     defaults = {
         "ca_file": "",
