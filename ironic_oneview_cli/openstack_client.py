@@ -19,8 +19,6 @@
 from ironicclient import client as ironic_client
 from novaclient import client as nova_client
 
-from ironic_oneview_cli.config import ConfClient
-from ironic_oneview_cli.oneview_client import OneViewServerHardwareAPI
 from ironic_oneview_cli import service_logging as logging
 
 
@@ -70,43 +68,3 @@ def get_nova_client(conf):
                               kwargs['insecure'],
                               kwargs['ca_file'])
     return nova
-
-
-class OpenstackClient(object):
-    def __init__(self, configname, **kwargs):
-        self.conf_client = ConfClient(configname)
-        self.ca_file = kwargs.get('os_cacert')
-        self.insecure = kwargs.get('os_insecure', False)
-
-    def _update_ironic_node_state(self, node, server_hardware_uri):
-        oneview_sh_client = OneViewServerHardwareAPI()
-        state = oneview_sh_client.get_node_power_state(server_hardware_uri)
-
-        LOG.info('Setting node %(node_uuid)s power state to %(state)s',
-                 {'node_uuid': node.uuid, 'state': state})
-
-        self._get_ironic_client().node.set_power_state(node.uuid, state)
-
-    def _is_flavor_available(self, server_hardware_info):
-        LOG.info("Getting flavors from nova")
-        for flavor in self.get_nova_client().flavors.list():
-            extra_specs = flavor.get_keys()
-            if('capabilities:server_hardware_type_uri' in extra_specs):
-                if(extra_specs.get('capabilities:server_hardware_type_uri') !=
-                   server_hardware_info.get('server_hardware_type_uri')):
-                    continue
-                if(extra_specs.get('cpu_arch') !=
-                   server_hardware_info.get('cpu_arch')):
-                    continue
-                if(flavor._info.get('vcpus') !=
-                   server_hardware_info.get('cpus')):
-                    continue
-                if(flavor._info.get('ram') !=
-                   server_hardware_info.get('memory_mb')):
-                    continue
-                return True
-        return False
-
-    def flavor_list(self):
-        nova_client = self.get_nova_client()
-        return nova_client.flavors.list()
