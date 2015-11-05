@@ -24,6 +24,7 @@ from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.openstack.common import cliutils
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
+from ironic_oneview_cli.genconfig.commands import do_genconfig
 
 
 server_hardware_manager = None
@@ -195,7 +196,7 @@ def do_node_create(args):
     """Show a list of OneView servers to be created as nodes in Ironic
     """
     if args.config_file is not "":
-        config_file = args.config_file
+        config_file = os.path.realpath(os.path.expanduser(args.config_file))
 
     defaults = {
         "ca_file": "",
@@ -205,7 +206,13 @@ def do_node_create(args):
     }
 
     if not os.path.isfile(config_file):
-        do_genconfig(args)
+        create = raw_input("Config file not found on `%s`. Would you like to"
+                           " create one now [Y/n]?: " % config_file) or 'y'
+        if create.lower() == 'y':
+            do_genconfig(args)
+        else:
+            return
+
     conf = ConfClient(config_file, defaults)
     node_creator = NodeCreator(conf)
     hardware_manager = ServerHardwareManager(conf)

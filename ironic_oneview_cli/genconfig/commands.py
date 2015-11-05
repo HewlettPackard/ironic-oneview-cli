@@ -37,7 +37,7 @@ def do_genconfig(args):
     default_deploy_kernel = raw_input("Type in the default deploy keynel image"
                                       " ID on Glance: ")
     default_deploy_ramdisk = raw_input("Type in the default deploy ramdisk "
-                                      "image ID on Glance: ")
+                                       "image ID on Glance: ")
 
 # #     defaults = {
 # #         "ironic":{
@@ -48,21 +48,13 @@ def do_genconfig(args):
 # #             "insecure": ironic_insecure,
 # #         }
 # #     }
-#     defaults = {
-#         "ironic": {
-#             "auth_uri": 'https://10.4.3.80:5000/v2.0',
-#             "admin_user": 'admin',
-#             "admin_tenant": 'admin',
-#             "admin_password": 'admin@ADMIN!',
-#             "insecure": True,
-#         }
-#     }
 #     conf = ConfClient('', defaults)
 #     facade = Facade(conf)
 #     enabled_drivers = facade.get_drivers()
+    # TODO(thiagop): get drivers enabled with ironicclient
     enabled_drivers = ['agent_pxe_oneview', 'iscsi_pxe_oneview']
-    ironic_default_driver = raw_input("Which driver would you like to use? %s: "
-                                      % enabled_drivers)
+    ironic_default_driver = raw_input(("Which driver would you like to use? "
+                                       "[%s]: ") % ','.join(enabled_drivers))
 
     option = raw_input("Would you like to configure different credentials for"
                        " nova? [y/N]: ")
@@ -116,6 +108,9 @@ def do_genconfig(args):
     filename = raw_input("Type the path to the new configuration file [%s]: "
                          % args.config_file) or args.config_file
     full_filename = os.path.realpath(os.path.expanduser(filename))
+    directory = os.path.dirname(full_filename)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     with open(full_filename, 'w') as configfile:
         config.write(configfile)
         print("======\nFile created successfully on '%s'!\n======" % filename)

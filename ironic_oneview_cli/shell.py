@@ -66,9 +66,9 @@ class IronicOneView(object):
                             version=VERSION)
 
         parser.add_argument('-c', '--config-file',
-                            default='/etc/ironic-oneview-cli/'
-                                    'ironic-oneview-cli.conf',
-                            help='Default path to configuration file')
+                            default='~/ironic-oneview-cli.conf',
+                            help=('Default path to configuration file. '
+                                  'Defaults to `~/ironic-oneview-cli.conf`'))
 
         return parser
 
