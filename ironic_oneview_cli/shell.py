@@ -84,7 +84,7 @@ class IronicOneView(object):
     @cliutils.arg('command', metavar='<subcommand>', nargs='?',
                   help='Display help for <subcommand>')
     def do_help(self, args):
-        """Display help about this program or one of its subcommands."""
+        """Displays help about this program or one of its subcommands."""
         if getattr(args, 'command', None):
             if args.command in self.subcommands:
                 self.subcommands[args.command].print_help()
@@ -113,7 +113,7 @@ class IronicOneView(object):
 
 
 def define_command(subparsers, command, callback, cmd_mapper):
-    """Define a command in the subparsers collection.
+    """Defines a command in the subparsers collection.
 
     :param subparsers: subparsers collection where the command will go
     :param command: command name
@@ -137,7 +137,7 @@ def define_command(subparsers, command, callback, cmd_mapper):
 
 
 def define_commands_from_module(subparsers, command_module, cmd_mapper):
-    """Add *do_* methods in a module and add as commands into a subparsers."""
+    """Adds *do_* methods in a module and add as commands into a subparsers."""
 
     for method_name in (a for a in dir(command_module) if a.startswith('do_')):
         # Commands should be hypen-separated instead of underscores.

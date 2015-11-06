@@ -41,6 +41,11 @@ def get_oneview_client(conf):
     }
     if conf.oneview.allow_insecure_connections.lower() == 'true':
         kwargs['allow_insecure_connections'] = True
+        print(
+            "InsecureRequestWarning: Unverified HTTPS requests are being made."
+            " Adding certificate verification is strongly advised. See: "
+            "https://urllib3.readthedocs.org/en/latest/security.html"
+        )
     if conf.oneview.tls_cacert_file:
         kwargs['tls_cacert_file'] = conf.oneview.tls_cacert_file
     return OneViewClient(**kwargs)
@@ -71,6 +76,7 @@ class OneViewRequestAPI(object):
     def _try_execute_request(self, url, request_type, body, headers,
                              verify_status):
         try:
+            requests.packages.urllib3.disable_warnings()
             return requests.request(request_type, url, data=json.dumps(body),
                                     headers=headers, verify=verify_status)
         except requests.RequestException as ex:
@@ -217,19 +223,6 @@ class OneViewServerHardwareAPI(ResourceAPI):
                 fields = {}
             fields['serverProfileUri'] = None
         return self._list(uri, fields)
-
-#     def get_node_power_state(self, server_hardware_uri):
-#         power_state = self.prepare_and_do_request(
-#             uri=server_hardware_uri,
-#             request_type='GET').get('powerState')
-#         if power_state == 'On' or power_state == 'PoweringOff':
-#             return states.POWER_ON
-#         elif power_state == 'Off' or power_state == 'PoweringOn':
-#             return states.POWER_OFF
-#         elif power_state == 'Resetting':
-#             return states.REBOOT
-#         else:
-#             return states.ERROR
 
     def parse_server_hardware_to_dict(self, server_hardware):
         port_map = server_hardware.get('portMap')

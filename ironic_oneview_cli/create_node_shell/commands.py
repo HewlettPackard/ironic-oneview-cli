@@ -193,9 +193,7 @@ class NodeCreator(object):
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
               help="Show detailed information about the nodes.")
 def do_node_create(args):
-    """Show a list of OneView servers to be created as nodes in Ironic
-
-    """
+    """Creates nodes in Ironic given a list of available OneView servers."""
     if args.config_file is not "":
         config_file = os.path.realpath(os.path.expanduser(args.config_file))
 
@@ -219,7 +217,7 @@ def do_node_create(args):
     hardware_manager = ServerHardwareManager(conf)
     profile_manager = ServerProfileManager(conf)
 
-    print("Retrieving Server Profile Templates from OneView...\n")
+    print("Retrieving Server Profile Templates from OneView...")
 
     available_hardware = node_creator.list_server_hardware_not_enrolled(
         hardware_manager.list(only_available=True)

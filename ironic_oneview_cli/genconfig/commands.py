@@ -36,23 +36,11 @@ def do_genconfig(args):
     ironic_insecure = raw_input("Would you like the connections with Ironic to"
                                 " be insecure? [y/N]: ") or "N"
     ironic_insecure = True if ironic_insecure.lower() == 'y' else False
-    default_deploy_kernel = raw_input("Type in the default deploy keynel image"
+    default_deploy_kernel = raw_input("Type in the default deploy kernel image"
                                       " ID on Glance: ")
     default_deploy_ramdisk = raw_input("Type in the default deploy ramdisk "
                                        "image ID on Glance: ")
 
-# #     defaults = {
-# #         "ironic":{
-# #             "auth_uri": ironic_auth_uri,
-# #             "admin_user": ironic_username,
-# #             "admin_tenant": ironic_tenant,
-# #             "admin_password": ironic_password,
-# #             "insecure": ironic_insecure,
-# #         }
-# #     }
-#     conf = ConfClient('', defaults)
-#     facade = Facade(conf)
-#     enabled_drivers = facade.get_drivers()
     # TODO(thiagop): get drivers enabled with ironicclient
     enabled_drivers = ['agent_pxe_oneview', 'iscsi_pxe_oneview']
     ironic_default_driver = raw_input(("Which driver would you like to use? "
