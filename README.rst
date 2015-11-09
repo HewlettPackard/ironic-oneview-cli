@@ -34,7 +34,9 @@ You can generate a configuration file using the follow command:
 
     ironic-oneview genconfig
 
-The tool will now prompt you to type each credential needed to run it.
+The tool will now prompt you to type each credential, from Ironic,
+Nova and OneView, needed to run it. (Those will be used by all the
+functionalities of the tool)
 In the end the tool prompt you to type the path where the config file
 will be saved.
 
