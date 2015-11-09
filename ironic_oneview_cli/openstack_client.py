@@ -18,7 +18,9 @@
 
 from ironicclient import client as ironic_client
 from novaclient import client as nova_client
-
+from keystoneclient.v2_0 import client as ksclient
+from keystoneclient import session as ksession
+from keystoneclient.auth.identity import v2
 from ironic_oneview_cli import service_logging as logging
 
 
@@ -26,25 +28,69 @@ LOG = logging.getLogger(__name__)
 
 IRONIC_API_VERSION = '1.11'
 
+# DEPRECATED: Waiting fix on bug
+# https://bugs.launchpad.net/python-ironicclient/+bug/1513481
+def get_keystone_client(**kwargs):
+    """Get an endpoint and auth token from Keystone.
+
+    :param kwargs: keyword args containing credentials:
+            * username: name of user
+            * password: user's password
+            * auth_url: endpoint to authenticate against
+            * insecure: allow insecure SSL (no cert verification)
+            * tenant_{name|id}: name or ID of tenant
+    """
+    return ksclient.Client(username=kwargs.get('username'),
+                           password=kwargs.get('password'),
+                           tenant_id=kwargs.get('tenant_id'),
+                           tenant_name=kwargs.get('tenant_name'),
+                           auth_url=kwargs.get('auth_url'),
+                           insecure=kwargs.get('insecure'),
+                           cacert=kwargs.get('ca_cert'))
+
+def get_endpoint(client, **kwargs):
+    """Get an endpoint using the provided keystone client."""
+    attr = None
+    filter_value = None
+    if kwargs.get('region_name'):
+        attr = 'region'
+        filter_value = kwargs.get('region_name')
+    return client.service_catalog.url_for(
+        service_type=kwargs.get('service_type') or 'baremetal',
+        attr=attr,
+        filter_value=filter_value,
+        endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
 
 def get_ironic_client(conf):
-    kwargs = {
-        'os_username': conf.ironic.admin_user,
-        'os_password': conf.ironic.admin_password,
-        'os_auth_url': conf.ironic.auth_url,
-        'os_tenant_name': conf.ironic.admin_tenant_name,
-        'os_ironic_api_version': IRONIC_API_VERSION,
+    endpoint_type = 'publicURL'
+    service_type = 'baremetal'
+
+    ks_kwargs = {
+        'username': conf.ironic.admin_user,
+        'password': conf.ironic.admin_password,
+        #'tenant_id': kwargs.get('os_tenant_id'),
+        'tenant_name': conf.ironic.admin_tenant_name,
+        'auth_url': conf.ironic.auth_url,
+        'service_type': service_type,
+        'endpoint_type': endpoint_type,
+        'insecure': conf.ironic.insecure,
+        'ca_file': conf.ironic.ca_file,
     }
-    if conf.ironic.insecure.lower() == 'true':
-        kwargs['insecure'] = True
-    if conf.ironic.ca_file:
-        kwargs['ca_file'] = conf.ironic.ca_file
+    ksclient = get_keystone_client(**ks_kwargs)
+    token = ksclient.auth_token
+    endpoint = get_endpoint(ksclient, **ks_kwargs)
+    auth_ref = ksclient.auth_ref
 
-    LOG.debug("Using OpenStack credentials specified in the configuration file"
-              " to get Ironic Client")
-    ironicclient = ironic_client.get_client(1, **kwargs)
-    return ironicclient
+    cli_kwargs = {
+        'token': token,
+        'auth_ref': auth_ref,
+    }
 
+    cli_kwargs['insecure'] = conf.ironic.insecure
+    cli_kwargs['ca_file'] = conf.ironic.ca_file
+    cli_kwargs['os_ironic_api_version'] = IRONIC_API_VERSION
+
+    return ironic_client.Client(1, endpoint, **cli_kwargs)
 
 def get_nova_client(conf):
     kwargs = {
