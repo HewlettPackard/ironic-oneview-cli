@@ -29,7 +29,7 @@ accordingly, run::
 
     ironic-oneview genconfig
 
-This tool asks you for such information and creates a *~/ironic-oneview.conf*
+This tool asks you for such information and creates a *~/ironic-oneview-cli.conf*
 configuration file located at your home directory by default, or other
 location of your choice.
 
@@ -62,7 +62,7 @@ If you prefer to create your own configuration file, it should look like this::
 Usage
 =====
 
-If your *~/ironic-oneview.conf* configuration file is in your home directory, 
+If your *~/ironic-oneview-cli.conf* configuration file is in your home directory, 
 the tool will automatically use this conf. In this case, to run
 ironic-oneview-cli, do::
 
