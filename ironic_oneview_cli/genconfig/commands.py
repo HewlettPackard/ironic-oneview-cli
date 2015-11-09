@@ -36,6 +36,9 @@ def do_genconfig(args):
     ironic_insecure = raw_input("Would you like the connections with Ironic to"
                                 " be insecure? [y/N]: ") or "N"
     ironic_insecure = True if ironic_insecure.lower() == 'y' else False
+    ironic_ca_file = ""
+    if not ironic_insecure:
+        ironic_ca_file = raw_input("Type the path to the Ironic ca_file: ")
     default_deploy_kernel = raw_input("Type in the default deploy kernel image"
                                       " ID on Glance: ")
     default_deploy_ramdisk = raw_input("Type in the default deploy ramdisk "
@@ -83,6 +86,7 @@ def do_genconfig(args):
     config.set("ironic", "default_deploy_kernel_id", default_deploy_kernel)
     config.set("ironic", "default_deploy_ramdisk_id", default_deploy_ramdisk)
     config.set("ironic", "default_driver", ironic_default_driver)
+    config.set("ironic", "ca_file", ironic_ca_file)
     config.add_section("nova")
     config.set("nova", "auth_url", nova_auth_url)
     config.set("nova", "username", nova_username)
