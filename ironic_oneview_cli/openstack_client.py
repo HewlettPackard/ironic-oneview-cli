@@ -62,19 +62,19 @@ def get_endpoint(client, **kwargs):
         endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
 
 def get_ironic_client(conf):
+    insecure = True if conf.ironic.insecure.lower() == 'true' else False
     endpoint_type = 'publicURL'
     service_type = 'baremetal'
 
     ks_kwargs = {
         'username': conf.ironic.admin_user,
         'password': conf.ironic.admin_password,
-        #'tenant_id': kwargs.get('os_tenant_id'),
         'tenant_name': conf.ironic.admin_tenant_name,
         'auth_url': conf.ironic.auth_url,
         'service_type': service_type,
         'endpoint_type': endpoint_type,
-        'insecure': conf.ironic.insecure,
-        'ca_file': conf.ironic.ca_file,
+        'insecure': insecure,
+        'ca_cert': conf.ironic.ca_file,
     }
     ksclient = get_keystone_client(**ks_kwargs)
     token = ksclient.auth_token
@@ -86,8 +86,8 @@ def get_ironic_client(conf):
         'auth_ref': auth_ref,
     }
 
-    cli_kwargs['insecure'] = conf.ironic.insecure
-    cli_kwargs['ca_file'] = conf.ironic.ca_file
+    cli_kwargs['insecure'] = insecure
+    cli_kwargs['ca_cert'] = conf.ironic.ca_file
     cli_kwargs['os_ironic_api_version'] = IRONIC_API_VERSION
 
     return ironic_client.Client(1, endpoint, **cli_kwargs)
