@@ -17,14 +17,16 @@
 #    under the License.
 
 from ironicclient import client as ironic_client
-from novaclient import client as nova_client
 from keystoneclient.v2_0 import client as ksclient
+from novaclient import client as nova_client
+
 from ironic_oneview_cli import service_logging as logging
 
 
 LOG = logging.getLogger(__name__)
 
 IRONIC_API_VERSION = '1.11'
+
 
 # DEPRECATED: Waiting fix on bug
 # https://bugs.launchpad.net/python-ironicclient/+bug/1513481
@@ -46,6 +48,7 @@ def get_keystone_client(**kwargs):
                            insecure=kwargs.get('insecure'),
                            cacert=kwargs.get('ca_cert'))
 
+
 def get_endpoint(client, **kwargs):
     """Get an endpoint using the provided keystone client."""
     attr = None
@@ -58,6 +61,7 @@ def get_endpoint(client, **kwargs):
         attr=attr,
         filter_value=filter_value,
         endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
+
 
 def get_ironic_client(conf):
     insecure = True if conf.ironic.insecure.lower() == 'true' else False
@@ -89,6 +93,7 @@ def get_ironic_client(conf):
     cli_kwargs['os_ironic_api_version'] = IRONIC_API_VERSION
 
     return ironic_client.Client(1, endpoint, **cli_kwargs)
+
 
 def get_nova_client(conf):
     kwargs = {
