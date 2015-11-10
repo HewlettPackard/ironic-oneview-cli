@@ -29,37 +29,37 @@ def do_genconfig(args):
 
     """
     print("========= Ironic ========= ")
-    ironic_auth_url = raw_input("Type the auth_url for the Ironic service: ")
-    ironic_username = raw_input("Type your Ironic username: ")
-    ironic_tenant = raw_input("Type your Ironic user's tenant name: ")
+    ironic_auth_url = input("Type the auth_url for the Ironic service: ")
+    ironic_username = input("Type your Ironic username: ")
+    ironic_tenant = input("Type your Ironic user's tenant name: ")
     ironic_password = getpass.getpass("Type your Ironic user's password: ")
-    ironic_insecure = raw_input("Would you like the connections with Ironic to"
-                                " be insecure? [y/N]: ") or "N"
+    ironic_insecure = input("Would you like the connections with Ironic to be"
+                            " insecure? [y/N]: ") or "N"
     ironic_insecure = True if ironic_insecure.lower() == 'y' else False
     ironic_ca_file = ""
     if not ironic_insecure:
-        ironic_ca_file = raw_input("Type the path to the Ironic ca_file: ")
-    default_deploy_kernel = raw_input("Type in the default deploy kernel image"
-                                      " ID on Glance: ")
-    default_deploy_ramdisk = raw_input("Type in the default deploy ramdisk "
-                                       "image ID on Glance: ")
+        ironic_ca_file = input("Type the path to the Ironic ca_file: ")
+    default_deploy_kernel = input("Type in the default deploy kernel image ID"
+                                  " on Glance: ")
+    default_deploy_ramdisk = input("Type in the default deploy ramdisk image"
+                                   " ID on Glance: ")
 
     # TODO(thiagop): get drivers enabled with ironicclient
     enabled_drivers = ['agent_pxe_oneview', 'iscsi_pxe_oneview']
-    ironic_default_driver = raw_input(("Which driver would you like to use? "
-                                       "[%s]: ") % ','.join(enabled_drivers))
+    ironic_default_driver = input("Which driver would you like to use? [%s]: "
+                                  % ','.join(enabled_drivers))
 
-    option = raw_input("Would you like to configure different credentials for"
-                       " nova? [y/N]: ")
+    option = input("Would you like to configure different credentials for"
+                   " nova? [y/N]: ")
     option = True if option.lower() == 'y' else False
     if option:
         print("========= Nova ========= ")
-        nova_auth_url = raw_input("Type the auth_url for the Nova service: ")
-        nova_username = raw_input("Type your Nova username: ")
-        nova_tenant = raw_input("Type your Nova user's tenant name: ")
+        nova_auth_url = input("Type the auth_url for the Nova service: ")
+        nova_username = input("Type your Nova username: ")
+        nova_tenant = input("Type your Nova user's tenant name: ")
         nova_password = getpass.getpass("Type your Nova user's password: ")
-        nova_insecure = raw_input("Would you like the connections with Nova "
-                                  "to be insecure? [y/N]: ") or "N"
+        nova_insecure = input("Would you like the connections with Nova to be"
+                              " insecure? [y/N]: ") or "N"
         nova_insecure = True if nova_insecure.lower() == 'y' else False
     else:
         nova_auth_url = ironic_auth_url
@@ -69,11 +69,11 @@ def do_genconfig(args):
         nova_insecure = ironic_insecure
 
     print("========= OneView ========= ")
-    oneview_manager_url = raw_input("Type in the OneView uri: ")
-    oneview_username = raw_input("Type your OneView username: ")
+    oneview_manager_url = input("Type in the OneView uri: ")
+    oneview_username = input("Type your OneView username: ")
     oneview_password = getpass.getpass("Type your OneView user's password: ")
-    allow_insecure = raw_input("Would you like the connections with OneView "
-                               "to be insecure? [y/N]: ") or "N"
+    allow_insecure = input("Would you like the connections with OneView to be"
+                           " insecure? [y/N]: ") or "N"
     allow_insecure = True if allow_insecure.lower() == 'y' else False
 
     config = ConfigParser()
@@ -99,8 +99,8 @@ def do_genconfig(args):
     config.set("oneview", "password", oneview_password)
     config.set("oneview", "allow_insecure_connections", allow_insecure)
 
-    filename = raw_input("Type the path to the new configuration file [%s]: "
-                         % args.config_file) or args.config_file
+    filename = input("Type the path to the new configuration file [%s]: "
+                     % args.config_file) or args.config_file
     full_filename = os.path.realpath(os.path.expanduser(filename))
     directory = os.path.dirname(full_filename)
     if not os.path.exists(directory):
