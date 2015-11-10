@@ -205,12 +205,16 @@ def do_node_create(args):
     }
 
     if not os.path.isfile(config_file):
-        create = raw_input("Config file not found on `%s`. Would you like to"
-                           " create one now [Y/n]?: " % config_file) or 'y'
-        if create.lower() == 'y':
-            do_genconfig(args)
-        else:
-            return
+        while True:
+            create = input("Config file not found on `%s`. Would you like to "
+                           "create one now? [Y/n] " % config_file) or 'y'
+            if create.lower() == 'y':
+                do_genconfig(args)
+                break
+            elif create.lower() == 'n':
+                return
+            else:
+                print("Invalid option.\n")
 
     conf = ConfClient(config_file, defaults)
     node_creator = NodeCreator(conf)
