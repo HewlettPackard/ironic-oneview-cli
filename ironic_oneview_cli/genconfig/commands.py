@@ -35,7 +35,7 @@ def do_genconfig(args):
     ironic_password = getpass.getpass("Type your Ironic user's password: ")
     ironic_insecure = input("Would you like the connections with Ironic to be"
                             " insecure? [y/N]: ") or "N"
-    ironic_insecure = True if ironic_insecure.lower() == 'y' else False
+    ironic_insecure = 'True' if ironic_insecure.lower() == 'y' else 'False'
     ironic_ca_file = ""
     if not ironic_insecure:
         ironic_ca_file = input("Type the path to the Ironic ca_file: ")
@@ -60,7 +60,7 @@ def do_genconfig(args):
         nova_password = getpass.getpass("Type your Nova user's password: ")
         nova_insecure = input("Would you like the connections with Nova to be"
                               " insecure? [y/N]: ") or "N"
-        nova_insecure = True if nova_insecure.lower() == 'y' else False
+        nova_insecure = 'True' if nova_insecure.lower() == 'y' else 'False'
     else:
         nova_auth_url = ironic_auth_url
         nova_username = ironic_username
@@ -74,7 +74,7 @@ def do_genconfig(args):
     oneview_password = getpass.getpass("Type your OneView user's password: ")
     allow_insecure = input("Would you like the connections with OneView to be"
                            " insecure? [y/N]: ") or "N"
-    allow_insecure = True if allow_insecure.lower() == 'y' else False
+    allow_insecure = 'True' if allow_insecure.lower() == 'y' else 'False'
 
     config = ConfigParser()
     config.add_section("ironic")
