@@ -54,11 +54,14 @@ class Manager(object):
     resource_class = None
 
     def __init__(self, config):
+        allow_insecure_connections = True
+        if config.oneview.allow_insecure_connections.lower() == 'false':
+            allow_insecure_connections = False
         self.oneviewclient = OneViewClient(
             config.oneview.manager_url,
             config.oneview.username,
             config.oneview.password,
-            config.oneview.allow_insecure_connections,
+            allow_insecure_connections,
             config.oneview.tls_cacert_file
         )
 

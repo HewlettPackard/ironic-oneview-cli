@@ -36,8 +36,8 @@ def get_oneview_client(conf):
         'username': conf.oneview.username,
         'password': conf.oneview.password,
         'manager_url': conf.oneview.manager_url,
-        'allow_insecure_connections': False,
-        'tls_cacert_file': ''
+        #'allow_insecure_connections': conf.oneview.allow_insecure_connections,
+        'tls_cacert_file': conf.oneview.tls_cacert_file
     }
     if conf.oneview.allow_insecure_connections.lower() == 'true':
         kwargs['allow_insecure_connections'] = True
@@ -46,6 +46,8 @@ def get_oneview_client(conf):
             " Adding certificate verification is strongly advised. See: "
             "https://urllib3.readthedocs.org/en/latest/security.html"
         )
+    else:
+        kwargs['allow_insecure_connections'] = False
     if conf.oneview.tls_cacert_file:
         kwargs['tls_cacert_file'] = conf.oneview.tls_cacert_file
     return OneViewClient(**kwargs)
