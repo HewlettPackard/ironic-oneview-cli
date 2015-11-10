@@ -28,7 +28,7 @@ LOG = logging.getLogger(__name__)
 
 ONEVIEW_POWER_ON = 'On'
 ONEVIEW_POWER_OFF = 'Off'
-ONEWVIE_REST_API_VERSION = '200'
+ONEVIEW_REST_API_VERSION = '200'
 
 
 def get_oneview_client(conf):
@@ -144,7 +144,7 @@ class OneViewRequestAPI(object):
 
         headers = {
             'content-type': 'application/json',
-            'X-Api-Version': ONEWVIE_REST_API_VERSION,
+            'X-Api-Version': ONEVIEW_REST_API_VERSION,
             'Auth': self.token
         }
         url = '%s%s' % (self.manager_url, uri)
