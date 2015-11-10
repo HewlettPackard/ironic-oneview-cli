@@ -19,8 +19,6 @@
 from ironicclient import client as ironic_client
 from novaclient import client as nova_client
 from keystoneclient.v2_0 import client as ksclient
-from keystoneclient import session as ksession
-from keystoneclient.auth.identity import v2
 from ironic_oneview_cli import service_logging as logging
 
 
