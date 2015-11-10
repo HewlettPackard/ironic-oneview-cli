@@ -20,22 +20,27 @@ Command-line interface to the OneView Sync.
 """
 
 from __future__ import print_function
-
 import argparse
-import sys
 import six
+import sys
 
-from openstack.common import cliutils
-from openstack.common._i18n import _
 from oslo_utils import encodeutils
 
-from create_node_shell import commands as node_create_commands
+from ironic_oneview_cli.create_flavor_shell import commands \
+    as flavor_create_commands
+from ironic_oneview_cli.create_node_shell import commands \
+    as node_create_commands
+from ironic_oneview_cli.genconfig import commands as genconfig_commands
+from ironic_oneview_cli.openstack.common._i18n import _
+from ironic_oneview_cli.openstack.common import cliutils
 
 
 VERSION = '1.0'
 
 COMMAND_MODULES = [
-    node_create_commands
+    node_create_commands,
+    flavor_create_commands,
+    genconfig_commands
 ]
 
 
@@ -62,9 +67,9 @@ class IronicOneView(object):
                             version=VERSION)
 
         parser.add_argument('-c', '--config-file',
-                            default='/etc/ironic-oneview-cli/'
-                                    'ironic-oneview-cli.conf',
-                            help='Default path to configuration file')
+                            default='~/ironic-oneview-cli.conf',
+                            help=('Default path to configuration file. '
+                                  'Defaults to `~/ironic-oneview-cli.conf`'))
 
         return parser
 
@@ -79,7 +84,7 @@ class IronicOneView(object):
     @cliutils.arg('command', metavar='<subcommand>', nargs='?',
                   help='Display help for <subcommand>')
     def do_help(self, args):
-        """Display help about this program or one of its subcommands."""
+        """Displays help about this program or one of its subcommands."""
         if getattr(args, 'command', None):
             if args.command in self.subcommands:
                 self.subcommands[args.command].print_help()
@@ -108,11 +113,13 @@ class IronicOneView(object):
 
 
 def define_command(subparsers, command, callback, cmd_mapper):
-    '''Define a command in the subparsers collection.
+    """Defines a command in the subparsers collection.
+
     :param subparsers: subparsers collection where the command will go
     :param command: command name
     :param callback: function that will be used to process the command
-    '''
+
+    """
     desc = callback.__doc__ or ''
     help = desc.strip().split('\n')[0]
     arguments = getattr(callback, 'arguments', [])
@@ -130,7 +137,7 @@ def define_command(subparsers, command, callback, cmd_mapper):
 
 
 def define_commands_from_module(subparsers, command_module, cmd_mapper):
-    """Add *do_* methods in a module and add as commands into a subparsers."""
+    """Adds *do_* methods in a module and add as commands into a subparsers."""
 
     for method_name in (a for a in dir(command_module) if a.startswith('do_')):
         # Commands should be hypen-separated instead of underscores.

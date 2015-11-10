@@ -10,3 +10,4 @@ python-keystoneclient
 python-ironicclient
 python-oneviewclient
 requests
+future

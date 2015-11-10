@@ -18,20 +18,40 @@
 
 import json
 import requests
-import oneview_uri
 
-import service_logging as logging
+from ironic_oneview_cli import oneview_uri
+from ironic_oneview_cli import service_logging as logging
+from ironic_oneview_cli.sync_exceptions import OneViewConnectionError
 
-from sync_exceptions import OneViewConnectionError
 
 LOG = logging.getLogger(__name__)
 
 ONEVIEW_POWER_ON = 'On'
 ONEVIEW_POWER_OFF = 'Off'
-ONEWVIE_REST_API_VERSION = '200'
+ONEVIEW_REST_API_VERSION = '200'
 
 
-class OneViewRequestAPI:
+def get_oneview_client(conf):
+    kwargs = {
+        'username': conf.oneview.username,
+        'password': conf.oneview.password,
+        'manager_url': conf.oneview.manager_url,
+        'allow_insecure_connections': False,
+        'tls_cacert_file': ''
+    }
+    if conf.oneview.allow_insecure_connections.lower() == 'true':
+        kwargs['allow_insecure_connections'] = True
+        print(
+            "InsecureRequestWarning: Unverified HTTPS requests are being made."
+            " Adding certificate verification is strongly advised. See: "
+            "https://urllib3.readthedocs.org/en/latest/security.html"
+        )
+    if conf.oneview.tls_cacert_file:
+        kwargs['tls_cacert_file'] = conf.oneview.tls_cacert_file
+    return OneViewClient(**kwargs)
+
+
+class OneViewRequestAPI(object):
     def __init__(self, manager_url, username, password,
                  allow_insecure_connections, tls_cacert_file):
         self.token = None
@@ -56,6 +76,7 @@ class OneViewRequestAPI:
     def _try_execute_request(self, url, request_type, body, headers,
                              verify_status):
         try:
+            requests.packages.urllib3.disable_warnings()
             return requests.request(request_type, url, data=json.dumps(body),
                                     headers=headers, verify=verify_status)
         except requests.RequestException as ex:
@@ -85,7 +106,7 @@ class OneViewRequestAPI:
             try:
                 json_response = r.json()
                 repeat = self._check_request_status(r)
-            except:
+            except Exception:
                 repeat = True
         return json_response.get('sessionID')
 
@@ -123,7 +144,7 @@ class OneViewRequestAPI:
 
         headers = {
             'content-type': 'application/json',
-            'X-Api-Version': ONEWVIE_REST_API_VERSION,
+            'X-Api-Version': ONEVIEW_REST_API_VERSION,
             'Auth': self.token
         }
         url = '%s%s' % (self.manager_url, uri)
@@ -137,7 +158,7 @@ class OneViewRequestAPI:
             try:
                 json_response = r.json()
                 repeat = self._check_request_status(r)
-            except Exception as ex:
+            except Exception:
                 repeat = True
         return json_response
 
@@ -203,19 +224,6 @@ class OneViewServerHardwareAPI(ResourceAPI):
             fields['serverProfileUri'] = None
         return self._list(uri, fields)
 
-    def get_node_power_state(self, server_hardware_uri):
-        power_state = self.prepare_and_do_request(
-            uri=server_hardware_uri,
-            request_type='GET').get('powerState')
-        if power_state == 'On' or power_state == 'PoweringOff':
-            return states.POWER_ON
-        elif power_state == 'Off' or power_state == 'PoweringOn':
-            return states.POWER_OFF
-        elif power_state == 'Resetting':
-            return states.REBOOT
-        else:
-            return states.ERROR
-
     def parse_server_hardware_to_dict(self, server_hardware):
         port_map = server_hardware.get('portMap')
         try:
@@ -250,7 +258,7 @@ class OneViewServerProfileAPI(ResourceAPI):
                 server_profile.get('serverHardwareUri') is None]
 
 
-class OneViewClient:
+class OneViewClient(object):
     def __init__(self, manager_url, username, password,
                  allow_insecure_connections, tls_cacert_file):
         self.certificate = OneViewCertificateAPI(

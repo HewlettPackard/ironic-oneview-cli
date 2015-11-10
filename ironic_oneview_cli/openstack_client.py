@@ -16,15 +16,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from config import ConfClient
-
 from ironicclient import client as ironic_client
-
+from keystoneclient.v2_0 import client as ksclient
 from novaclient import client as nova_client
 
-from oneview_client import OneViewServerHardwareAPI
-
-import service_logging as logging
+from ironic_oneview_cli import service_logging as logging
 
 
 LOG = logging.getLogger(__name__)
@@ -32,24 +28,71 @@ LOG = logging.getLogger(__name__)
 IRONIC_API_VERSION = '1.11'
 
 
+# DEPRECATED: Waiting fix on bug
+# https://bugs.launchpad.net/python-ironicclient/+bug/1513481
+def get_keystone_client(**kwargs):
+    """Get an endpoint and auth token from Keystone.
+
+    :param kwargs: keyword args containing credentials:
+            * username: name of user
+            * password: user's password
+            * auth_url: endpoint to authenticate against
+            * insecure: allow insecure SSL (no cert verification)
+            * tenant_{name|id}: name or ID of tenant
+    """
+    return ksclient.Client(username=kwargs.get('username'),
+                           password=kwargs.get('password'),
+                           tenant_id=kwargs.get('tenant_id'),
+                           tenant_name=kwargs.get('tenant_name'),
+                           auth_url=kwargs.get('auth_url'),
+                           insecure=kwargs.get('insecure'),
+                           cacert=kwargs.get('ca_cert'))
+
+
+def get_endpoint(client, **kwargs):
+    """Get an endpoint using the provided keystone client."""
+    attr = None
+    filter_value = None
+    if kwargs.get('region_name'):
+        attr = 'region'
+        filter_value = kwargs.get('region_name')
+    return client.service_catalog.url_for(
+        service_type=kwargs.get('service_type') or 'baremetal',
+        attr=attr,
+        filter_value=filter_value,
+        endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
+
+
 def get_ironic_client(conf):
-    kwargs = {
-        'os_username': conf.ironic.admin_user,
-        'os_password': conf.ironic.admin_password,
-        'os_auth_url': conf.ironic.auth_uri,
-        'os_tenant_name': conf.ironic.admin_tenant_name,
-        'os_ironic_api_version': IRONIC_API_VERSION,
+    insecure = True if conf.ironic.insecure.lower() == 'true' else False
+    endpoint_type = 'publicURL'
+    service_type = 'baremetal'
+
+    ks_kwargs = {
+        'username': conf.ironic.admin_user,
+        'password': conf.ironic.admin_password,
+        'tenant_name': conf.ironic.admin_tenant_name,
+        'auth_url': conf.ironic.auth_url,
+        'service_type': service_type,
+        'endpoint_type': endpoint_type,
+        'insecure': insecure,
+        'ca_cert': conf.ironic.ca_file,
+    }
+    ksclient = get_keystone_client(**ks_kwargs)
+    token = ksclient.auth_token
+    endpoint = get_endpoint(ksclient, **ks_kwargs)
+    auth_ref = ksclient.auth_ref
+
+    cli_kwargs = {
+        'token': token,
+        'auth_ref': auth_ref,
     }
 
-    if conf.ironic.insecure is True:
-        kwargs['insecure'] = True
-    if conf.ironic.ca_file:
-        kwargs['ca_file'] = conf.ironic.ca_file
+    cli_kwargs['insecure'] = insecure
+    cli_kwargs['ca_cert'] = conf.ironic.ca_file
+    cli_kwargs['os_ironic_api_version'] = IRONIC_API_VERSION
 
-    LOG.debug("Using OpenStack credentials specified in the configuration file"
-              " to get Ironic Client")
-    ironicclient = ironic_client.get_client(1, **kwargs)
-    return ironicclient
+    return ironic_client.Client(1, endpoint, **cli_kwargs)
 
 
 def get_nova_client(conf):
@@ -59,52 +102,18 @@ def get_nova_client(conf):
         'password': conf.nova.password,
         'tenant_name': conf.nova.tenant_name
     }
-    if conf.ironic.insecure is True:
+    if conf.nova.insecure.lower() == 'true':
         kwargs['insecure'] = True
-    if conf.ironic.ca_file:
+    if conf.nova.ca_file:
         kwargs['ca_file'] = conf.nova.ca_file
+    else:
+        kwargs['ca_file'] = None
     LOG.debug("Using OpenStack credentials specified in the configuration file"
               " to get Nova Client")
-    nova = nova_client.Client(2, **kwargs)
+    nova = nova_client.Client(2, conf.nova.username,
+                              conf.nova.password,
+                              conf.nova.tenant_name,
+                              conf.nova.auth_url,
+                              kwargs['insecure'],
+                              kwargs['ca_file'])
     return nova
-
-
-class OpenstackClient:
-    def __init__(self, configname, **kwargs):
-        self.conf_client = ConfClient(configname)
-        self.ca_file = kwargs.get('os_cacert')
-        self.insecure = kwargs.get('os_insecure', False)
-
-    def _update_ironic_node_state(self, node, server_hardware_uri):
-        oneview_sh_client = OneViewServerHardwareAPI()
-        state = oneview_sh_client.get_node_power_state(server_hardware_uri)
-
-        LOG.info('Setting node %(node_uuid)s power state to %(state)s',
-                 {'node_uuid': node.uuid, 'state': state})
-
-        self._get_ironic_client().node.set_power_state(node.uuid, state)
-
-    def _is_flavor_available(self, server_hardware_info):
-        LOG.info("Getting flavors from nova")
-        for flavor in self.get_nova_client().flavors.list():
-            extra_specs = flavor.get_keys()
-            if('capabilities:server_hardware_type_uri' in extra_specs):
-                if(extra_specs.get('capabilities:server_hardware_type_uri') !=
-                    server_hardware_info.get('server_hardware_type_uri')):
-                    continue
-                if(extra_specs.get('cpu_arch') !=
-                    server_hardware_info.get('cpu_arch')):
-                    continue
-                if(flavor._info.get('vcpus') !=
-                    server_hardware_info.get('cpus')):
-                    continue
-                if(flavor._info.get('ram') !=
-                    server_hardware_info.get('memory_mb')):
-                    continue
-                return True
-        return False
-
-
-    def flavor_list(self):
-        nova_client = self.get_nova_client()
-        return nova_client.flavors.list()
