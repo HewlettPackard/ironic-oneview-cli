@@ -102,6 +102,8 @@ def get_nova_client(conf):
         'password': conf.nova.password,
         'tenant_name': conf.nova.tenant_name
     }
+
+    kwargs['insecure'] = False
     if conf.nova.insecure.lower() == 'true':
         kwargs['insecure'] = True
     if conf.nova.ca_file:
@@ -110,10 +112,10 @@ def get_nova_client(conf):
         kwargs['ca_file'] = None
     LOG.debug("Using OpenStack credentials specified in the configuration file"
               " to get Nova Client")
-    nova = nova_client.Client(2, conf.nova.username,
-                              conf.nova.password,
-                              conf.nova.tenant_name,
-                              conf.nova.auth_url,
-                              kwargs['insecure'],
-                              kwargs['ca_file'])
+    nova = nova_client.Client(2, username=conf.nova.username,
+                              api_key=conf.nova.password,
+                              project_id=conf.nova.tenant_name,
+                              auth_url=conf.nova.auth_url,
+                              insecure=kwargs['insecure'],
+                              cacert=kwargs['ca_file'])
     return nova

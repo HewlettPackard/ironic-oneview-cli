@@ -99,7 +99,6 @@ class TestOpenStackClient(unittest.TestCase):
         client = openstack_client.get_nova_client(config)
         with self.assertRaises(Exception):
             client.servers.list()
-            
 
     def test_insecure_nova(self):
         config = self.config_nova_insecure

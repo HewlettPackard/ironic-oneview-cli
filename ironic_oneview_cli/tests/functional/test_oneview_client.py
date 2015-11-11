@@ -64,7 +64,7 @@ class TestOneViewClient(unittest.TestCase):
         client = oneview_client.get_oneview_client(config)
         self.assertIs(type(client.server_hardware.list()), list)
 
-    def test_list_server_hardware_in_secure_oneview_without_passing_ca_cert(self):
+    def test_list_server_hardware_in_secure_oneview_without_ca_cert(self):
         config = self.config_oneview_secure_without_ca
         client = oneview_client.get_oneview_client(config)
         with self.assertRaises(Exception):
