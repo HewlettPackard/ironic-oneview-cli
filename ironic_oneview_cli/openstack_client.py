@@ -96,26 +96,15 @@ def get_ironic_client(conf):
 
     return ironic_client.Client(1, endpoint, **cli_kwargs)
 
-
 def get_nova_client(conf):
-    kwargs = {
-        'auth_url': conf.nova.auth_url,
-        'username': conf.nova.username,
-        'password': conf.nova.password,
-        'tenant_name': conf.nova.tenant_name
-    }
-
-    kwargs['insecure'] = _is_string_equals_true(conf.nova.insecure)
-    if conf.nova.ca_file:
-        kwargs['ca_file'] = conf.nova.ca_file
-    else:
-        kwargs['ca_file'] = None
+    insecure = _is_string_equals_true(conf.nova.insecure)
+    ca_file = conf.nova.ca_file if conf.nova.ca_file else None
     LOG.debug("Using OpenStack credentials specified in the configuration file"
               " to get Nova Client")
     nova = nova_client.Client(2, username=conf.nova.username,
                               api_key=conf.nova.password,
                               project_id=conf.nova.tenant_name,
                               auth_url=conf.nova.auth_url,
-                              insecure=kwargs['insecure'],
-                              cacert=kwargs['ca_file'])
+                              insecure=insecure,
+                              cacert=ca_file)
     return nova

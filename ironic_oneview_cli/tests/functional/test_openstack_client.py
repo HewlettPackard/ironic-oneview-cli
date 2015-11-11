@@ -29,7 +29,7 @@ from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli import openstack_client
 
 
-TEST_CONFIG_FOLDER = '/home/ubuntu/config_tests/'
+TEST_CONFIG_FOLDER = 'ironic_oneview_cli/tests/'
 
 TEST_CONFIG_PATH_IRONIC_SECURE_WITH_CA =\
     TEST_CONFIG_FOLDER +\
