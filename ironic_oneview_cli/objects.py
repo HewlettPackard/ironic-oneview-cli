@@ -54,9 +54,9 @@ class Manager(object):
     resource_class = None
 
     def __init__(self, config):
-        allow_insecure_connections = True
-        if config.oneview.allow_insecure_connections.lower() == 'false':
-            allow_insecure_connections = False
+        allow_insecure_connections = False
+        if config.oneview.allow_insecure_connections.lower() == 'true':
+            allow_insecure_connections = True
         self.oneviewclient = OneViewClient(
             config.oneview.manager_url,
             config.oneview.username,

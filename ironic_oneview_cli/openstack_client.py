@@ -62,9 +62,11 @@ def get_endpoint(client, **kwargs):
         filter_value=filter_value,
         endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
 
+def _is_string_equals_true(string):
+    return string.lower() == 'true'
 
 def get_ironic_client(conf):
-    insecure = True if conf.ironic.insecure.lower() == 'true' else False
+    insecure = _is_string_equals_true(conf.ironic.insecure)
     endpoint_type = 'publicURL'
     service_type = 'baremetal'
 
@@ -103,9 +105,7 @@ def get_nova_client(conf):
         'tenant_name': conf.nova.tenant_name
     }
 
-    kwargs['insecure'] = False
-    if conf.nova.insecure.lower() == 'true':
-        kwargs['insecure'] = True
+    kwargs['insecure'] = _is_string_equals_true(conf.nova.insecure)
     if conf.nova.ca_file:
         kwargs['ca_file'] = conf.nova.ca_file
     else:
