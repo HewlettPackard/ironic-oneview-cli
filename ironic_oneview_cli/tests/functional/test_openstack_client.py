@@ -30,14 +30,28 @@ from ironic_oneview_cli import openstack_client
 
 
 TEST_CONFIG_FOLDER = '/home/ubuntu/config_tests/'
+
 TEST_CONFIG_PATH_IRONIC_SECURE_WITH_CA =\
     TEST_CONFIG_FOLDER +\
     'ironic-oneview-cli-tests-ironic-secure-with-ca-file.conf'
+
 TEST_CONFIG_PATH_IRONIC_SECURE_WITHOUT_CA =\
     TEST_CONFIG_FOLDER +\
     'ironic-oneview-cli-tests-ironic-secure-without-ca-file.conf'
+
 TEST_CONFIG_PATH_IRONIC_INSECURE =\
     TEST_CONFIG_FOLDER + 'ironic-oneview-cli-tests-ironic-insecure.conf'
+
+TEST_CONFIG_PATH_NOVA_SECURE_WITH_CA =\
+    TEST_CONFIG_FOLDER +\
+    'ironic-oneview-cli-tests-nova-secure-with-ca-file.conf'
+
+TEST_CONFIG_PATH_NOVA_SECURE_WITHOUT_CA =\
+    TEST_CONFIG_FOLDER +\
+    'ironic-oneview-cli-tests-nova-secure-without-ca-file.conf'
+
+TEST_CONFIG_PATH_NOVA_INSECURE =\
+    TEST_CONFIG_FOLDER + 'ironic-oneview-cli-tests-nova-insecure.conf'
 
 
 class TestOpenStackClient(unittest.TestCase):
@@ -55,6 +69,13 @@ class TestOpenStackClient(unittest.TestCase):
         self.config_ironic_insecure = ConfClient(
             TEST_CONFIG_PATH_IRONIC_INSECURE, defaults)
 
+        self.config_nova_secure_with_ca = ConfClient(
+            TEST_CONFIG_PATH_NOVA_SECURE_WITH_CA, defaults)
+        self.config_nova_secure_without_ca = ConfClient(
+            TEST_CONFIG_PATH_NOVA_SECURE_WITHOUT_CA, defaults)
+        self.config_nova_insecure = ConfClient(
+            TEST_CONFIG_PATH_NOVA_INSECURE, defaults)
+
     def test_secure_ironic_passing_ca_cert(self):
         config = self.config_ironic_secure_with_ca
         openstack_client.get_ironic_client(config)
@@ -67,6 +88,23 @@ class TestOpenStackClient(unittest.TestCase):
     def test_insecure_ironic(self):
         config = self.config_ironic_insecure
         openstack_client.get_ironic_client(config)
+
+    def test_secure_nova_passing_ca_cert(self):
+        config = self.config_nova_secure_with_ca
+        client = openstack_client.get_nova_client(config)
+        self.assertIs(type(client.servers.list()), list)
+
+    def test_secure_nova_without_passing_ca_cert(self):
+        config = self.config_nova_secure_without_ca
+        client = openstack_client.get_nova_client(config)
+        with self.assertRaises(Exception):
+            client.servers.list()
+            
+
+    def test_insecure_nova(self):
+        config = self.config_nova_insecure
+        client = openstack_client.get_nova_client(config)
+        self.assertIs(type(client.servers.list()), list)
 
 
 if __name__ == '__main__':
