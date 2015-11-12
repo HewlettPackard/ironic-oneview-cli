@@ -37,7 +37,7 @@ def get_oneview_client(conf):
         'password': conf.oneview.password,
         'manager_url': conf.oneview.manager_url,
         'allow_insecure_connections': False,
-        'tls_cacert_file': ''
+        'tls_cacert_file': conf.oneview.tls_cacert_file
     }
     if conf.oneview.allow_insecure_connections.lower() == 'true':
         kwargs['allow_insecure_connections'] = True

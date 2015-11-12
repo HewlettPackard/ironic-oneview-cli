@@ -62,9 +62,11 @@ def get_endpoint(client, **kwargs):
         filter_value=filter_value,
         endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
 
+def _is_string_equals_true(string):
+    return string.lower() == 'true'
 
 def get_ironic_client(conf):
-    insecure = True if conf.ironic.insecure.lower() == 'true' else False
+    insecure = _is_string_equals_true(conf.ironic.insecure)
     endpoint_type = 'publicURL'
     service_type = 'baremetal'
 
@@ -94,26 +96,15 @@ def get_ironic_client(conf):
 
     return ironic_client.Client(1, endpoint, **cli_kwargs)
 
-
 def get_nova_client(conf):
-    kwargs = {
-        'auth_url': conf.nova.auth_url,
-        'username': conf.nova.username,
-        'password': conf.nova.password,
-        'tenant_name': conf.nova.tenant_name
-    }
-    if conf.nova.insecure.lower() == 'true':
-        kwargs['insecure'] = True
-    if conf.nova.ca_file:
-        kwargs['ca_file'] = conf.nova.ca_file
-    else:
-        kwargs['ca_file'] = None
+    insecure = _is_string_equals_true(conf.nova.insecure)
+    ca_file = conf.nova.ca_file if conf.nova.ca_file else None
     LOG.debug("Using OpenStack credentials specified in the configuration file"
               " to get Nova Client")
-    nova = nova_client.Client(2, conf.nova.username,
-                              conf.nova.password,
-                              conf.nova.tenant_name,
-                              conf.nova.auth_url,
-                              kwargs['insecure'],
-                              kwargs['ca_file'])
+    nova = nova_client.Client(2, username=conf.nova.username,
+                              api_key=conf.nova.password,
+                              project_id=conf.nova.tenant_name,
+                              auth_url=conf.nova.auth_url,
+                              insecure=insecure,
+                              cacert=ca_file)
     return nova
