@@ -18,6 +18,8 @@
 
 import os
 
+from builtins import input
+
 from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.facade import Facade
@@ -136,8 +138,7 @@ def do_flavor_create(args):
             ['id', 'cpus', 'disk', 'ram_mb'],
             field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB'],
             sortby_index=1)
-        id = raw_input(
-            "Insert flavor Id to add in OneView. Press 'q' to quit> ")
+        id = input("Insert flavor Id to add in OneView. Press 'q' to quit> ")
 
         if id == "q":
             break
@@ -160,7 +161,7 @@ def do_flavor_create(args):
             field_labels=['CPUs', 'Disk GB', 'Memory MB'],
             sortby_index=2)
         flavor_name_default = _get_flavor_name(flavor)
-        flavor_name = raw_input(
+        flavor_name = input(
             "Insert the name of the flavor. Leave blank for [" +
             flavor_name_default + "] (press 'q' to quit)> ")
 
@@ -176,8 +177,7 @@ def do_flavor_create(args):
 
         print('Flavor created!\n')
         while True:
-            response = raw_input('Would you like to create another flavor '
-                                 '[Y/n]?: ')
+            response = input('Would you like to create another flavor? [Y/n]')
             if response == 'n':
                 create_another_flavor_flag = False
                 break

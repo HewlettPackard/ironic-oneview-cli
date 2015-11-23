@@ -16,12 +16,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from configparser import ConfigParser
 import getpass
 import os
 
-# from ironic_oneview_cli.config import ConfClient
-# from ironic_oneview_cli.facade import Facade
+from builtins import input
+from configparser import ConfigParser
 
 
 def do_genconfig(args):
@@ -69,7 +68,7 @@ def do_genconfig(args):
         nova_insecure = ironic_insecure
 
     print("========= OneView ========= ")
-    oneview_manager_url = input("Type in the OneView uri: ")
+    oneview_manager_url = input("Type in the OneView url: ")
     oneview_username = input("Type your OneView username: ")
     oneview_password = getpass.getpass("Type your OneView user's password: ")
     allow_insecure = input("Would you like the connections with OneView to be"

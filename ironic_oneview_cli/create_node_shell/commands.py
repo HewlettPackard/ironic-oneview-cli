@@ -19,6 +19,8 @@
 import os
 import sys
 
+from builtins import input
+
 from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.facade import Facade
 from ironic_oneview_cli.genconfig import commands as genconfig_commands
@@ -42,7 +44,7 @@ class NodeCreator(object):
         cliutils.print_list(object_list, header_list,
                             mixed_case_fields=mixed_case_list,
                             field_labels=field_labels)
-        input_value = raw_input(input_message)
+        input_value = input(input_message)
         return input_value
 
     def is_entry_invalid(self, entries, objects_list):
