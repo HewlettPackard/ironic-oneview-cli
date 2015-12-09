@@ -25,7 +25,8 @@ from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.facade import Facade
 from ironic_oneview_cli.genconfig import commands as genconfig_commands
 from ironic_oneview_cli.openstack.common import cliutils
-
+from ironic_oneview_cli.objects import ServerHardwareManager
+from ironic_oneview_cli.objects import ServerProfileManager
 
 def _get_flavor_name(flavor):
     FLAVOR_NAME_TEMPLATE = "%sMB-RAM_%s_%s_%s"
@@ -42,7 +43,7 @@ def _get_element_by_id(element_list, element_id):
             return element
 
 
-def get_flavor_from_ironic_node(flavor_id, node):
+def get_flavor_from_ironic_node(flavor_id, node, hardware_manager, profile_manager):
     flavor = {}
 
     flavor['ram_mb'] = node.properties.get("memory_mb")
@@ -51,6 +52,7 @@ def get_flavor_from_ironic_node(flavor_id, node):
     flavor['cpu_arch'] = 'x86_64'
 
     capabilities = node.properties.get("capabilities")
+
 
     if capabilities is not None:
         capabilities = capabilities.split(",")
@@ -64,17 +66,42 @@ def get_flavor_from_ironic_node(flavor_id, node):
             elif data[0] == 'server_profile_template_uri':
                 flavor['server_profile_template_uri'] = data[1]
 
+	available_server_hardware_by_field = hardware_manager.list(
+	    only_available=True,
+	    fields={
+		    'serverHardwareTypeUri':
+			flavor['server_hardware_type_uri'],
+		    'serverGroupUri':
+			flavor['enclosure_group_uri'],
+		    'serverProfileUri':
+			flavor['server_profile_template_uri'],
+		    'uri':
+			node.driver_info.get('server_hardware_uri')
+		   }
+	)
+
+	template_list = profile_manager.list_templates_compatible_with(
+            available_server_hardware_by_field
+        )
+
+	for available in available_server_hardware_by_field:
+	    flavor['server_hardware_type_name'] = available.serverHardwareTypeName
+	    flavor['enclosure_group_name'] = available.serverGroupName
+
+	for available in template_list:
+	    flavor['server_profile_template_name'] = available.name
+	    
     return Flavor(id=flavor_id, info=flavor)
 
 
-def get_flavor_list(ironic_client):
+def get_flavor_list(ironic_client, hardware_manager, profile_manager):
     nodes = ironic_client.node.list(detail=True)
     flavors = []
 
     id_counter = 1
     for node in nodes:
         if node.properties.get('memory_mb') is not None:
-            flavors.append(get_flavor_from_ironic_node(id_counter, node))
+            flavors.append(get_flavor_from_ironic_node(id_counter, node, hardware_manager, profile_manager))
             id_counter += 1
 
     return set(flavors)
@@ -115,7 +142,9 @@ def do_flavor_create(args):
     ironic_cli = facade.ironicclient
     nova_cli = facade.novaclient
     create_another_flavor_flag = True
-    flavor_list = get_flavor_list(ironic_cli)
+    hardware_manager = ServerHardwareManager(conf)
+    profile_manager = ServerProfileManager(conf)
+    flavor_list = get_flavor_list(ironic_cli, hardware_manager, profile_manager)
     flavor_list = list(flavor_list)
 
     for j in range(1, len(flavor_list)):
@@ -135,8 +164,8 @@ def do_flavor_create(args):
         create_another_flavor_flag = False
         cliutils.print_list(
             flavor_list,
-            ['id', 'cpus', 'disk', 'ram_mb'],
-            field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB'],
+            ['id', 'cpus', 'disk', 'ram_mb', 'server_profile_template_name', 'server_hardware_type_name', 'enclosure_group_name'],
+            field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB', 'Server Profile Template', 'Server Hardware Type', 'Enclosure Group Name'],
             sortby_index=1)
         id = input("Insert flavor Id to add in OneView. Press 'q' to quit> ")
 
@@ -157,8 +186,8 @@ def do_flavor_create(args):
 
         cliutils.print_list(
             [flavor],
-            ['cpus', 'disk', 'ram_mb'],
-            field_labels=['CPUs', 'Disk GB', 'Memory MB'],
+            ['cpus', 'disk', 'ram_mb', 'server_profile_template_name', 'server_hardware_type_name', 'enclosure_group_name'],
+            field_labels=['CPUs', 'Disk GB', 'Memory MB', 'Server Profile Template', 'Server Hardware Type', 'Enclosure Group Name'],
             sortby_index=2)
         flavor_name_default = _get_flavor_name(flavor)
         flavor_name = input(
