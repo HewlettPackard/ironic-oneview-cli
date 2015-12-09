@@ -206,5 +206,21 @@ class TestIronic_oneview_cli(base.TestCase):
         self.assertIn('server_profile_template_uri:' + template_selected.uri,
                       capabilities)
 
+    def test_create_flavor_with_server_hadware_type_enclosure_group_server_profile_template_name_is_not_empty(self):
+        flavors = flavor_commands.get_flavor_list(self.ironic_client, self.hardware_manager, self.profile_manager)
+        for flavor in flavors:
+            self.assertNotEqual("", flavor['server_hardware_type_name'])
+	    self.assertNotEqual("", flavor['enclosure_group_name'])
+	    self.assertNotEqual("", flavor['server_profile_template_name'])
+
+    def test_create_flavor_with_server_hadware_type_enclosure_group_server_profile_template_name_is_not_none(self):
+        flavors = flavor_commands.get_flavor_list(self.ironic_client, self.hardware_manager, self.profile_manager)
+        for flavor in flavors:
+            self.assertNotNone(flavor['server_hardware_type_name'])
+	    self.assertNotNone(flavor['enclosure_group_name'])
+	    self.assertNotNone(flavor['server_profile_template_name'])
+
+
+
 if __name__ == '__main__':
     base.main()
