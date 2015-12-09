@@ -137,11 +137,11 @@ following command::
 The tool will now prompt you to choose a valid flavor configuration, according
 to the config of available nodes.::
 
-    +----+------+---------+-----------+
-    | Id | CPUs | Disk GB | Memory MB |
-    +----+------+---------+-----------+
-    | 1  | 32   | 120     | 16384     |
-    +----+------+---------+-----------+
+    +----+------+---------+-----------+-------------------------------------+----------------------+-------------------------+
+    | Id | CPUs | Disk GB | Memory MB | Server Profile Template             | Server Hardware Type | Enclosure Group Name    |
+    +----+------+---------+-----------+-------------------------------------+----------------------+-------------------------+
+    | 1  | 8    | 120     | 8192      | second-virt-server-profile-template | BL460c Gen9 1        | virtual-enclosure-group |
+    +----+------+---------+-----------+-------------------------------------+----------------------+-------------------------+
 
 After choosing a valid configuration ID, you'll be prompted to name your
 flavor. If you leave the field blank, a default name will be given. Press
