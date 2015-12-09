@@ -66,7 +66,6 @@ def get_flavor_from_ironic_node(flavor_id, node, hardware_manager, profile_manag
             elif data[0] == 'server_profile_template_uri':
                 flavor['server_profile_template_uri'] = data[1]
 
-	server_hardware_type = hardware_manager.list(only_available=True)
 	available_server_hardware_by_field = hardware_manager.list(
 	    only_available=True,
 	    fields={
@@ -81,15 +80,17 @@ def get_flavor_from_ironic_node(flavor_id, node, hardware_manager, profile_manag
 		   }
 	)
 
-	flavor['server_hardware_type_name'] = available_server_hardware_by_field[0].serverHardwareTypeName
-	flavor['enclosure_group_name'] = available_server_hardware_by_field[0].serverGroupName
-	
 	template_list = profile_manager.list_templates_compatible_with(
             available_server_hardware_by_field
         )
 
-	flavor['server_profile_template_name'] = template_list[0].name
+	for available in available_server_hardware_by_field:
+	    flavor['server_hardware_type_name'] = available.serverHardwareTypeName
+	    flavor['enclosure_group_name'] = available.serverGroupName
 
+	for available in template_list:
+	    flavor['server_profile_template_name'] = available.name
+	    
     return Flavor(id=flavor_id, info=flavor)
 
 
@@ -146,7 +147,6 @@ def do_flavor_create(args):
     flavor_list = get_flavor_list(ironic_cli, hardware_manager, profile_manager)
     flavor_list = list(flavor_list)
 
-
     for j in range(1, len(flavor_list)):
         key = flavor_list[j]
         i = j - 1
@@ -186,8 +186,8 @@ def do_flavor_create(args):
 
         cliutils.print_list(
             [flavor],
-            ['cpus', 'disk', 'ram_mb'],
-            field_labels=['CPUs', 'Disk GB', 'Memory MB'],
+            ['cpus', 'disk', 'ram_mb', 'server_profile_template_name', 'server_hardware_type_name', 'enclosure_group_name'],
+            field_labels=['CPUs', 'Disk GB', 'Memory MB', 'Server Profile Template', 'Server Hardware Type', 'Enclosure Group Name'],
             sortby_index=2)
         flavor_name_default = _get_flavor_name(flavor)
         flavor_name = input(
