@@ -169,7 +169,15 @@ class ResourceAPI(OneViewRequestAPI):
         return resource if field is None else resource[field]
 
     def _list(self, uri, fields=None):
-        obj_list = self.prepare_and_do_request(uri).get("members")
+        request_result = self.prepare_and_do_request(uri)
+        obj_list = request_result.get("members")
+        
+        next_page_uri = request_result.get('nextPageUri')
+        while next_page_uri is not None:
+            request_result = self.prepare_and_do_request(next_page_uri)
+            obj_list = obj_list + request_result.get("members")
+            next_page_uri = request_result.get('nextPageUri')
+
         if fields is None:
             return obj_list
 

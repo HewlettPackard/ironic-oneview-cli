@@ -224,11 +224,9 @@ def do_node_create(args):
     profile_manager = ServerProfileManager(conf)
 
     print("Retrieving Server Profile Templates from OneView...")
-
     available_hardware = node_creator.list_server_hardware_not_enrolled(
         hardware_manager.list(only_available=True)
     )
-
     # FIXME(thiagop): doesn't uses facade or node_creator
     template_list = profile_manager.list_templates_compatible_with(
         available_hardware
