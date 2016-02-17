@@ -65,7 +65,6 @@ def get_flavor_from_ironic_node(flavor_id, node, hardware_manager, profile_manag
                 flavor['enclosure_group_uri'] = data[1]
             elif data[0] == 'server_profile_template_uri':
                 flavor['server_profile_template_uri'] = data[1]
-
 	available_server_hardware_by_field = hardware_manager.list(
 	    only_available=True,
 	    fields={
@@ -79,25 +78,22 @@ def get_flavor_from_ironic_node(flavor_id, node, hardware_manager, profile_manag
 			node.driver_info.get('server_hardware_uri')
 		   }
 	)
-
 	template_list = profile_manager.list_templates_compatible_with(
             available_server_hardware_by_field
         )
-
 	for available in available_server_hardware_by_field:
 	    flavor['server_hardware_type_name'] = available.serverHardwareTypeName
 	    flavor['enclosure_group_name'] = available.serverGroupName
 
 	for available in template_list:
 	    flavor['server_profile_template_name'] = available.name
-	    
-    return Flavor(id=flavor_id, info=flavor)
+    flavor = Flavor(id=flavor_id, info=flavor)
+    return flavor
 
 
 def get_flavor_list(ironic_client, hardware_manager, profile_manager):
     nodes = ironic_client.node.list(detail=True)
     flavors = []
-
     id_counter = 1
     for node in nodes:
         if node.properties.get('memory_mb') is not None:
@@ -146,7 +142,6 @@ def do_flavor_create(args):
     profile_manager = ServerProfileManager(conf)
     flavor_list = get_flavor_list(ironic_cli, hardware_manager, profile_manager)
     flavor_list = list(flavor_list)
-
     for j in range(1, len(flavor_list)):
         key = flavor_list[j]
         i = j - 1

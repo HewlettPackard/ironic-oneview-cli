@@ -180,18 +180,15 @@ class ResourceAPI(OneViewRequestAPI):
 
         if fields is None:
             return obj_list
-
         filtered_list = []
-
         for obj_dict in obj_list:
             if self._is_dict_elegible(obj_dict, fields):
                 filtered_list.append(obj_dict)
-
         return filtered_list
 
     def _is_dict_elegible(self, obj_dict, fields):
         for key, value in fields.items():
-            if obj_dict[key] != value:
+            if str(obj_dict[key]) != str(value):
                 return False
         return True
 
