@@ -20,48 +20,16 @@ import sys
 
 from builtins import input
 
-from ironic_oneview_cli.facade import Facade
-from ironic_oneview_cli.objects import ServerHardwareManager
-from ironic_oneview_cli.objects import ServerProfileManager
+from ironic_oneview_cli import facade
 from ironic_oneview_cli.openstack.common import cliutils
 
 
-# NOTE(thiagop): is this a facade too?
 class NodeCreator(object):
 
     def __init__(self, facade):
         self.facade = facade
 
-    def print_prompt(self, object_list, header_list, mixed_case_list,
-                     input_message, field_labels=None):
-        cliutils.print_list(object_list, header_list,
-                            mixed_case_fields=mixed_case_list,
-                            field_labels=field_labels)
-        input_value = input(input_message)
-        return input_value
-
-    def is_entry_invalid(self, entries, objects_list):
-        for entry in entries:
-            element = self.get_element_by_id(objects_list, entry)
-            if element is None:
-                return True
-        return False
-
-    def get_element_by_id(self, element_list, element_id):
-        try:
-            for element in element_list:
-                if element.id == int(element_id):
-                    return element
-        except Exception:
-            return None
-
-    def assign_elements_with_new_id(self, element_list):
-        counter = 1
-        for element in element_list:
-            element.id = counter
-            counter += 1
-
-    def list_server_hardware_not_enrolled(self, server_hardware_objects):
+    def filter_not_enrolled_on_ironic(self, server_hardware_objects):
         nodes_server_hardware_uris = []
         nodes = filter(lambda x: x.driver.endswith("_oneview"),
                        self.facade.get_ironic_node_list())
@@ -77,85 +45,58 @@ class NodeCreator(object):
                 server_hardware_objects_not_created.append(server_hardware)
         return server_hardware_objects_not_created
 
-    def select_server_profile_template(self, server_profile_list):
-        server_profile_selected = None
-        self.assign_elements_with_new_id(server_profile_list)
-        while server_profile_selected is None:
-            input_id = self.print_prompt(
-                server_profile_list,
-                ['id', 'name', 'enclosureGroupName', 'serverHardwareTypeName'],
-                ['enclosureGroupName', 'serverHardwareTypeName'],
-                "Enter the id of the Server Profile Template you want to use. "
-                "('q' to quit)> ",
-                field_labels=[
-                    'Id',
-                    'Name',
-                    'Enclosure Group Name',
-                    'Server Hardware Type Name'
-                ]
-            )
-            if input_id == 'q':
-                sys.exit()
-            server_profile_selected = self.get_element_by_id(
-                server_profile_list, input_id)
+    def list_server_hardware_not_enrolled(self):
+        server_hardware_objects = self.facade.list_server_hardware_available()
+        sh_not_enrolled = self.filter_not_enrolled_on_ironic(
+            server_hardware_objects
+        )
+        return sh_not_enrolled
 
-        print("\nYou choose the following Server Profile Template: ")
-        cliutils.print_list(
-            [server_profile_selected],
-            ['name', 'enclosureGroupName', 'serverHardwareTypeName'],
-            mixed_case_fields=['enclosureGroupName', 'serverHardwareTypeName'],
-            field_labels=[
-                'Name',
-                'Enclosure Group Name',
-                'Server Hardware Type Name'
-            ]
+    def filter_server_hardware_not_enrolled(self, **kwargs):
+        server_hardware_objects = self.facade.filter_server_hardware_available(
+            **kwargs
+        )
+        sh_not_enrolled = self.filter_not_enrolled_on_ironic(
+            server_hardware_objects
         )
 
-        return server_profile_selected
-
-    def select_server_hardware_objects(self, server_hardware_list):
-        invalid_server_hardwares = True
-        self.assign_elements_with_new_id(server_hardware_list)
-        while invalid_server_hardwares:
-            input_id = self.print_prompt(
-                server_hardware_list,
-                ['id',
-                 'name',
-                 'cpus',
-                 'memoryMb',
-                 'local_gb',
-                 'serverGroupName',
-                 'serverHardwareTypeName'
-                 ],
-                ['serverHardwareTypeUri',
-                 'memoryMb',
-                 'serverGroupUri',
-                 'processorCoreCount',
-                 'processorCount',
-                 'serverHardwareTypeName',
-                 'serverGroupName'
-                 ],
-                "Enter a space separated list of Server Hardware ids you want "
-                "to use, e.g. 1 2 3 4. ('q' to quit)> ",
-                field_labels=[
-                    'Id',
-                    'Name',
-                    'CPUs',
-                    'Memory MB',
-                    'Disk GB',
-                    'Enclosure Group Name',
-                    'Server Hardware Type Name'
-                ]
+        for sh in sh_not_enrolled:
+            enclosure_group = self.facade.get_enclosure_group(
+                sh.enclosure_group_uri
             )
-            if input_id == 'q':
-                sys.exit()
-            server_hardware_ids_selected = input_id.split()
-            invalid_server_hardwares = self.is_entry_invalid(
-                server_hardware_ids_selected, server_hardware_list)
+            if enclosure_group:
+                sh.enclosure_group_name = enclosure_group.name
+            server_hardware_type = self.facade.get_server_hardware_type(
+                sh.server_hardware_type_uri
+            )
+            if server_hardware_type:
+                sh.server_hardware_type_name = server_hardware_type.name
 
-        return server_hardware_ids_selected
+        return sh_not_enrolled
+
+    def filter_templates_compatible_with(self, available_hardware):
+        spt_list = self.facade.list_templates_compatible_with(
+            available_hardware
+        )
+        for spt in spt_list:
+            enclosure_group = self.facade.get_enclosure_group(
+                spt.enclosure_group_uri
+            )
+            if enclosure_group:
+                spt.enclosure_group_name = enclosure_group.name
+            server_hardware_type = self.facade.get_server_hardware_type(
+                spt.server_hardware_type_uri
+            )
+            if server_hardware_type:
+                spt.server_hardware_type_name = server_hardware_type.name
+
+        return spt_list
 
     def create_node(self, args, server_hardware, server_profile_template):
+        # Here comes the infamous HACK of local_gb and cpu_arch
+        server_hardware.local_gb = 120
+        server_hardware.cpu_arch = 'x86_64'
+
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
@@ -172,14 +113,14 @@ class NodeCreator(object):
             },
             'properties': {
                 'cpus': server_hardware.cpus,
-                'memory_mb': server_hardware.memoryMb,
+                'memory_mb': server_hardware.memory_mb,
                 'local_gb': server_hardware.local_gb,
                 'cpu_arch': server_hardware.cpu_arch,
                 'capabilities': 'server_hardware_type_uri:%s,'
                                 'enclosure_group_uri:%s,'
                                 'server_profile_template_uri:%s' % (
-                                    server_hardware.serverHardwareTypeUri,
-                                    server_hardware.serverGroupUri,
+                                    server_hardware.server_hardware_type_uri,
+                                    server_hardware.enclosure_group_uri,
                                     server_profile_template.uri,
                                 )
             }
@@ -194,63 +135,153 @@ class NodeCreator(object):
         return node
 
 
+def print_prompt(object_list, header_list, input_message=None,
+                 field_labels=None):
+    cliutils.print_list(
+        object_list,
+        header_list,
+        mixed_case_fields=[],
+        field_labels=field_labels
+    )
+    if input_message is not None:
+        input_value = input(input_message)
+        return input_value
+
+
+def assign_elements_with_new_id(element_list):
+    counter = 1
+    for element in element_list:
+        element.id = counter
+        counter += 1
+
+
+def get_element_by_id(element_list, element_id):
+    try:
+        for element in element_list:
+            if element.id == int(element_id):
+                return element
+    except Exception:
+        return None
+
+
+def is_entry_invalid(entries, objects_list):
+    for entry in entries:
+        element = get_element_by_id(objects_list, entry)
+        if element is None:
+            return True
+    return False
+
+
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
               help="Show detailed information about the nodes.")
 def do_node_create(args):
     """Creates nodes based on available HP OneView Server Hardware."""
 
-    node_creator = NodeCreator(Facade(args))
-    hardware_manager = ServerHardwareManager(args)
-    profile_manager = ServerProfileManager(args)
+    node_creator = NodeCreator(facade.Facade(args))
 
     print("Retrieving Server Profile Templates from OneView...")
-    available_hardware = node_creator.list_server_hardware_not_enrolled(
-        hardware_manager.list(only_available=True)
-    )
-    # FIXME(thiagop): doesn't uses facade or node_creator
-    template_list = profile_manager.list_templates_compatible_with(
-        available_hardware
-    )
+    available_hardware = node_creator.list_server_hardware_not_enrolled()
 
     create_another_node_flag = True
     while create_another_node_flag:
         create_another_node_flag = False
 
-        template_selected = node_creator.select_server_profile_template(
-            template_list
+        spt_list = node_creator.filter_templates_compatible_with(
+            available_hardware
         )
+
+        assign_elements_with_new_id(spt_list)
+
+        template_selected = None
+        while template_selected is None:
+            input_id = print_prompt(
+                spt_list,
+                [
+                    'id',
+                    'name',
+                    'enclosure_group_name',
+                    'server_hardware_type_name'
+                ],
+                input_message="Enter the id of the Server Profile Template "
+                "you want to use. (Press 'q' to quit)> ",
+                field_labels=[
+                    'Id',
+                    'Name',
+                    'Enclosure Group Name',
+                    'Server Hardware Type Name'
+                ]
+            )
+            if input_id == 'q':
+                sys.exit()
+            template_selected = get_element_by_id(
+                spt_list, input_id
+            )
+
+        print("\nYou choose the following Server Profile Template: ")
+        print_prompt(
+            [template_selected],
+            ['name', 'enclosure_group_name', 'server_hardware_type_name'],
+            field_labels=[
+                'Name',
+                'Enclosure Group Name',
+                'Server Hardware Type Name'
+            ]
+        )
+
         print('\nListing compatible Server Hardware objects...')
-
-        # FIXME(thiagop): doesn't uses facade or node_creator
-        available_server_hardware_by_field = hardware_manager.list(
-            only_available=True,
-            fields={
-                'serverHardwareTypeUri':
-                    template_selected.serverHardwareTypeUri,
-                'serverGroupUri':
-                    template_selected.enclosureGroupUri
-            }
+        selected_sht_uri = template_selected.server_hardware_type_uri
+        selected_eg_uri = template_selected.enclosure_group_uri
+        s_hardware_list = node_creator.filter_server_hardware_not_enrolled(
+            server_hardware_type_uri=selected_sht_uri,
+            enclosure_group_uri=selected_eg_uri
         )
 
-        server_hardware_list = node_creator.list_server_hardware_not_enrolled(
-            available_server_hardware_by_field
-        )
-        server_hardware_ids_selected = node_creator.select_server_hardware_objects(
-            server_hardware_list
-        )
-        for server_hardware_id in server_hardware_ids_selected:
-            server_hardware_selected = node_creator.get_element_by_id(
-                server_hardware_list, server_hardware_id)
-            print('\nCreating a Node to represent the following Server '
-                  'Hardware...')
-            cliutils.print_list(
-                [server_hardware_selected],
-                ['name', 'cpus', 'memoryMb', 'local_gb', 'serverGroupName',
-                 'serverHardwareTypeName'],
-                mixed_case_fields=[
-                    'serverGroupName',
-                    'memoryMb',
-                    'serverHardwareTypeName'
+        assign_elements_with_new_id(s_hardware_list)
+
+        invalid_server_hardwares = True
+        while invalid_server_hardwares:
+            input_id = print_prompt(
+                s_hardware_list,
+                ['id',
+                 'name',
+                 'cpus',
+                 'memory_mb',
+                 'local_gb',
+                 'enclosure_group_name',
+                 'server_hardware_type_name'
+                 ],
+                "Enter a space separated list of Server Hardware ids you want "
+                "to use, e.g. 1 2 3 4. ('q' to quit)> ",
+                field_labels=[
+                    'Id',
+                    'Name',
+                    'CPUs',
+                    'Memory MB',
+                    'Disk GB',
+                    'Enclosure Group Name',
+                    'Server Hardware Type Name'
+                ]
+            )
+            if input_id == 'q':
+                sys.exit()
+            s_hardware_ids_selected = input_id.split()
+            invalid_server_hardwares = is_entry_invalid(
+                s_hardware_ids_selected, s_hardware_list)
+
+        for server_hardware_id in s_hardware_ids_selected:
+            server_hardware_selected = get_element_by_id(s_hardware_list,
+                                                         server_hardware_id)
+            print('\nCreating a node to represent the following Server' +
+                  ' Hardware..')
+            print_prompt(
+                object_list=[server_hardware_selected],
+                header_list=[
+                    'name',
+                    'cpus',
+                    'memory_mb',
+                    'local_gb',
+                    'enclosure_group_name',
+                    'server_hardware_type_name'
                 ],
                 field_labels=[
                     'Name',

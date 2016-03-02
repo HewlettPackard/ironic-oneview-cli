@@ -16,7 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from ironic_oneview_cli.oneview_client import get_oneview_client
+from ironic_oneview_cli.common import get_oneview_client
 from ironic_oneview_cli.openstack_client import get_ironic_client
 from ironic_oneview_cli.openstack_client import get_nova_client
 
@@ -26,7 +26,13 @@ class Facade(object):
     def __init__(self, args):
         self.ironicclient = get_ironic_client(args)
         self.novaclient = get_nova_client(args)
-        self.ovclient = get_oneview_client(args)
+        self.oneview_client = get_oneview_client(
+            manager_url=args.ov_auth_url,
+            username=args.ov_username,
+            password=args.ov_password,
+            allow_insecure_connections=args.insecure,
+            tls_cacert_file=args.ov_cacert
+        )
 
     # =========================================================================
     # Ironic actions
@@ -61,37 +67,44 @@ class Facade(object):
     # =========================================================================
     # OneView actions
     # =========================================================================
-    def prepare_and_do_ov_requests(self, uri, body={}, request_type='GET',
-                                   api_version='120'):
-        return self.ovclient.prepare_and_do_request(uri,
-                                                    body,
-                                                    request_type,
-                                                    api_version)
-
     def get_server_hardware(self, uri):
-        return self.ovclient.server_hardware.get_server_hardware(uri)
+        uuid = uri[uri.rfind("/") + 1:]
+        return self.oneview_client.server_hardware.get(uuid)
 
-    def get_server_profile_assigned_to_sh(self, server_hardware_uri):
-        return self.ovclient.server_hardware.get_server_profile_assigned_to_sh(
-            server_hardware_uri)
+    def get_server_profile_template(self, uri):
+        uuid = uri[uri.rfind("/") + 1:]
+        return self.oneview_client.server_profile_template.get(uuid)
 
-    def parse_server_hardware_to_dict(self, server_hardware_json):
-        return self.ovclient.server_hardware.parse_server_hardware_to_dict(
-            server_hardware_json)
+    def get_enclosure_group(self, uri):
+        uuid = uri[uri.rfind("/") + 1:]
+        return self.oneview_client.enclosure_group.get(uuid)
 
-    def get_ov_server_hardware_list(self,):
-        return self.ovclient.server_hardware.get_server_hardware_list()
+    def get_server_hardware_type(self, uri):
+        uuid = uri[uri.rfind("/") + 1:]
+        return self.oneview_client.server_hardware_type.get(uuid)
 
-    def get_server_profile(self, server_profile_uri):
-        return self.ovclient.server_profile.get_server_profile_template(
-            server_profile_uri)
+    # Next generation
+    def list_server_hardware_available(self):
+        server_hardware_list = self.filter_server_hardware_available()
+        return [sh for sh in server_hardware_list if not sh.server_profile_uri]
 
-    def clone_and_assign_server_profile(self, server_hardware_uri,
-                                        server_profile_template_uri,
-                                        node_uuid):
-        return self.ovclient.server_profile.clone_and_assign(
-            server_hardware_uri, server_profile_template_uri, node_uuid)
+    def list_templates_compatible_with(self, server_hardware_list):
+        compatible_server_profile_list = []
+        server_hardware_type_list = []
+        server_group_list = []
 
-    def unassign_server_profile(self, server_hardware_uri, server_profile_uri):
-        return self.ovclient.server_profile.unassign_server_profile(
-            server_hardware_uri, server_profile_uri)
+        for server_hardware in server_hardware_list:
+            server_hardware_type_list.append(
+                server_hardware.server_hardware_type_uri)
+            server_group_list.append(
+                server_hardware.enclosure_group_uri)
+
+        spt_list = self.oneview_client.server_profile_template.list()
+        for spt in spt_list:
+            if (spt.server_hardware_type_uri in server_hardware_type_list and
+               spt.enclosure_group_uri in server_group_list):
+                compatible_server_profile_list.append(spt)
+        return compatible_server_profile_list
+
+    def filter_server_hardware_available(self, **kwargs):
+        return self.oneview_client.server_hardware.list(**kwargs)

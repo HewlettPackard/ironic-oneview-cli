@@ -62,8 +62,8 @@ class IronicOneView(object):
         parser.add_argument('--insecure',
                             default=False,
                             action="store_true",
-                            help="Explicitly allow ironic-oneview CLI to perform "
-                            "\"insecure\" SSL (https) requests. The "
+                            help="Explicitly allow ironic-oneview CLI to "
+                            "perform \"insecure\" SSL (https) requests. The "
                             "server's certificate will not be verified "
                             "against any certificate authorities. This "
                             "option should be used with caution.")
@@ -71,8 +71,8 @@ class IronicOneView(object):
         parser.add_argument('--os-cacert',
                             metavar='<os-ca-bundle-file>',
                             default=cliutils.env('OS_CACERT'),
-                            help='Path to OpenStack CA certificate bundle file. '
-                                 'Defaults to env[OS_CACERT]')
+                            help='Path to OpenStack CA certificate bundle '
+                                 'file. Defaults to env[OS_CACERT]')
 
         parser.add_argument('--os_cacert',
                             help=argparse.SUPPRESS)
@@ -169,18 +169,22 @@ class IronicOneView(object):
         parser.add_argument('--os_ironic_node_driver',
                             help=argparse.SUPPRESS)
 
-        parser.add_argument('--os-ironic-deploy-kernel-uuid',
-                            default=cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
-                            help='Ironic deploy kernel image UUID. '
-                                 'Defaults to env[OS_IRONIC_DEPLOY_KERNEL_UUID]')
+        parser.add_argument(
+            '--os-ironic-deploy-kernel-uuid',
+            default=cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
+            help='Ironic deploy kernel image UUID. '
+                 'Defaults to env[OS_IRONIC_DEPLOY_KERNEL_UUID]'
+        )
 
         parser.add_argument('--os_ironic_deploy_kernel_uuid',
                             help=argparse.SUPPRESS)
 
-        parser.add_argument('--os-ironic-deploy-ramdisk-uuid',
-                            default=cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
-                            help='Ironic deploy ramdisk image UUID. '
-                                 'Defaults to env[OS_IRONIC_DEPLOY_RAMDISK_UUID]')
+        parser.add_argument(
+            '--os-ironic-deploy-ramdisk-uuid',
+            default=cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
+            help='Ironic deploy ramdisk image UUID. '
+                 'Defaults to env[OS_IRONIC_DEPLOY_RAMDISK_UUID]'
+        )
 
         parser.add_argument('--os_ironic_deploy_ramdisk_uuid',
                             help=argparse.SUPPRESS)
@@ -277,18 +281,20 @@ class IronicOneView(object):
                                             "env[OS_IRONIC_NODE_DRIVER]"))
 
         if not args.os_ironic_deploy_kernel_uuid:
-            raise exceptions.CommandError(_("You must provide an deploy "
-                                            "kernel uuid via either "
-                                            "--os-ironic-deploy-kernel-uuid "
-                                            "or via "
-                                            "env[OS_IRONIC_DEPLOY_KERNEL_UUID]"))
+            raise exceptions.CommandError(
+                _("You must provide a deploy "
+                  "kernel uuid via either "
+                  "--os-ironic-deploy-kernel-uuid "
+                  "or via "
+                  "env[OS_IRONIC_DEPLOY_KERNEL_UUID]")
+            )
 
         if not args.os_ironic_deploy_ramdisk_uuid:
-            raise exceptions.CommandError(_("You must provide an deploy "
-                                            "ramdisk uuid via either "
-                                            "--os-ironic-deploy-ramdisk-uuid "
-                                            "or via "
-                                            "env[OS_IRONIC_DEPLOY_RAMDISK_UUID]"))
+            raise exceptions.CommandError(
+                _("You must provide a deploy ramdisk uuid via either "
+                  "--os-ironic-deploy-ramdisk-uuid or via "
+                  "env[OS_IRONIC_DEPLOY_RAMDISK_UUID]")
+            )
 
         if not args.ov_password:
             if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
@@ -319,7 +325,9 @@ class IronicOneView(object):
         try:
             args.func(args)
         except exceptions.Unauthorized:
-            raise exceptions.CommandError(_("Invalid OpenStack Identity credentials"))
+            raise exceptions.CommandError(
+                _("Invalid OpenStack Identity credentials")
+            )
         except exceptions.CommandError as e:
             subcommand_parser = self.subcommands[args.subparser_name]
             subcommand_parser.error(e)

@@ -68,7 +68,6 @@ def _is_string_equals_true(string):
 
 
 def get_ironic_client(args):
-
     endpoint_type = 'publicURL'
     service_type = 'baremetal'
 
@@ -101,13 +100,11 @@ def get_ironic_client(args):
 
 
 def get_nova_client(args):
-    LOG.debug("Using OpenStack credentials specified in the configuration file"
-              " to get Nova Client")
-
     nova = nova_client.Client(2,
                               username=args.os_username,
                               api_key=args.os_password,
-                              project_id=args.os_project_name or args.os_tenant_name,
+                              project_id=(args.os_project_name or
+                                          args.os_tenant_name),
                               auth_url=args.os_auth_url,
                               insecure=args.insecure,
                               cacert=args.os_cacert)
