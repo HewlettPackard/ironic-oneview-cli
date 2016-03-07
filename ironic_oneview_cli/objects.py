@@ -100,7 +100,7 @@ class ServerProfileManager(Manager):
         
         filtered_server_profile_dict['enclosureGroupName'] = 'None'
         enclosure_group_uri = filtered_server_profile_dict.get('enclosureGroupUri')
-        if (enclosure_group_uri not in ('None', None):
+        if (enclosure_group_uri not in ('None', None)):
             enclosure_group = self.oneviewclient.enclosure_group.get(
                 filtered_server_profile_dict['enclosureGroupUri'])
             filtered_server_profile_dict['enclosureGroupName'] = \
