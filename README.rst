@@ -11,7 +11,17 @@ nodes compatible with OneView ``Server Hardware`` objects as well as properly
 configuring them. It also creates Nova flavors to match available Ironic
 nodes representing a ``Server Hardware``.
 
-For more information on *OneView* entities, see [1]_.
+
+This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
+allocation model [1]_ [2]_.
+
+..note::
+  If the user wants to use ``pre-allocation`` instead of ``dynamic allocation``, the
+  node will pass through a validation before the boot, checking the existence of
+  the Server Profile applied. To use the deprecated pre-allocation model instead,
+  use version 0.0.2 of this tool.
+
+For more information on *OneView* entities, see [3]_.
 
 Installation
 ============
@@ -62,13 +72,13 @@ If you prefer to create your own configuration file, it should look like this::
 Usage
 =====
 
-If your *~/ironic-oneview-cli.conf* configuration file is in your home directory, 
+If the user's *~/ironic-oneview-cli.conf* configuration file is in your home directory,
 the tool will automatically use this conf. In this case, to run
 ironic-oneview-cli, do::
 
     ironic-oneview <command>
 
-If you chose to place this file in a different location, you should pass it
+If the user chose to place this file in a different location, you should pass it
 when starting the tool::
 
     ironic-oneview --config-file <path to your configuration file> <command>
@@ -101,7 +111,7 @@ appliance.::
     +----+------------------------+----------------------+---------------------------+
     | 1  | template-dcs-virt-enc3 | virt-enclosure-group | BL460c Gen8 3             |
     | 2  | template-dcs-virt-enc4 | virt-enclosure-group | BL660c Gen9 1             |
-    +----+------------------------+----------------------+---------------------------+  
+    +----+------------------------+----------------------+---------------------------+
 
 After choosing a valid ``SPT``, the tool lists the available Server Hardware
 objects that match the chosen ``SPT``, and prompt you to choose the ones you
@@ -152,5 +162,7 @@ when running::
 
 References
 ==========
-.. [1] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
+.. [1] Dynamic allocation spec - https://review.openstack.org/#/c/275726/
+.. [2] Driver documentation - http://docs.openstack.org/developer/ironic/drivers/oneview.html
+.. [3] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
 

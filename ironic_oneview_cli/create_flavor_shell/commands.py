@@ -87,6 +87,7 @@ def get_flavor_from_ironic_node(flavor_id, node, hardware_manager, profile_manag
 
 	for available in template_list:
 	    flavor['server_profile_template_name'] = available.name
+
     return Flavor(id=flavor_id, info=flavor)
 
 
