@@ -178,6 +178,7 @@ class NodeCreator(object):
                 # every new node
                 # NOTE(caiobo): the flag should be removed once the
                 # support for pre-allocation is dropped.
+
                 'dynamic_allocation': True,
             },
             'properties': {
