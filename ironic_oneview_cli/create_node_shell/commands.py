@@ -174,6 +174,9 @@ class NodeCreator(object):
                 'deploy_ramdisk':
                     self.config.ironic.default_deploy_ramdisk_id,
                 'server_hardware_uri': server_hardware.uri,
+                # NOTE (liliars): flag to turn on dynamic allocation for
+                # every new node
+                'dynamic_allocation': True,
             },
             'properties': {
                 'cpus': server_hardware.cpus,
