@@ -16,6 +16,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
+
 from ironicclient import client as ironic_client
 from keystoneclient.v2_0 import client as ksclient
 from novaclient import client as nova_client
@@ -65,20 +67,22 @@ def get_endpoint(client, **kwargs):
 def _is_string_equals_true(string):
     return string.lower() == 'true'
 
-def get_ironic_client(conf):
-    insecure = _is_string_equals_true(conf.ironic.insecure)
+def get_ironic_client():
+
+    #TODO (xavier) Validate insecure connections rules
+    insecure = True
     endpoint_type = 'publicURL'
     service_type = 'baremetal'
 
     ks_kwargs = {
-        'username': conf.ironic.admin_user,
-        'password': conf.ironic.admin_password,
-        'tenant_name': conf.ironic.admin_tenant_name,
-        'auth_url': conf.ironic.auth_url,
+        'username': os.environ['OS_USERNAME'],
+        'password': os.environ['OS_PASSWORD'],
+        'tenant_name': os.environ['OS_TENANT_NAME'],
+        'auth_url': os.environ['OS_AUTH_URL'],
         'service_type': service_type,
         'endpoint_type': endpoint_type,
         'insecure': insecure,
-        'ca_cert': conf.ironic.ca_file,
+        'ca_cert': os.environ['OS_CACERT'],
     }
     ksclient = get_keystone_client(**ks_kwargs)
     token = ksclient.auth_token
@@ -91,20 +95,22 @@ def get_ironic_client(conf):
     }
 
     cli_kwargs['insecure'] = insecure
-    cli_kwargs['ca_cert'] = conf.ironic.ca_file
+    cli_kwargs['ca_cert'] = os.environ['OS_CACERT']
     cli_kwargs['os_ironic_api_version'] = IRONIC_API_VERSION
 
     return ironic_client.Client(1, endpoint, **cli_kwargs)
 
-def get_nova_client(conf):
-    insecure = _is_string_equals_true(conf.nova.insecure)
-    ca_file = conf.nova.ca_file if conf.nova.ca_file else None
+def get_nova_client():
+    #TODO (xavier) check insecure
+    insecure = True
+    ca_file = os.environ['OS_CACERT'] if os.environ['OS_CACERT'] else None
     LOG.debug("Using OpenStack credentials specified in the configuration file"
               " to get Nova Client")
-    nova = nova_client.Client(2, username=conf.nova.username,
-                              api_key=conf.nova.password,
-                              project_id=conf.nova.tenant_name,
-                              auth_url=conf.nova.auth_url,
+    nova = nova_client.Client(2, 
+                              username=os.environ['OS_USERNAME'],
+                              api_key=os.environ['OS_PASSWORD'],
+                              project_id=os.environ['OS_TENANT_NAME'],
+                              auth_url=os.environ['OS_AUTH_URL'],
                               insecure=insecure,
-                              cacert=ca_file)
+                              cacert=os.environ['OS_CACERT'])
     return nova
