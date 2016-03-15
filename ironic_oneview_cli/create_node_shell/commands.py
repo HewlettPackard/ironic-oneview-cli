@@ -164,7 +164,7 @@ class NodeCreator(object):
         return server_hardware_ids_selected
 
     def create_node(self, server_hardware, server_profile_template):
-        facade = Facade(self.config)
+        #facade = Facade()
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,

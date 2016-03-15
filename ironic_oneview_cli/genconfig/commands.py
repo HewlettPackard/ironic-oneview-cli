@@ -96,4 +96,4 @@ def do_genconfig(args):
     credentials['OV_USERNAME'] = oneview_username
     credentials['OV_PASSWORD'] = oneview_password
     credentials['OV_CACERT'] = oneview_cacert
-    generate_rc_file(args.config_file, **credentials)
+    generate_rc_file('ironic-oneviewrc', **credentials)

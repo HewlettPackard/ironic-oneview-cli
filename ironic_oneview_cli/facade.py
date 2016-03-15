@@ -23,10 +23,10 @@ from ironic_oneview_cli.openstack_client import get_nova_client
 
 class Facade(object):
 
-    def __init__(self, config):
-        self.ironicclient = get_ironic_client(config)
-        self.novaclient = get_nova_client(config)
-        self.ovclient = get_oneview_client(config)
+    def __init__(self):
+        self.ironicclient = get_ironic_client()
+        self.novaclient = get_nova_client()
+        self.ovclient = get_oneview_client()
 
     # =========================================================================
     # Ironic actions

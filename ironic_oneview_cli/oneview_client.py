@@ -31,23 +31,25 @@ ONEVIEW_POWER_OFF = 'Off'
 ONEVIEW_REST_API_VERSION = '200'
 
 
-def get_oneview_client(conf):
+def get_oneview_client():
     kwargs = {
-        'username': conf.oneview.username,
-        'password': conf.oneview.password,
-        'manager_url': conf.oneview.manager_url,
+        'username': os.environ['OV_USERNAME'],
+        'password': os.environ['OV_PASSWORD'],
+        'manager_url': os.environ['OV_AUTH_URL'],
         'allow_insecure_connections': False,
-        'tls_cacert_file': conf.oneview.tls_cacert_file
+        'tls_cacert_file': os.environ['OV_CACERT']
     }
-    if conf.oneview.allow_insecure_connections.lower() == 'true':
+    #TODO (xavier) check how allow
+    #if conf.oneview.allow_insecure_connections.lower() == 'true':
+    if True:
         kwargs['allow_insecure_connections'] = True
         print(
             "InsecureRequestWarning: Unverified HTTPS requests are being made."
             " Adding certificate verification is strongly advised. See: "
             "https://urllib3.readthedocs.org/en/latest/security.html"
         )
-    if conf.oneview.tls_cacert_file:
-        kwargs['tls_cacert_file'] = conf.oneview.tls_cacert_file
+    if os.environ['OS_CACERT']:
+        kwargs['tls_cacert_file'] = os.environ['OS_CACERT']
     return OneViewClient(**kwargs)
 
 
