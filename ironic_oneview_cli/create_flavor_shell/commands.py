@@ -23,7 +23,7 @@ from builtins import input
 from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.facade import Facade
-from ironic_oneview_cli.genconfig import commands as genconfig_commands
+from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.openstack.common import cliutils
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
@@ -125,7 +125,7 @@ def do_flavor_create(args):
             create = input("Config file not found on `%s`. Would you like to "
                            "create one now? [Y/n] " % config_file) or 'y'
             if create.lower() == 'y':
-                genconfig_commands.do_genconfig(args)
+                genrc_commands.do_genrc()
                 break
             elif create.lower() == 'n':
                 return

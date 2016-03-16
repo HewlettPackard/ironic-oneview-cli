@@ -32,7 +32,8 @@ def generate_rc_file(file_name, **credentials):
             rc.truncate()
 
 
-def do_genconfig(args):
+def do_genrc():
+    raise Exception('hueheuehue')
     """Generates the config file according to user input
 
     """
