@@ -20,6 +20,7 @@ import abc
 import six
 
 from ironic_oneview_cli.oneview_client import OneViewClient
+from ironic_oneview_cli.oneview_client import get_oneview_client
 
 
 class Resource(object):
@@ -53,17 +54,12 @@ class Manager(object):
     six.add_metaclass(abc.ABCMeta)
     resource_class = None
 
-    def __init__(self, config):
+    def __init__(self):
         allow_insecure_connections = False
-        if config.oneview.allow_insecure_connections.lower() == 'true':
+        if True:
+        #if config.oneview.allow_insecure_connections.lower() == 'true':
             allow_insecure_connections = True
-        self.oneviewclient = OneViewClient(
-            config.oneview.manager_url,
-            config.oneview.username,
-            config.oneview.password,
-            allow_insecure_connections,
-            config.oneview.tls_cacert_file
-        )
+        self.oneviewclient = get_oneview_client()
 
     def _dict_to_object(self, dictionary):
         raise Exception('Not Implemented')

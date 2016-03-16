@@ -30,7 +30,7 @@ from ironic_oneview_cli.create_flavor_shell import commands \
     as flavor_create_commands
 from ironic_oneview_cli.create_node_shell import commands \
     as node_create_commands
-from ironic_oneview_cli.genconfig import commands as genconfig_commands
+from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.openstack.common._i18n import _
 from ironic_oneview_cli.openstack.common import cliutils
 
@@ -40,7 +40,7 @@ VERSION = '1.0'
 COMMAND_MODULES = [
     node_create_commands,
     flavor_create_commands,
-    genconfig_commands
+    genrc_commands
 ]
 
 
@@ -62,14 +62,9 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS,
                             )
 
-        parser.add_argument('--version',
+        parser.add_argument('-v', '--version',
                             action='version',
                             version=VERSION)
-
-        parser.add_argument('-c', '--config-file',
-                            default='~/ironic-oneview-cli.conf',
-                            help=('Default path to configuration file. '
-                                  'Defaults to `~/ironic-oneview-cli.conf`'))
 
         return parser
 
