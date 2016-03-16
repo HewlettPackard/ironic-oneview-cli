@@ -171,6 +171,7 @@ class ResourceAPI(OneViewRequestAPI):
     def _list(self, uri, fields=None):
         request_result = self.prepare_and_do_request(uri)
         obj_list = request_result.get("members")
+        count = 1
         next_page_uri = request_result.get('nextPageUri')
         while next_page_uri is not None:
             request_result = self.prepare_and_do_request(next_page_uri)
