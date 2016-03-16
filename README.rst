@@ -11,6 +11,20 @@ nodes compatible with OneView ``Server Hardware`` objects as well as properly
 configuring them. It also creates Nova flavors to match available Ironic
 nodes representing a ``Server Hardware``.
 
+This tool create ironic nodes basead in a concept called ``dynamic allocation``. In
+this concept a available node in Ironic can be taken by OneView at any moment and
+apply the Server Profile during the boot process insted of having one applied
+already at the node to validation. A node will be considered to be free for Ironic
+when there is no Server Profile applied to the Server Hardware the node
+represents, or there is a Server Profile applied, but this Server Profile is
+consistent with what is registered in Ironic's node data structure.
+
+..note::
+  If the user wants to use ``pre-allocation`` instead of ``dynamic allocation``, the
+  node will pass through a validation before the boot, checking the existence of
+  the Server Profile applied. To use this other concept the user needs to download
+  a previously version (the last one before this).
+
 For more information on *OneView* entities, see [1]_.
 
 Installation
@@ -62,7 +76,7 @@ If you prefer to create your own configuration file, it should look like this::
 Usage
 =====
 
-If your *~/ironic-oneview-cli.conf* configuration file is in your home directory, 
+If your *~/ironic-oneview-cli.conf* configuration file is in your home directory,
 the tool will automatically use this conf. In this case, to run
 ironic-oneview-cli, do::
 
@@ -101,7 +115,7 @@ appliance.::
     +----+------------------------+----------------------+---------------------------+
     | 1  | template-dcs-virt-enc3 | virt-enclosure-group | BL460c Gen8 3             |
     | 2  | template-dcs-virt-enc4 | virt-enclosure-group | BL660c Gen9 1             |
-    +----+------------------------+----------------------+---------------------------+  
+    +----+------------------------+----------------------+---------------------------+
 
 After choosing a valid ``SPT``, the tool lists the available Server Hardware
 objects that match the chosen ``SPT``, and prompt you to choose the ones you
