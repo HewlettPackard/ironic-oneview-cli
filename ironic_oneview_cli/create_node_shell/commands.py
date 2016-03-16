@@ -281,5 +281,13 @@ def do_node_create(args):
             ]
         )
 
-        node_creator.create_node(server_hardware_selected, template_selected)
+        node = node_creator.create_node(server_hardware_selected, template_selected)
         print('Node created!')
+        cliutils.print_list(
+            [node],
+            ['name', 'uuid'],
+            field_labels=[
+                'Name',
+                'UUID'
+            ]
+        )
