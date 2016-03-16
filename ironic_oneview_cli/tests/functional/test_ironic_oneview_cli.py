@@ -44,22 +44,30 @@ from ironic_oneview_cli import facade
 class FakeServerHardware(object):
 
     def __init__(self, uuid, uri, power_state, server_profile_uri,
-                 server_hardware_type_uri, enclosure_group_uri,
-                 status, state, state_reason, enclosure_uri, processor_count,
-                 processor_core_count, memory_mb, port_map, mp_host_info):
+                 server_hardware_type_uri, serverHardwareTypeUri,
+                 enclosure_group_uri, serverGroupUri, status, state,
+                 state_reason, enclosure_uri, local_gb, cpu_arch, cpus,
+                 processor_count, processor_core_count, memoryMb, memory_mb, 
+                 port_map, mp_host_info):
 
         self.uuid = uuid
         self.uri = uri
         self.power_state = power_state
         self.server_profile_uri = server_profile_uri
         self.server_hardware_type_uri = server_hardware_type_uri
+        self.serverHardwareTypeUri = serverHardwareTypeUri # remove before python-oneviewclient
+        self.serverGroupUri = serverGroupUri # remove before python-oneviewclient
         self.enclosure_group_uri = enclosure_group_uri
         self.status = status
         self.state = state
         self.state_reason = state_reason
         self.enclosure_uri = enclosure_uri
+        self.local_gb = local_gb # remove before python-oneviewclient
+        self.cpu_arch = cpu_arch # remove before python-oneviewclient
+        self.cpus = cpus # remove before python-oneviewclient
         self.processor_count = processor_count
         self.processor_core_count = processor_core_count
+        self.memoryMb = memoryMb # remove before python-oneviewclient
         self.memory_mb = memory_mb
         self.port_map = port_map
         self.mp_host_info = mp_host_info
@@ -84,13 +92,19 @@ POOL_OF_FAKE_SERVER_HARDWARE = [
         power_state='Off',
         server_profile_uri='',
         server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
+        serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
         enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
         status='OK',
         state='Unknown',
         state_reason='',
         enclosure_uri='/rest/enclosures/huehuehuehuehue',
+        local_gb=72768,
+        cpu_arch='x86_64',
+        cpus=12,
         processor_count=12,
         processor_core_count=12,
+        memoryMb=16384,
         memory_mb=16384,
         port_map=[],
         mp_host_info={}
@@ -128,45 +142,46 @@ class TestIronicOneviewCli(base.TestCase):
         os.environ['OV_PASSWORD'] = 'password'
         os.environ['OV_CACERT'] = ''
 
-        self.node_creator = NodeCreator(None)
+        
+
+
         self.nodes = []
         self.flavors = []
 
 
     def tearDown(self):
 
-        os.unset('OS_AUTH_URL')
-        os.unset('OS_USERNAME')
-        os.unset('OS_PASSWORD')
-        os.unset('OS_PROJECT_NAME')
-        os.unset('OS_TENANT_NAME')
-        os.unset('OS_CACERT')
-        os.unset('OS_IRONIC_DEPLOY_KERNEL_UUID')
-        os.unset('OS_IRONIC_DEPLOY_RAMDISK_UUID')
-        os.unset('OS_IRONIC_NODE_DRIVER')
+        del os.environ['OS_AUTH_URL']
+        del os.environ['OS_USERNAME']
+        del os.environ['OS_PASSWORD']
+        del os.environ['OS_PROJECT_NAME']
+        del os.environ['OS_TENANT_NAME']
+        del os.environ['OS_CACERT']
+        del os.environ['OS_IRONIC_DEPLOY_KERNEL_UUID']
+        del os.environ['OS_IRONIC_DEPLOY_RAMDISK_UUID']
+        del os.environ['OS_IRONIC_NODE_DRIVER']
 
-        os.unset('OV_AUTH_URL')
-        os.unset('OV_USERNAME')
-        os.unset('OV_PASSWORD')
-        os.unset('OV_CACERT')
+        del os.environ['OV_AUTH_URL']
+        del os.environ['OV_USERNAME']
+        del os.environ['OV_PASSWORD']
+        del os.environ['OV_CACERT']
 
         #TODO Delete created data
 
-
     @patch.object(facade.Facade, 'create_ironic_node')
-    def test_node_creation(self, mock_create_ironic_node):
-
-              
-        mocked_facade = facade.Facade()
-        mocked_facade.nova_client = None
-        mocked_facade.ironic_client = None
-        mocked_facade.ovclient = None
+    @patch('ironic_oneview_cli.facade.Facade')
+    def test_node_creation(self, mock_facade, mock_create_ironic_node):
+         
+        mock_facade.ironicclient = None
+        mock_facade.novaclient = None
+        mock_facade.ovclient = None
 
         node_created = True
         mock_create_ironic_node.return_value = node_created
-        mocked_facade.create_ironic_node = mock_create_ironic_node
+        mock_facade.create_ironic_node = mock_create_ironic_node
 
-        self.node_creator.create_node(POOL_OF_FAKE_SERVER_HARDWARE[0],
+        node_creator = NodeCreator(mock_facade)
+        node_creator.create_node(POOL_OF_FAKE_SERVER_HARDWARE[0],
                                       POOL_OF_FAKE_SERVER_PROFILE_TEMPLATE[0])
 
         attrs = {
@@ -175,40 +190,26 @@ class TestIronicOneviewCli(base.TestCase):
                 'deploy_kernel': os.environ['OS_IRONIC_DEPLOY_KERNEL_UUID'],
                 'deploy_ramdisk': os.environ['OS_IRONIC_DEPLOY_RAMDISK_UUID'],
                 'server_hardware_uri':
-                    POOL_OF_FAKE_SERVER_HARDWARE[0].server_hardware_uri,
+                    POOL_OF_FAKE_SERVER_HARDWARE[0].uri,
             },
             'properties': {
-                'cpus': POOL_OF_FAKE_SERVER_HARDWARE[0].processor_count,
+                'cpus': POOL_OF_FAKE_SERVER_HARDWARE[0].cpus,
                 'memory_mb': POOL_OF_FAKE_SERVER_HARDWARE[0].memory_mb,
-                'local_gb': 72678,
-                'cpu_arch': 'x86_64',
+                'local_gb': POOL_OF_FAKE_SERVER_HARDWARE[0].local_gb,
+                'cpu_arch': POOL_OF_FAKE_SERVER_HARDWARE[0].cpu_arch,
                 'capabilities': 'server_hardware_type_uri:%s,'
                                 'enclosure_group_uri:%s,'
                                 'server_profile_template_uri:%s' % (
-                                    POOL_OF_FAKE_SERVER_HARDWARE[0].server_hardware_type_uri,
-                                    POOL_OF_FAKE_SERVER_HARDWARE[0].enclosure_group_uri,
+                                    POOL_OF_FAKE_SERVER_HARDWARE[0].serverHardwareTypeUri,
+                                    POOL_OF_FAKE_SERVER_HARDWARE[0].serverGroupUri,
                                     POOL_OF_FAKE_SERVER_PROFILE_TEMPLATE[0].uri,
                                 )
             }
         }
 
         mock_create_ironic_node.assert_called_with(
-            attrs
+            **attrs
         )
-
-
-
-#        nova_client = None
-#        mock_nova_client.return_value = nova_client
-#        mocked_facade.novaclient = mock_nova_client
-
- #       ironic_client = None
- #       mock_ironic_client.return_value = ironic_client
- #       mocked_facade.ironicclient = mock_ironic_client
-
-  #      oneview_client = None
-  #      mock_oneview_client.return_value = oneview_client
-  #      mocked_facade.oneview_client = mock_oneview_client
 
     def test_flavor_creation(self):
         pass

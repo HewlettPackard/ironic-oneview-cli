@@ -36,8 +36,8 @@ server_profile_manager = None
 # NOTE(thiagop): is this a facade too?
 class NodeCreator(object):
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, facade):
+        self.facade = facade
 
     def print_prompt(self, object_list, header_list, mixed_case_list,
                      input_message, field_labels=None):
@@ -70,9 +70,8 @@ class NodeCreator(object):
 
     def list_server_hardware_not_enrolled(self, server_hardware_objects):
         nodes_server_hardware_uris = []
-        facade = Facade(self.config)
         nodes = filter(lambda x: x.driver.endswith("_oneview"),
-                       facade.get_ironic_node_list())
+                       self.facade.get_ironic_node_list())
         for node in nodes:
             node_server_hardware_uri = node.driver_info.get(
                 'server_hardware_uri'
@@ -164,15 +163,13 @@ class NodeCreator(object):
         return server_hardware_ids_selected
 
     def create_node(self, server_hardware, server_profile_template):
-        #facade = Facade()
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
-            'driver': self.config.ironic.default_driver,
+            'driver': os.environ['OS_IRONIC_NODE_DRIVER'],
             'driver_info': {
-                'deploy_kernel': self.config.ironic.default_deploy_kernel_id,
-                'deploy_ramdisk':
-                    self.config.ironic.default_deploy_ramdisk_id,
+                'deploy_kernel': os.environ['OS_IRONIC_DEPLOY_KERNEL_UUID'],
+                'deploy_ramdisk': os.environ['OS_IRONIC_DEPLOY_RAMDISK_UUID'],
                 'server_hardware_uri': server_hardware.uri,
             },
             'properties': {
@@ -189,7 +186,7 @@ class NodeCreator(object):
                                 )
             }
         }
-        return facade.create_ironic_node(**attrs)
+        return self.facade.create_ironic_node(**attrs)
 
 
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
