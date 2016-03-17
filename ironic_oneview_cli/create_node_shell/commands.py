@@ -16,7 +16,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 import sys
 
 from builtins import input
@@ -27,10 +26,6 @@ from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
 from ironic_oneview_cli.openstack.common import cliutils
-
-
-server_hardware_manager = None
-server_profile_manager = None
 
 
 # NOTE(thiagop): is this a facade too?
@@ -166,10 +161,10 @@ class NodeCreator(object):
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
-            'driver': os.environ['OS_IRONIC_NODE_DRIVER'],
+            'driver': cliutils.env('OS_IRONIC_NODE_DRIVER'),
             'driver_info': {
-                'deploy_kernel': os.environ['OS_IRONIC_DEPLOY_KERNEL_UUID'],
-                'deploy_ramdisk': os.environ['OS_IRONIC_DEPLOY_RAMDISK_UUID'],
+                'deploy_kernel': cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
+                'deploy_ramdisk': cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
                 'server_hardware_uri': server_hardware.uri,
             },
             'properties': {
@@ -193,32 +188,21 @@ class NodeCreator(object):
               help="Show detailed information about the nodes.")
 def do_node_create(args):
     """Creates nodes in Ironic given a list of available OneView servers."""
-
-    node_creator = NodeCreator()
-
-    if not os.environ['OS_USERNAME'] and os.environ['OS_PASSWORD']:
-        print 'please set environment variables...'
-        genrc_commands.do_genrc()
+    
+    if not (cliutils.env('OS_USERNAME') or cliutils.env('OS_PASSWORD')):
+        print "Please, download the 'rc' file from your OpenStack cloud controller"
+        print "then do: "
+        print "    $ source PROJECT-rc.sh"
         sys.exit()
 
+    if not (cliutils.env('OV_USERNAME')):
+        print "Please, set your environment variables for HP OneView Appliance"
+        genrc_commands.do_genrc(args)
 
 
-    if not os.path.isfile(config_file):
-        while True:
-            create = input("Config file not found on `%s`. Would you like to "
-                           "create one now? [Y/n] " % config_file) or 'y'
-            if create.lower() == 'y':
-                genrc_commands.do_genrc()
-                break
-            elif create.lower() == 'n':
-                return
-            else:
-                print("Invalid option.\n")
-
-    conf = ConfClient(config_file, defaults)
-    node_creator = NodeCreator(conf)
-    hardware_manager = ServerHardwareManager(conf)
-    profile_manager = ServerProfileManager(conf)
+    node_creator = NodeCreator(Facade())
+    hardware_manager = ServerHardwareManager()
+    profile_manager = ServerProfileManager()
 
     print("Retrieving Server Profile Templates from OneView...")
     available_hardware = node_creator.list_server_hardware_not_enrolled(

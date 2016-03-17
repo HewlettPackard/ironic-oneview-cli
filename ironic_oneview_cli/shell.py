@@ -16,7 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 """
-Command-line interface to the OneView Sync.
+Command-line interface to the HP OneView CLI tool.
 """
 
 from __future__ import print_function
@@ -35,7 +35,7 @@ from ironic_oneview_cli.openstack.common._i18n import _
 from ironic_oneview_cli.openstack.common import cliutils
 
 
-VERSION = '1.0'
+VERSION = '0.0.2'
 
 COMMAND_MODULES = [
     node_create_commands,
@@ -57,14 +57,48 @@ class IronicOneView(object):
         )
 
         # Global arguments
+        parser.add_argument('--insecure',
+                            default=False,
+                            action="store_true",
+                            help="Explicitly allow ironic-oneview CLI to perform " 
+                            "\"insecure\" SSL (https) requests. The "
+                            "server's certificate will not be verified "
+                            "against any certificate authorities. This "
+                            "option should be used with caution.")
+
+        parser.add_argument('--os-cacert',
+                            metavar='<ca-certificate>',
+                            default=cliutils.env('OS_CACERT'),
+                            help='Defaults to env[OS_CACERT]')
+        
+        parser.add_argument('--os_cacert',
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('-h', '--help',
                             action='store_true',
                             help=argparse.SUPPRESS,
                             )
 
-        parser.add_argument('-v', '--version',
+        parser.add_argument('--version',
                             action='version',
                             version=VERSION)
+
+        parser.add_argument('--os-username',
+                            default=cliutils.env('OS_USERNAME'),
+                            help='Defaults to env[OS_USERNAME]')
+
+        parser.add_argument('--os-password',
+                            default=cliutils.env('OS_PASSWORD'),
+                            help='Defaults to env[OS_PASSWORD]')
+
+        parser.add_argument('--os-tenant-name',
+                            default=cliutils.env('OS_TENANT_NAME'),
+                            help='Defaults to env[OS_TENANT_NAME]')
+
+        parser.add_argument('--os-auth-url',
+                            default=cliutils.env('OS_AUTH_URL'),
+                            help='Defaults to env[OS_AUTH_URL]')
+
 
         return parser
 
@@ -95,11 +129,13 @@ class IronicOneView(object):
         subcommand_parser = self.get_subcommand_parser(1)
         self.parser = subcommand_parser
 
+
         if options.help or not argv:
             self.do_help(options)
             return 0
 
         args = subcommand_parser.parse_args(argv)
+        raise Exception(args)
         # Short-circuit and deal with these commands right away.
         if args.func == self.do_help:
             self.do_help(args)
@@ -159,9 +195,9 @@ def main():
     except KeyboardInterrupt:
         print("... terminating OneView node creation tool", file=sys.stderr)
         sys.exit(130)
-    except Exception as e:
-        print(encodeutils.safe_encode(six.text_type(e)), file=sys.stderr)
-        sys.exit(1)
+    #except Exception as e:
+    #    print(encodeutils.safe_encode(six.text_type(e)), file=sys.stderr)
+    #    sys.exit(1)
 
 
 if __name__ == '__main__':
