@@ -285,9 +285,12 @@ def do_node_create(args):
         print('Node created!')
         cliutils.print_list(
             [node],
-            ['name', 'uuid'],
+            ['name', 'uuid', 'driver', 'extra'],
             field_labels=[
                 'Name',
-                'UUID'
+                'UUID',
+                'Driver',
+                'Extra'
+
             ]
         )
