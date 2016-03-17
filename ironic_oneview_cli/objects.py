@@ -82,8 +82,8 @@ class ServerProfileManager(Manager):
     fields = ['serverHardwareTypeUri', 'description', 'name',
               'enclosureGroupUri', 'uri', ]
 
-    def __init__(self, config_file):
-        super(ServerProfileManager, self).__init__(config_file)
+    def __init__(self):
+        super(ServerProfileManager, self).__init__()
         self.api = self.oneviewclient.server_profile
 
     def _dict_to_object(self, dict, id=0):
@@ -136,8 +136,8 @@ class ServerHardwareManager(Manager):
     fields = ['uri', 'serverHardwareTypeUri', 'uuid', 'memoryMb',
               'description', 'serverGroupUri', 'name', 'serverProfileUri']
 
-    def __init__(self, config_file):
-        super(ServerHardwareManager, self).__init__(config_file)
+    def __init__(self):
+        super(ServerHardwareManager, self).__init__()
         self.api = self.oneviewclient.server_hardware
 
     def _dict_to_object(self, dict, id=0):

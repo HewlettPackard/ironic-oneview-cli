@@ -130,7 +130,7 @@ def do_flavor_create(args):
             create = input("Config file not found on `%s`. Would you like to "
                            "create one now? [Y/n] " % config_file) or 'y'
             if create.lower() == 'y':
-                genrc_commands.do_genrc()
+                genrc_commands.do_genrc(args)
                 break
             elif create.lower() == 'n':
                 return

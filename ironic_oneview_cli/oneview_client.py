@@ -22,7 +22,7 @@ import requests
 from ironic_oneview_cli import oneview_uri
 from ironic_oneview_cli import service_logging as logging
 from ironic_oneview_cli.sync_exceptions import OneViewConnectionError
-
+from ironic_oneview_cli.openstack.common import cliutils
 
 LOG = logging.getLogger(__name__)
 
@@ -33,11 +33,11 @@ ONEVIEW_REST_API_VERSION = '200'
 
 def get_oneview_client():
     kwargs = {
-        'username': os.environ['OV_USERNAME'],
-        'password': os.environ['OV_PASSWORD'],
-        'manager_url': os.environ['OV_AUTH_URL'],
+        'username': cliutils.env('OV_USERNAME'),
+        'password': cliutils.env('OV_PASSWORD'),
+        'manager_url': cliutils.env('OV_AUTH_URL'),
         'allow_insecure_connections': False,
-        'tls_cacert_file': os.environ['OV_CACERT']
+        'tls_cacert_file': ""
     }
     #TODO (xavier) check how allow
     #if conf.oneview.allow_insecure_connections.lower() == 'true':
@@ -48,8 +48,8 @@ def get_oneview_client():
             " Adding certificate verification is strongly advised. See: "
             "https://urllib3.readthedocs.org/en/latest/security.html"
         )
-    if os.environ['OS_CACERT']:
-        kwargs['tls_cacert_file'] = os.environ['OS_CACERT']
+    if cliutils.env('OV_CACERT'):
+        kwargs['tls_cacert_file'] = cliutils.env('OV_CACERT')
     return OneViewClient(**kwargs)
 
 
