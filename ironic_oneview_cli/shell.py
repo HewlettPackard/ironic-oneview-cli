@@ -21,6 +21,7 @@ Command-line interface to the HP OneView CLI tool.
 
 from __future__ import print_function
 import argparse
+import getpass
 import six
 import sys
 
@@ -211,10 +212,26 @@ class IronicOneView(object):
             self.do_help(args)
             return 0
 
+        if args.func == genrc_commands.do_genrc:
+            genrc_commands.do_genrc(args)
+            return 0
+
         if not args.os_username:
             raise exceptions.CommandError(_("You must provide a username via "
                                             "either --os-username or via "
                                             "env[OS_USERNAME]"))
+
+        if not (args.os_tenant_name or args.os_project_name):
+            raise exceptions.CommandError(
+                _("You must provide a tenant name or "
+                  "project name via --os-tenant-name or --os-project-name, "
+                  "env[OS_TENANT_NAME] or env[OS_PROJECT_NAME]. You may "
+                  "use os-tenant and os-project interchangeably."))
+
+        if not args.os_auth_url:
+            raise exceptions.CommandError(_("You must provide an auth url via "
+                                            "either --os-auth-url or via "
+                                            "env[OS_AUTH_URL]"))
 
         if not args.os_password:
             if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
@@ -231,49 +248,15 @@ class IronicOneView(object):
                                             "env[OS_PASSWORD], "
                                             "or prompted response"))
 
-        if not (args.os_tenant_name or args.os_project_name):
-            raise exceptions.CommandError(
-                _("You must provide a tenant name or "
-                  "project name via --os-tenant-name, --os-project-name, "
-                  "env[OS_TENANT_NAME] or env[OS_PROJECT_NAME]. You may "
-                  "use os-tenant and os-project interchangeably."))
-
-        if not args.os_auth_url:
-            raise exceptions.CommandError(_("You must provide an auth url via "
-                                            "either --os-auth-url or via "
-                                            "env[OS_AUTH_URL]"))
-
         if not args.ov_username:
             raise exceptions.CommandError(_("You must provide a username via "
                                             "either --ov-username or via "
                                             "env[OV_USERNAME]"))
 
-        if not args.ov_password:
-            if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
-
-                try:
-                    args.ov_password = getpass.getpass('HP OneView Password: ')
-
-                except EOFError:
-                    pass
-
-        if not args.ov_password:
-            raise exceptions.CommandError(_("You must provide a password via "
-                                            "either --ov-password, "
-                                            "env[OV_PASSWORD], "
-                                            "or prompted response"))
-
         if not args.ov_auth_url:
             raise exceptions.CommandError(_("You must provide an auth url via "
                                             "either --ov-auth-url or via "
                                             "env[OV_AUTH_URL]"))
-
-        if not args.insecure:
-            raise exceptions.CommandError(_("You must provide an ca "
-                                            "certificate either --os-cacert "
-                                            "or via env[OS_CACERT] and "
-                                            "--ov-cacert or via "
-                                            "env[OV_CACERT]"))
 
         if not args.os_ironic_node_driver:
             raise exceptions.CommandError(_("You must provide an node driver "
@@ -294,6 +277,28 @@ class IronicOneView(object):
                                             "--os-ironic-deploy-ramdisk-uuid "
                                             "or via "
                                             "env[OS_IRONIC_DEPLOY_RAMDISK_UUID]"))
+
+        if not args.ov_password:
+            if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
+
+                try:
+                    args.ov_password = getpass.getpass('HP OneView Password: ')
+
+                except EOFError:
+                    pass
+
+        if not args.ov_password:
+            raise exceptions.CommandError(_("You must provide a password via "
+                                            "either --ov-password, "
+                                            "env[OV_PASSWORD], "
+                                            "or prompted response"))
+
+        if not args.insecure:
+            raise exceptions.CommandError(_("You must provide an ca "
+                                            "certificate either --os-cacert "
+                                            "or via env[OS_CACERT] and "
+                                            "--ov-cacert or via "
+                                            "env[OV_CACERT]"))
 
         client_args = (
             'os_username', 'os_password', 'os_tenant_name', 'os_project_name',
