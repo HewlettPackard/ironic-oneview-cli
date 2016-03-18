@@ -23,7 +23,7 @@ from builtins import input
 
 
 def generate_rc_file(file_name='ironic-oneviewrc', **credentials):
-    password = 'echo "Please enter your HP OneView Appliance password: "'
+    password = 'echo "Please enter your HP OneView password: "'
     read_password = 'read -sr OS_PASSWORD_INPUT'
     export_password = 'export OS_PASSWORD=$OS_PASSWORD_INPUT'
 
@@ -48,17 +48,17 @@ def do_genrc(args):
     # OpenStack
 
     openstack_ironic_deploy_kernel_uuid = input("Type in the default deploy "
-                                                "keynel image ID on Glance: ")
+                                                "keynel image UUID on Glance: ")
     openstack_ironic_deploy_ramdisk_uuid = input("Type in the default deploy "
-                                                 "ramdisk image ID on Glance: ")
+                                                 "ramdisk image UUID on Glance: ")
     openstack_ironic_node_driver = input(("Which driver would you like to use? "
                                           "[%s]: ") % ','.join(enabled_drivers))
 
     # OneView
 
-    oneview_manager_url = input("Type in the HP OneView Appliance url: ")
-    oneview_username = input("Type your HP OneView Appliance username: ")
-    oneview_cacert = input("Type the path to you HP OneView Appliance cacert file: ")
+    oneview_manager_url = input("Type the HP OneView URL: ")
+    oneview_username = input("Type your HP OneView username: ")
+    oneview_cacert = input("Type the path to your HP OneView cacert file: ")
 
     # File
 

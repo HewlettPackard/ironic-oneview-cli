@@ -73,7 +73,7 @@ def get_ironic_client(args):
     ks_kwargs = {
         'username': args.os_username,
         'password': args.os_password,
-        'tenant_name': args.os_tenant_name,
+        'tenant_name': args.os_tenant_name or args.os_project_name,
         'auth_url': args.os_auth_url,
         'service_type': service_type,
         'endpoint_type': endpoint_type,
