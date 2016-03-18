@@ -17,6 +17,18 @@
 #    under the License.
 
 
+class ClientException(Exception):
+    """The base exception class for all exceptions this library raises."""
+
+
+class CommandError(ClientException):
+    """Error in CLI tool."""
+
+
+class Unauthorized(ClientException):
+    """Unauthorized."""
+
+
 class OneViewConnectionError(Exception):
     def __init__(self, value):
         self.value = value

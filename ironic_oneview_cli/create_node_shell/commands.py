@@ -31,8 +31,9 @@ from ironic_oneview_cli.openstack.common import cliutils
 # NOTE(thiagop): is this a facade too?
 class NodeCreator(object):
 
-    def __init__(self, facade):
-        self.facade = facade
+    def __init__(self, args):
+        self.args = args
+        self.facade = Facade(args)
 
     def print_prompt(self, object_list, header_list, mixed_case_list,
                      input_message, field_labels=None):
@@ -161,10 +162,10 @@ class NodeCreator(object):
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
-            'driver': cliutils.env('OS_IRONIC_NODE_DRIVER'),
+            'driver': self.args.os_ironic_node_driver,
             'driver_info': {
-                'deploy_kernel': cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
-                'deploy_ramdisk': cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
+                'deploy_kernel': self.args.os_ironic_deploy_kernel_uuid,
+                'deploy_ramdisk': self.args.os_ironic_deploy_ramdisk_uuid,
                 'server_hardware_uri': server_hardware.uri,
             },
             'properties': {
@@ -189,20 +190,20 @@ class NodeCreator(object):
 def do_node_create(args):
     """Creates nodes in Ironic given a list of available OneView servers."""
     
-    if not (cliutils.env('OS_USERNAME') or cliutils.env('OS_PASSWORD')):
-        print "Please, download the 'rc' file from your OpenStack cloud controller"
-        print "then do: "
-        print "    $ source PROJECT-rc.sh"
-        sys.exit()
+#    if not (cliutils.env('OS_USERNAME') or cliutils.env('OS_PASSWORD')):
+#        print "Please, download the 'rc' file from your OpenStack cloud controller"
+#        print "then do: "
+#        print "    $ source PROJECT-rc.sh"
+#        sys.exit()
 
-    if not (cliutils.env('OV_USERNAME')):
-        print "Please, set your environment variables for HP OneView Appliance"
-        genrc_commands.do_genrc(args)
+#    if not (cliutils.env('OV_USERNAME')):
+#        print "Please, set your environment variables for HP OneView Appliance"
+#        genrc_commands.do_genrc(args)
 
 
-    node_creator = NodeCreator(Facade())
-    hardware_manager = ServerHardwareManager()
-    profile_manager = ServerProfileManager()
+    node_creator = NodeCreator(args)
+    hardware_manager = ServerHardwareManager(args)
+    profile_manager = ServerProfileManager(args)
 
     print("Retrieving Server Profile Templates from OneView...")
 
