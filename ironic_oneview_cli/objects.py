@@ -54,12 +54,8 @@ class Manager(object):
     six.add_metaclass(abc.ABCMeta)
     resource_class = None
 
-    def __init__(self):
-        allow_insecure_connections = False
-        if True:
-        #if config.oneview.allow_insecure_connections.lower() == 'true':
-            allow_insecure_connections = True
-        self.oneviewclient = get_oneview_client()
+    def __init__(self, args):
+        self.oneviewclient = get_oneview_client(args)
 
     def _dict_to_object(self, dictionary):
         raise Exception('Not Implemented')
@@ -81,8 +77,8 @@ class ServerProfileManager(Manager):
     fields = ['serverHardwareTypeUri', 'description', 'name',
               'enclosureGroupUri', 'uri', ]
 
-    def __init__(self):
-        super(ServerProfileManager, self).__init__()
+    def __init__(self, args):
+        super(ServerProfileManager, self).__init__(args)
         self.api = self.oneviewclient.server_profile
 
     def _dict_to_object(self, dict, id=0):
@@ -146,8 +142,8 @@ class ServerHardwareManager(Manager):
     fields = ['uri', 'serverHardwareTypeUri', 'uuid', 'memoryMb',
               'description', 'serverGroupUri', 'name', 'serverProfileUri']
 
-    def __init__(self):
-        super(ServerHardwareManager, self).__init__()
+    def __init__(self, args):
+        super(ServerHardwareManager, self).__init__(args)
         self.api = self.oneviewclient.server_hardware
 
     def _dict_to_object(self, dict, id=0):
