@@ -63,13 +63,17 @@ ironic-oneview CLI tool by doing::
 
     ironic-oneview <command>
 
-In the current version the possible commands are::
+In the current version the possible commands are:
 
-node-create         Creates nodes in Ironic given a list of availableOneView servers.
-flavor-create       Creates flavors based on OneView available Ironic nodes.
-genrc               Generates the ironic-oneviewrc file according to user input.
-help                Displays help about this program or one of its subcommands.
-
++--------------+--------------------------------------------------------------------+
+| node-create  | Creates nodes in Ironic given a list of availableOneView servers.  |
++--------------+--------------------------------------------------------------------+
+| flavor-create| Creates flavors based on OneView available Ironic nodes.           |
++--------------+--------------------------------------------------------------------+
+|    genrc     | Generates the ironic-oneviewrc file according to user input.       |
++--------------+--------------------------------------------------------------------+
+|    help      | Displays help about this program or one of its subcommands.        |
++--------------+--------------------------------------------------------------------+
 
 For insecure connections the optional argument ``--insecure`` needs to be used.
 
@@ -148,4 +152,3 @@ when running::
 References
 ==========
 .. [1] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
-
