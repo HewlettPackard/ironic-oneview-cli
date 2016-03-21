@@ -216,6 +216,13 @@ class IronicOneView(object):
             genrc_commands.do_genrc(args)
             return 0
 
+        if not args.insecure:
+            raise exceptions.CommandError(_("You must provide an ca "
+                                            "certificate either --os-cacert "
+                                            "or via env[OS_CACERT] and "
+                                            "--ov-cacert or via "
+                                            "env[OV_CACERT]"))
+
         if not args.os_username:
             raise exceptions.CommandError(_("You must provide a username via "
                                             "either --os-username or via "
@@ -292,13 +299,6 @@ class IronicOneView(object):
                                             "either --ov-password, "
                                             "env[OV_PASSWORD], "
                                             "or prompted response"))
-
-        if not args.insecure:
-            raise exceptions.CommandError(_("You must provide an ca "
-                                            "certificate either --os-cacert "
-                                            "or via env[OS_CACERT] and "
-                                            "--ov-cacert or via "
-                                            "env[OV_CACERT]"))
 
         client_args = (
             'os_username', 'os_password', 'os_tenant_name', 'os_project_name',

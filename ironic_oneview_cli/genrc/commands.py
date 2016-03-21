@@ -22,10 +22,10 @@ import getpass
 from builtins import input
 
 
-def generate_rc_file(file_name='ironic-oneviewrc', **credentials):
+def generate_rc_file(file_name='ironic-oneviewrc.sh', **credentials):
     password = 'echo "Please enter your HP OneView password: "'
-    read_password = 'read -sr OS_PASSWORD_INPUT'
-    export_password = 'export OS_PASSWORD=$OS_PASSWORD_INPUT'
+    read_password = 'read -sr OV_PASSWORD_INPUT'
+    export_password = 'export OV_PASSWORD=$OV_PASSWORD_INPUT'
 
     with open(file_name, 'w') as rc:
         for key in credentials.keys():
@@ -62,7 +62,7 @@ def do_genrc(args):
 
     # File
 
-    filename = input("Type the path to the 'ironic-oneviewrc' file: ")
+    filename = input("Type the path to the 'ironic-oneviewrc.sh' file: ")
     fullname = os.path.realpath(os.path.expanduser(filename))
     directory = os.path.dirname(fullname)
     if not os.path.exists(directory):
