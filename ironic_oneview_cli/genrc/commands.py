@@ -22,58 +22,77 @@ import getpass
 from builtins import input
 
 
-def generate_rc_file(file_name='ironic-oneviewrc.sh', **credentials):
-    password = 'echo "Please enter your HP OneView password: "'
-    read_password = 'read -sr OV_PASSWORD_INPUT'
-    export_password = 'export OV_PASSWORD=$OV_PASSWORD_INPUT'
+ENABLED_DRIVERS = [
+    'agent_pxe_oneview',
+    'iscsi_pxe_oneview'
+]
 
-    with open(file_name, 'w') as rc:
-        for key in credentials.keys():
-            value = credentials[key]
-            line = "export %s=%s" % (key, value)
-            rc.write(line + '\n')
-            rc.truncate()
-        rc.write(password + '\n')
-        rc.write(read_password + '\n')
-        rc.write(export_password + '\n')
-        rc.close()
+
+def _generate(**data):
+    bash_file = ''
+
+    echo = 'echo "Please enter your HP OneView password: "'
+    read = 'read -sr OV_PASSWORD_INPUT'
+    export = 'export OV_PASSWORD=$OV_PASSWORD_INPUT'
+
+    for key in data.keys():
+        value = data[key]
+        line = "export %s=%s" % (key, value)
+        bash_file = bash_file + line + '\n'
+
+    return bash_file + echo + '\n' + read + '\n' + export + '\n'
+
+
+def _save(path, filename='ironic-oneviewrc.sh', **data):
+    if filename in path:
+        path = path.replace(filename, '')
+    canonical = os.path.realpath(os.path.expanduser(path))
+    directory = os.path.dirname(canonical)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    full_path = os.path.join(canonical, filename)
+    bash = _generate(**data)
+    with open(full_path, 'w') as ironic_oneviewrc:
+        for line in bash:
+            ironic_oneviewrc.write(line)
+    return full_path
 
 
 def do_genrc(args):
-    """Generates the ironic-oneviewrc file according to user input.
+    """Generates the ironic-oneviewrc.sh file according from user input.
     """
-
-    enabled_drivers = ['agent_pxe_oneview', 'iscsi_pxe_oneview']
-
-    # OpenStack
-
-    openstack_ironic_deploy_kernel_uuid = input("Type in the default deploy "
-                                                "keynel image UUID on Glance: ")
-    openstack_ironic_deploy_ramdisk_uuid = input("Type in the default deploy "
-                                                 "ramdisk image UUID on Glance: ")
-    openstack_ironic_node_driver = input(("Which driver would you like to use? "
-                                          "[%s]: ") % ','.join(enabled_drivers))
 
     # OneView
 
-    oneview_manager_url = input("Type the HP OneView URL: ")
-    oneview_username = input("Type your HP OneView username: ")
-    oneview_cacert = input("Type the path to your HP OneView cacert file: ")
+    auth_url = input("HP OneView URL: ")
+    username = input("HP OneView username: ")
+    cacert = input("HP OneView cacert file path "
+                   "[only for secure connections]: ")
 
-    # File
+    # OpenStack
 
-    filename = input("Type the path to the 'ironic-oneviewrc.sh' file: ")
-    fullname = os.path.realpath(os.path.expanduser(filename))
-    directory = os.path.dirname(fullname)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    ironic_deploy_kernel = input("Default Ironic deploy kernel image uuid: ")
+    ironic_deploy_ramdisk = input("Default Ironic deploy ramdisk image uuid: ")
+    ironic_driver = input(
+        "Select a Ironic OneView driver [%s]"
+        "\nDefault to agent_pxe_oneview: " %
+        ', '.join(ENABLED_DRIVERS)
+    )
+    if ironic_driver not in ENABLED_DRIVERS:
+        ironic_driver = 'agent_pxe_oneview'
 
-    credentials = dict()
-    credentials['OS_IRONIC_DEPLOY_KERNEL_UUID'] = openstack_ironic_deploy_kernel_uuid
-    credentials['OS_IRONIC_DEPLOY_RAMDISK_UUID'] = openstack_ironic_deploy_ramdisk_uuid
-    credentials['OS_IRONIC_NODE_DRIVER'] = openstack_ironic_node_driver
-    credentials['OV_AUTH_URL'] = oneview_manager_url
-    credentials['OV_USERNAME'] = oneview_username
-    credentials['OV_CACERT'] = oneview_cacert
+    path = input("Path to save 'ironic-oneviewrc.sh' file: ")
 
-    generate_rc_file(**credentials)
+    # Map Informations
+
+    ironic_oneviewrc = dict()
+    ironic_oneviewrc['OV_AUTH_URL'] = auth_url
+    ironic_oneviewrc['OV_USERNAME'] = username
+    ironic_oneviewrc['OV_CACERT'] = cacert
+    ironic_oneviewrc['OS_IRONIC_DEPLOY_KERNEL_UUID'] = ironic_deploy_kernel
+    ironic_oneviewrc['OS_IRONIC_DEPLOY_RAMDISK_UUID'] = ironic_deploy_ramdisk
+    ironic_oneviewrc['OS_IRONIC_NODE_DRIVER'] = ironic_driver
+
+    # Create ironic-oneviewrc.sh
+
+    print 'File saved in %s' % (_save(path, **ironic_oneviewrc))
