@@ -23,62 +23,56 @@ To install the ironic-oneview CLI tool, use the following command::
 Configuring the tool
 ====================
 
-The ironic-oneview CLI tool uses a configuration file to get Ironic, Nova and
-OneView credentials and addresses. To generate and configure such file
-accordingly, run::
+The ironic-oneview CLI tool uses environment variables to get Ironic, Nova and
+OneView credentials and addresses. The credentials for OpenStack must be loaded
+from the ``PROJECT-openrc.sh`` provided by Horizon (The OpenStack Dashboard
+Project) from your cloud controller. To download the ``PROJECT-openrc.sh`` from
+Horizon, you must log in to the Horizon and go to Compute menu, access
+Access & Security sub-menu, access the API Access tab, and donwload the
+file by pressing the Download OpenStack RC File button.
 
-    ironic-oneview genconfig
+To load the environment variables from ``PROJECT-openrc.sh`` accordingly, run::
 
-This tool asks you for such information and creates a *~/ironic-oneview-cli.conf*
-configuration file located at your home directory by default, or other
-location of your choice.
+    source PROJECT-openrc.sh
 
-If you prefer to create your own configuration file, it should look like this::
+Then you will be asked to provide your OpenStack password and your OpenStack
+credentials will be loaded.
 
-    [ironic]
-    admin_user=<your admin user name>
-    admin_password=<your admin password>
-    admin_tenant_name=<your admin tenant name>
-    auth_url=<your Ironic authentication url>
-    insecure=<true,false>
-    default_deploy_kernel_id=<your deploy kernel uuid>
-    default_deploy_ramdisk_id=<your deploy ramdisk uuid>
-    default_driver=<iscsi_pxe_oneview,agent_pxe_oneview>
+For the HP OneView credentials you may use the command 'genrc' to generate and
+configure the ironic-oneviewrc.sh file accordingly, run::
 
-    [nova]
-    auth_url=<your Nova authentication url>
-    username=<your admin username>
-    password=<your admin password>
-    tenant_name=<your tenant name>
-    insecure=<true,false>
+    ironic-oneview genrc
 
-    [oneview]
-    manager_url=<your OneView appliance url>
-    username=<your OneView username>
-    password=<your OneView password>
-    allow_insecure_connections=<true,false>
-    tls_cacert_file=<path to your CA certfile, if any>
+Then you will be asked to provide your HP OneView URL, username, and the uuid
+from the Glance images for kernel and ramdisk, and the Ironic driver you going
+to use. After insert these informations the ``ironic-oneviewrc.sh`` will be
+generated.
+
+To load the environment variables from ``ironic-oneviewrc.sh`` accordingly, run::
+
+    source ironic-oneviewrc.sh
+
+Then you will be asked to provide your HP OneView password and your HP OneView
+credentials will be loaded.
 
 Usage
 =====
 
-If your *~/ironic-oneview-cli.conf* configuration file is in your home directory, 
-the tool will automatically use this conf. In this case, to run
-ironic-oneview-cli, do::
+Once the necessary environment variables were set you are able to run the
+ironic-oneview CLI tool by doing::
 
     ironic-oneview <command>
 
-If you chose to place this file in a different location, you should pass it
-when starting the tool::
+In the current version the possible commands are::
 
-    ironic-oneview --config-file <path to your configuration file> <command>
+node-create         Creates nodes in Ironic given a list of availableOneView servers.
+flavor-create       Creates flavors based on OneView available Ironic nodes.
+genrc               Generates the ironic-oneviewrc file according to user input.
+help                Displays help about this program or one of its subcommands.
 
-or::
 
-    ironic-oneview -c <path to your configuration file> <command>
+For insecure connections the optional argument ``--insecure`` needs to be used.
 
-Note that, in order to run this tool, you only have to pass the configuration
-file previously created containing the required credentials and addresses.
 
 Features
 ========
@@ -103,8 +97,9 @@ appliance.::
     | 2  | template-dcs-virt-enc4 | virt-enclosure-group | BL660c Gen9 1             |
     +----+------------------------+----------------------+---------------------------+  
 
-After choosing a valid ``SPT``, the tool lists the available Server Hardware
-objects that match the chosen ``SPT``, and prompt you to choose the ones you
+After choosing a valid ``Server Profile Template``, the tool lists the
+available Server Hardware objects that match the chosen ``Server Profile
+Template``, and prompt you to choose the ones you
 want to use to create Ironic nodes.::
 
     Listing compatible Server Hardware objects...
