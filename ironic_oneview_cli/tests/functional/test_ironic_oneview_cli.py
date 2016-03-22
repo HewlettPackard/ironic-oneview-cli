@@ -24,13 +24,53 @@ import unittest
 from ironicclient import client as ironic_client
 
 from ironic_oneview_cli import facade
-from ironic_oneview_cli.create_flavor_shell import commands as flavor_commands
-from ironic_oneview_cli.create_flavor_shell.objects import Flavor
+from ironic_oneview_cli.create_flavor_shell.commands import FlavorCreator
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
-from ironic_oneview_cli.create_node_shell.commands import do_node_create
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
 from ironic_oneview_cli.tests import base
+
+
+class FakeIronicNode(object):
+    def __init__(self, id, uuid, chassis_uuid, provision_state, driver,
+                 ports, driver_info={}, driver_internal_info={},
+                 name='fake-node', maintenance='False', properties={},
+                 extra={}):
+
+        self.id = id
+        self.uuid = uuid
+        self.chassis_uuid = chassis_uuid
+        self.provision_state = provision_state
+        self.driver = driver
+        self.ports = ports
+        self.driver_info = driver_info
+        self.driver_internal_info = driver_internal_info
+        self.maintenance = maintenance
+        self.properties = properties
+        self.extra = extra
+        self.name = name
+
+
+class FakeNovaFlavor(object):
+    def __init__(self, id, uuid, memory_mb, vcpus, root_gb, ephemeral_gb,
+                 flavorid, swap, rxtx_factor, vcpu_weight, disabled,
+                 is_public, name='fake-flavor', extra_specs={}, projects=[]):
+
+        self.id = id
+        self.uuid = uuid
+        self.name = name
+        self.memory_mb = memory_mb
+        self.vcpus = vcpus
+        self.root_gb = root_gb
+        self.ephemeral_gb = ephemeral_gb
+        self.flavorid = flavorid
+        self.swap = swap
+        self.rxtx_factor = rxtx_factor
+        self.vcpu_weight = vcpu_weight
+        self.disabled = disabled
+        self.is_public = is_public
+        self.extra_specs = extra_specs
+        self.projects = projects
 
 
 class FakeServerHardware(object):
@@ -77,6 +117,40 @@ class FakeServerProfileTemplate(object):
         self.boot = boot
 
 
+class FakeParameters(object):
+
+    def __init__(self,
+                 os_ironic_node_driver,
+                 os_ironic_deploy_kernel_uuid,
+                 os_ironic_deploy_ramdisk_uuid):
+        self.os_ironic_node_driver = os_ironic_node_driver
+        self.os_ironic_deploy_kernel_uuid = os_ironic_deploy_kernel_uuid
+        self.os_ironic_deploy_ramdisk_uuid = os_ironic_deploy_ramdisk_uuid
+
+
+POOL_OF_FAKE_IRONIC_NODES = [
+    FakeIronicNode(
+        id=123,
+        uuid='66666666-7777-8888-9999-000000000000',
+        chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
+        maintenance=False,
+        provision_state='enroll',
+        ports=[
+            {'id': 987,
+             'uuid': '11111111-2222-3333-4444-555555555555',
+             'node_uuid': '66666666-7777-8888-9999-000000000000',
+             'address': 'AA:BB:CC:DD:EE:FF',
+             'extra': {}}
+        ],
+        driver='fake_oneview',
+        driver_info={'user': 'foo', 'password': 'bar'},
+        properties={'num_cpu': 4},
+        name='fake-node-1',
+        extra={}
+    )
+]
+
+
 POOL_OF_FAKE_SERVER_HARDWARE = [
     FakeServerHardware(
         uuid='66666666-7777-8888-9999-000000000000',
@@ -115,72 +189,55 @@ POOL_OF_FAKE_SERVER_PROFILE_TEMPLATE = [
 ]
 
 
+POOL_OF_FAKE_NOVA_FLAVORS = [
+    FakeNovaFlavor(
+        id=123,
+        uuid='66666666-7777-8888-9999-000000000000',
+        name='fake-flavor',
+        memory_mb=1024,
+        vcpus=1,
+        root_gb=100,
+        ephemeral_gb=0,
+        flavorid='abc',
+        swap=0,
+        rxtx_factor=1,
+        vcpu_weight=1,
+        disabled=False,
+        is_public=True,
+        extra_specs={},
+        projects=[]
+    )
+]
+
+
+FAKE_PARAMETERS = FakeParameters(
+    os_ironic_node_driver='fake',
+    os_ironic_deploy_kernel_uuid='11111-22222-33333-44444-55555',
+    os_ironic_deploy_ramdisk_uuid='55555-44444-33333-22222-11111'
+)
+
+
 class TestIronicOneviewCli(base.TestCase):
 
-    def setUp(self):
-
-        os.environ['OS_AUTH_URL'] = 'https://192.168.0.1'
-        os.environ['OS_USERNAME'] = 'username'
-        os.environ['OS_PASSWORD'] = 'password'
-        os.environ['OS_PROJECT_NAME'] = 'demo'
-        os.environ['OS_TENANT_NAME'] = 'demo'
-        os.environ['OS_CACERT'] = ''
-        os.environ['OS_IRONIC_DEPLOY_KERNEL_UUID'] = 'aaaaa-bbbbb-ccccc-ddddd'
-        os.environ['OS_IRONIC_DEPLOY_RAMDISK_UUID'] = 'ddddd-ccccc-bbbbb-aaaaa'
-        os.environ['OS_IRONIC_NODE_DRIVER'] = 'agent_pxe_oneview'
-
-        os.environ['OV_AUTH_URL'] = 'https://192.168.0.2'
-        os.environ['OV_USERNAME'] = 'admin'
-        os.environ['OV_PASSWORD'] = 'password'
-        os.environ['OV_CACERT'] = ''
-
-        
-
-
-        self.nodes = []
-        self.flavors = []
-
-
-    def tearDown(self):
-
-        del os.environ['OS_AUTH_URL']
-        del os.environ['OS_USERNAME']
-        del os.environ['OS_PASSWORD']
-        del os.environ['OS_PROJECT_NAME']
-        del os.environ['OS_TENANT_NAME']
-        del os.environ['OS_CACERT']
-        del os.environ['OS_IRONIC_DEPLOY_KERNEL_UUID']
-        del os.environ['OS_IRONIC_DEPLOY_RAMDISK_UUID']
-        del os.environ['OS_IRONIC_NODE_DRIVER']
-
-        del os.environ['OV_AUTH_URL']
-        del os.environ['OV_USERNAME']
-        del os.environ['OV_PASSWORD']
-        del os.environ['OV_CACERT']
-
-        #TODO Delete created data
 
     @mock.patch.object(facade.Facade, 'create_ironic_node')
     @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_node_creation(self, mock_facade, mock_create_ironic_node):
-         
-        mock_facade.ironicclient = None
-        mock_facade.novaclient = None
-        mock_facade.ovclient = None
 
-        node_created = True
-        mock_create_ironic_node.return_value = node_created
+        ironic_node = POOL_OF_FAKE_IRONIC_NODES[0]
+        mock_create_ironic_node.return_value = ironic_node
         mock_facade.create_ironic_node = mock_create_ironic_node
 
         node_creator = NodeCreator(mock_facade)
-        node_creator.create_node(POOL_OF_FAKE_SERVER_HARDWARE[0],
-                                      POOL_OF_FAKE_SERVER_PROFILE_TEMPLATE[0])
+        node_creator.create_node(FAKE_PARAMETERS,
+                                 POOL_OF_FAKE_SERVER_HARDWARE[0],
+                                 POOL_OF_FAKE_SERVER_PROFILE_TEMPLATE[0])
 
         attrs = {
-            'driver': os.environ['OS_IRONIC_NODE_DRIVER'],
+            'driver': FAKE_PARAMETERS.os_ironic_node_driver,
             'driver_info': {
-                'deploy_kernel': os.environ['OS_IRONIC_DEPLOY_KERNEL_UUID'],
-                'deploy_ramdisk': os.environ['OS_IRONIC_DEPLOY_RAMDISK_UUID'],
+                'deploy_kernel': FAKE_PARAMETERS.os_ironic_deploy_kernel_uuid,
+                'deploy_ramdisk': FAKE_PARAMETERS.os_ironic_deploy_ramdisk_uuid,
                 'server_hardware_uri':
                     POOL_OF_FAKE_SERVER_HARDWARE[0].uri,
             },
@@ -203,8 +260,34 @@ class TestIronicOneviewCli(base.TestCase):
             **attrs
         )
 
-    def test_flavor_creation(self):
-        pass
+    @mock.patch.object(facade.Facade, 'create_nova_flavor')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_flavor_creation(self, mock_facade, mock_create_nova_flavor):
+
+        nova_flavor = POOL_OF_FAKE_NOVA_FLAVORS[0]
+        nova_flavor.set_keys = lambda extra_specs: None
+        mock_create_nova_flavor.return_value = nova_flavor
+        mock_facade.create_nova_flavor = mock_create_nova_flavor
+
+        flavor_creator = FlavorCreator(mock_facade)
+        flavor_creator.create_flavor(
+            POOL_OF_FAKE_NOVA_FLAVORS[0].name,
+            POOL_OF_FAKE_NOVA_FLAVORS[0].memory_mb,
+            POOL_OF_FAKE_NOVA_FLAVORS[0].vcpus,
+            POOL_OF_FAKE_NOVA_FLAVORS[0].root_gb,
+            POOL_OF_FAKE_NOVA_FLAVORS[0].extra_specs
+        )
+
+        attrs = {
+            'name': POOL_OF_FAKE_NOVA_FLAVORS[0].name,
+            'ram': POOL_OF_FAKE_NOVA_FLAVORS[0].memory_mb,
+            'vcpus': POOL_OF_FAKE_NOVA_FLAVORS[0].vcpus,
+            'disk': POOL_OF_FAKE_NOVA_FLAVORS[0].root_gb
+        }
+
+        mock_create_nova_flavor.assert_called_with(
+            **attrs
+        )
 
 
 if __name__ == '__main__':

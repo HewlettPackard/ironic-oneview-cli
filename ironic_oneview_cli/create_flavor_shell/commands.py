@@ -27,83 +27,111 @@ from ironic_oneview_cli.openstack.common import cliutils
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
 
-def _get_flavor_name(flavor):
-    FLAVOR_NAME_TEMPLATE = "%sMB-RAM_%s_%s_%s"
-    return FLAVOR_NAME_TEMPLATE % (
-        flavor.ram_mb,
-        flavor.cpus,
-        flavor.cpu_arch,
-        flavor.disk)
+
+class FlavorCreator(object):
+
+    def __init__(self, facade):
+        self.facade = facade
+
+    def get_flavor_name(self, flavor):
+        FLAVOR_NAME_TEMPLATE = "%sMB-RAM_%s_%s_%s"
+        return FLAVOR_NAME_TEMPLATE % (
+            flavor.ram_mb,
+            flavor.cpus,
+            flavor.cpu_arch,
+            flavor.disk)
 
 
-def _get_element_by_id(element_list, element_id):
-    for element in element_list:
-        if element.id == element_id:
-            return element
+    def get_element_by_id(self, element_list, element_id):
+        for element in element_list:
+            if element.id == element_id:
+                return element
 
 
-def get_flavor_from_ironic_node(flavor_id, node, hardware_manager, profile_manager):
-    flavor = {}
+    def get_flavor_from_ironic_node(self, flavor_id, node, hardware_manager,
+                                    profile_manager):
+        flavor = {}
 
-    flavor['ram_mb'] = node.properties.get("memory_mb")
-    flavor['cpus'] = node.properties.get("cpus")
-    flavor['disk'] = node.properties.get("local_gb")
-    flavor['cpu_arch'] = 'x86_64'
+        flavor['ram_mb'] = node.properties.get("memory_mb")
+        flavor['cpus'] = node.properties.get("cpus")
+        flavor['disk'] = node.properties.get("local_gb")
+        flavor['cpu_arch'] = 'x86_64'
 
-    capabilities = node.properties.get("capabilities")
+        capabilities = node.properties.get("capabilities")
 
 
-    if capabilities is not None:
-        capabilities = capabilities.split(",")
+        if capabilities is not None:
+            capabilities = capabilities.split(",")
 
-        for field in capabilities:
-            data = field.split(":")
-            if data[0] == 'server_hardware_type_uri':
-                flavor['server_hardware_type_uri'] = data[1]
-            elif data[0] == 'enclosure_group_uri':
-                flavor['enclosure_group_uri'] = data[1]
-            elif data[0] == 'server_profile_template_uri':
-                flavor['server_profile_template_uri'] = data[1]
+            for field in capabilities:
+                data = field.split(":")
+                if data[0] == 'server_hardware_type_uri':
+                    flavor['server_hardware_type_uri'] = data[1]
+                elif data[0] == 'enclosure_group_uri':
+                    flavor['enclosure_group_uri'] = data[1]
+                elif data[0] == 'server_profile_template_uri':
+                    flavor['server_profile_template_uri'] = data[1]
 
-	available_server_hardware_by_field = hardware_manager.list(
-	    only_available=True,
-	    fields={
-		    'serverHardwareTypeUri':
-			flavor['server_hardware_type_uri'],
-		    'serverGroupUri':
-			flavor['enclosure_group_uri'],
-		    'serverProfileUri':
-			flavor['server_profile_template_uri'],
-		    'uri':
-			node.driver_info.get('server_hardware_uri')
-		   }
-	)
-
-	template_list = profile_manager.list_templates_compatible_with(
-            available_server_hardware_by_field
+        available_server_hardware_by_field = hardware_manager.list(
+            only_available=True,
+            fields={
+                'serverHardwareTypeUri':
+                flavor['server_hardware_type_uri'],
+                'serverGroupUri':
+                flavor['enclosure_group_uri'],
+                'serverProfileUri':
+                flavor['server_profile_template_uri'],
+                'uri':
+                node.driver_info.get('server_hardware_uri')
+            }
         )
 
-	for available in available_server_hardware_by_field:
-	    flavor['server_hardware_type_name'] = available.serverHardwareTypeName
-	    flavor['enclosure_group_name'] = available.serverGroupName
+        template_list = profile_manager.list_templates_compatible_with(
+                available_server_hardware_by_field
+            )
 
-	for available in template_list:
-	    flavor['server_profile_template_name'] = available.name
-	    
-    return Flavor(id=flavor_id, info=flavor)
+        for available in available_server_hardware_by_field:
+            flavor['server_hardware_type_name'] = available.serverHardwareTypeName
+            flavor['enclosure_group_name'] = available.serverGroupName
 
+        for available in template_list:
+            flavor['server_profile_template_name'] = available.name
 
-def get_flavor_list(ironic_client, hardware_manager, profile_manager):
-    nodes = ironic_client.node.list(detail=True)
-    flavors = []
+        return Flavor(id=flavor_id, info=flavor)
 
-    id_counter = 1
-    for node in nodes:
-        if node.properties.get('memory_mb') is not None:
-            flavors.append(get_flavor_from_ironic_node(id_counter, node, hardware_manager, profile_manager))
-            id_counter += 1
+    def get_flavor_list(self, hardware_manager, profile_manager):
+        nodes = self.facade.get_ironic_node_list()
+        flavors = []
 
-    return set(flavors)
+        id_counter = 1
+        for node in nodes:
+            if node.properties.get('memory_mb') is not None:
+                flavors.append(
+                    self.get_flavor_from_ironic_node(
+                        id_counter, node, hardware_manager, profile_manager
+                    )
+                )
+                id_counter += 1
+
+        return set(flavors)
+
+    def create_flavor(self, name, ram, vcpus, disk, extra_specs={}):
+        attrs = {
+            'name': name,
+            'ram': ram,
+            'vcpus': vcpus,
+            'disk': disk
+        }
+
+        flavor = None
+        try:
+            flavor = self.facade.create_nova_flavor(**attrs)
+            flavor.set_keys(extra_specs)
+            print('Flavor created!\n')
+        except Exception as e:
+            print e.message
+ 
+        return flavor
 
 
 def do_flavor_create(args):
@@ -114,14 +142,11 @@ def do_flavor_create(args):
     it's ID.
     """
 
-    facade = Facade(args)
+    flavor_creator = FlavorCreator(Facade(args))
     hardware_manager = ServerHardwareManager(args)
     profile_manager = ServerProfileManager(args)
 
-    flavor_list = get_flavor_list(
-        facade.ironicclient, hardware_manager, profile_manager
-    )
-
+    flavor_list = flavor_creator.get_flavor_list(hardware_manager, profile_manager)
     flavor_list = list(flavor_list)
 
     for j in range(1, len(flavor_list)):
@@ -158,7 +183,7 @@ def do_flavor_create(args):
             create_another_flavor_flag = True
             continue
 
-        flavor = _get_element_by_id(flavor_list, int(id))
+        flavor = flavor_creator.get_element_by_id(flavor_list, int(id))
 
         if flavor is None:
             print('Invalid Flavor ID. Please enter a valid ID.')
@@ -173,7 +198,7 @@ def do_flavor_create(args):
                           'Server Profile Template', 'Server Hardware Type',
                           'Enclosure Group Name'],
             sortby_index=2)
-        flavor_name_default = _get_flavor_name(flavor)
+        flavor_name_default = flavor_creator.get_flavor_name(flavor)
         flavor_name = input(
             "Insert a name for the Flavor. Or leave it blank for [" +
             flavor_name_default + "] (press 'q' to quit)> ")
@@ -184,22 +209,20 @@ def do_flavor_create(args):
         if len(flavor_name) == 0:
             flavor_name = flavor_name_default
 
-        attrs = dict()
-        attrs['name'] = flavor_name
-        attrs['ram'] = flavor.ram_mb
-        attrs['vcpus'] = flavor.cpus
-        attrs['disk'] = flavor.disk
-
-        nova_flavor = facade.create_nova_flavor(**attrs)
-        nova_flavor.set_keys(flavor.extra_specs())
-        print('Flavor created!\n')
+        flavor_creator.create_flavor(
+            flavor_name,
+            flavor.ram_mb,
+            flavor.cpus,
+            flavor.disk,
+            flavor.extra_specs()
+        )
 
         while True:
             response = input('Would you like to create another Flavor? [Y/n] ')
             if response == 'n':
                 create_another_flavor_flag = False
                 break
-            elif response.lower() == 'y':
+            elif response.lower() == 'y' or not response:
                 create_another_flavor_flag = True
                 break
             else:
