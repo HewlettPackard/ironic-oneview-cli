@@ -71,8 +71,8 @@ def do_genrc(args):
 
     # OpenStack
 
-    ironic_deploy_kernel = input("Default Ironic deploy kernel image uuid: ")
-    ironic_deploy_ramdisk = input("Default Ironic deploy ramdisk image uuid: ")
+    ironic_deploy_kernel = input("Ironic deploy kernel image uuid: ")
+    ironic_deploy_ramdisk = input("Ironic deploy ramdisk image uuid: ")
     ironic_driver = input(
         "Select a Ironic OneView driver [%s]"
         "\nDefault to agent_pxe_oneview: " %
