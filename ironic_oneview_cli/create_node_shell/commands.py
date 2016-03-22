@@ -30,9 +30,8 @@ from ironic_oneview_cli.openstack.common import cliutils
 # NOTE(thiagop): is this a facade too?
 class NodeCreator(object):
 
-    def __init__(self, args):
-        self.args = args
-        self.facade = Facade(args)
+    def __init__(self, facade):
+        self.facade = facade
 
     def print_prompt(self, object_list, header_list, mixed_case_list,
                      input_message, field_labels=None):
@@ -157,14 +156,14 @@ class NodeCreator(object):
 
         return server_hardware_ids_selected
 
-    def create_node(self, server_hardware, server_profile_template):
+    def create_node(self, args, server_hardware, server_profile_template):
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
-            'driver': self.args.os_ironic_node_driver,
+            'driver': args.os_ironic_node_driver,
             'driver_info': {
-                'deploy_kernel': self.args.os_ironic_deploy_kernel_uuid,
-                'deploy_ramdisk': self.args.os_ironic_deploy_ramdisk_uuid,
+                'deploy_kernel': args.os_ironic_deploy_kernel_uuid,
+                'deploy_ramdisk': args.os_ironic_deploy_ramdisk_uuid,
                 'server_hardware_uri': server_hardware.uri,
             },
             'properties': {
@@ -190,7 +189,7 @@ def do_node_create(args):
     """Creates nodes in Ironic given a list of available OneView servers."""
     
 
-    node_creator = NodeCreator(args)
+    node_creator = NodeCreator(Facade(args))
     hardware_manager = ServerHardwareManager(args)
     profile_manager = ServerProfileManager(args)
 
@@ -252,7 +251,9 @@ def do_node_create(args):
                 ]
             )
 
-            node_creator.create_node(server_hardware_selected, template_selected)
+            node_creator.create_node(
+                args, server_hardware_selected, template_selected
+            )
             print('Node created!')
 
         while True:
@@ -260,7 +261,7 @@ def do_node_create(args):
             if response == 'n':
                 create_another_node_flag = False
                 break
-            elif response.lower() == 'y':
+            elif response.lower() == 'y' or not response:
                 create_another_node_flag = True
                 break
             else:
