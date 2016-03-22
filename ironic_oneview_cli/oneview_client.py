@@ -21,7 +21,7 @@ import requests
 
 from ironic_oneview_cli import oneview_uri
 from ironic_oneview_cli import service_logging as logging
-from ironic_oneview_cli.sync_exceptions import OneViewConnectionError
+from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.openstack.common import cliutils
 
 LOG = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ class OneViewRequestAPI(object):
         except requests.RequestException as ex:
             LOG.error(("Can't connect to OneView: %s")
                       % (str(ex.message).split(':')[-1]))
-            raise OneViewConnectionError(
+            raise exceptions.OneViewConnectionError(
                 "Can't connect to OneView: %s" % str(ex.message))
 
     def _new_token(self):
@@ -135,7 +135,7 @@ class OneViewRequestAPI(object):
         self._update_token()
 
         if self.token is None:
-            raise OneViewConnectionError(
+            raise exceptions.OneViewConnectionError(
                 "Acess to OneView Not Authorized. Check the OneView credential"
                 " in the configuration file.")
 
