@@ -16,16 +16,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
-
 from builtins import input
 
 from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.facade import Facade
-from ironic_oneview_cli.genrc import commands as genrc_commands
-from ironic_oneview_cli.openstack.common import cliutils
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
+from ironic_oneview_cli.openstack.common import cliutils
 
 
 class FlavorCreator(object):
@@ -41,12 +38,10 @@ class FlavorCreator(object):
             flavor.cpu_arch,
             flavor.disk)
 
-
     def get_element_by_id(self, element_list, element_id):
         for element in element_list:
             if element.id == element_id:
                 return element
-
 
     def get_flavor_from_ironic_node(self, flavor_id, node, hardware_manager,
                                     profile_manager):
@@ -58,7 +53,6 @@ class FlavorCreator(object):
         flavor['cpu_arch'] = 'x86_64'
 
         capabilities = node.properties.get("capabilities")
-
 
         if capabilities is not None:
             capabilities = capabilities.split(",")
@@ -87,8 +81,8 @@ class FlavorCreator(object):
         )
 
         template_list = profile_manager.list_templates_compatible_with(
-                available_server_hardware_by_field
-            )
+            available_server_hardware_by_field
+        )
 
         for available in available_server_hardware_by_field:
             flavor['server_hardware_type_name'] = available.serverHardwareTypeName
@@ -127,10 +121,9 @@ class FlavorCreator(object):
         try:
             flavor = self.facade.create_nova_flavor(**attrs)
             flavor.set_keys(extra_specs)
-            print('Flavor created!\n')
         except Exception as e:
-            print e.message
- 
+            print(e.message)
+
         return flavor
 
 
@@ -145,6 +138,8 @@ def do_flavor_create(args):
     flavor_creator = FlavorCreator(Facade(args))
     hardware_manager = ServerHardwareManager(args)
     profile_manager = ServerProfileManager(args)
+
+    print("Retrieving possible configurations for Flavor creation...")
 
     flavor_list = flavor_creator.get_flavor_list(hardware_manager, profile_manager)
     flavor_list = list(flavor_list)
@@ -189,6 +184,8 @@ def do_flavor_create(args):
             create_another_flavor_flag = True
             continue
 
+        print("Listing chosen Flavor configuration...")
+
         cliutils.print_list(
             [flavor],
             ['cpus', 'disk', 'ram_mb', 'server_profile_template_name',
@@ -208,13 +205,16 @@ def do_flavor_create(args):
         if len(flavor_name) == 0:
             flavor_name = flavor_name_default
 
-        flavor_creator.create_flavor(
+        flavor = flavor_creator.create_flavor(
             flavor_name,
             flavor.ram_mb,
             flavor.cpus,
             flavor.disk,
             flavor.extra_specs()
         )
+
+        if flavor:
+            print('Flavor created!\n')
 
         while True:
             response = input('Would you like to create another Flavor? [Y/n] ')
