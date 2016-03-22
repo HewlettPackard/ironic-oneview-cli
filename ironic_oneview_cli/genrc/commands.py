@@ -74,7 +74,7 @@ def do_genrc(args):
     ironic_deploy_kernel = input("Ironic deploy kernel image uuid: ")
     ironic_deploy_ramdisk = input("Ironic deploy ramdisk image uuid: ")
     ironic_driver = input(
-        "Select a Ironic OneView driver [%s]"
+        "Select an Ironic OneView driver [%s]"
         "\nDefault to agent_pxe_oneview: " %
         ', '.join(ENABLED_DRIVERS)
     )

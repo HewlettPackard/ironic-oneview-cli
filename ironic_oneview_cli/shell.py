@@ -34,7 +34,7 @@ from ironic_oneview_cli.create_node_shell import commands \
 from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.openstack.common._i18n import _
 from ironic_oneview_cli.openstack.common import cliutils
-from ironic_oneview_cli import sync_exceptions as exceptions
+from ironic_oneview_cli import exceptions
 
 
 VERSION = '0.0.2'

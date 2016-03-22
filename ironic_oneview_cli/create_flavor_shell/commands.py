@@ -109,8 +109,8 @@ def get_flavor_list(ironic_client, hardware_manager, profile_manager):
 def do_flavor_create(args):
     """Creates flavors based on OneView available Ironic nodes.
 
-    Shows a list with suggested flavors to be created based on OneView's Server
-    Profile Templates. The user can then select a flavor to create based on
+    Shows a list with suggested Flavors to be created based on OneView's Server
+    Profile Templates. The user can then select a Flavor to create based on
     it's ID.
     """
 
