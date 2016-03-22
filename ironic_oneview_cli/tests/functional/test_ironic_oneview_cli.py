@@ -16,30 +16,22 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import mock
 import os
 import time
 import unittest
 
-from mock import patch
-
 from ironicclient import client as ironic_client
 
-
-
+from ironic_oneview_cli import facade
 from ironic_oneview_cli.create_flavor_shell import commands as flavor_commands
 from ironic_oneview_cli.create_flavor_shell.objects import Flavor
-
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
 from ironic_oneview_cli.create_node_shell.commands import do_node_create
-
-
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
-
 from ironic_oneview_cli.tests import base
 
-
-from ironic_oneview_cli import facade
 
 class FakeServerHardware(object):
 
@@ -168,8 +160,8 @@ class TestIronicOneviewCli(base.TestCase):
 
         #TODO Delete created data
 
-    @patch.object(facade.Facade, 'create_ironic_node')
-    @patch('ironic_oneview_cli.facade.Facade')
+    @mock.patch.object(facade.Facade, 'create_ironic_node')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_node_creation(self, mock_facade, mock_create_ironic_node):
          
         mock_facade.ironicclient = None
@@ -217,152 +209,3 @@ class TestIronicOneviewCli(base.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-'''
-base.main()
-
-    def test_list_server_hardware_not_enrolled(self):
-        node_creator = NodeCreator(self.config)
-        hardware_manager = ServerHardwareManager(self.config)
-        server_hardwares_not_enrolled = (
-            node_creator.list_server_hardware_not_enrolled(
-                hardware_manager.list(only_available=True)
-            )
-        )
-        self.assertEqual(10, len(server_hardwares_not_enrolled))
-
-    def test_list_server_hardware_not_enrolled_with_one_sh_already_created(
-            self):
-        node_creator = NodeCreator(self.config)
-        hardware_manager = ServerHardwareManager(self.config)
-        profile_manager = ServerProfileManager(self.config)
-        server_hardwares_not_created = (
-            node_creator.list_server_hardware_not_enrolled(
-                hardware_manager.list(only_available=True)
-            )
-        )
-        compatible_templates = profile_manager.list_templates_compatible_with(
-            server_hardwares_not_created
-        )
-
-        node = node_creator.create_node(server_hardwares_not_created[0],
-                                        compatible_templates[0])
-        server_hardwares_not_enrolled = (
-            node_creator.list_server_hardware_not_enrolled(
-                hardware_manager.list(only_available=True)
-            )
-        )
-        self.assertEqual(9, len(server_hardwares_not_enrolled))
-        self.ironic_client.node.delete(node.uuid)
-
-    def test_create_one_node(self):
-        node_creator = NodeCreator(self.config)
-        hardware_manager = ServerHardwareManager(self.config)
-        profile_manager = ServerProfileManager(self.config)
-        server_hardwares_not_created = (
-            node_creator.list_server_hardware_not_enrolled(
-                hardware_manager.list(only_available=True)
-            )
-        )
-        compatible_templates = profile_manager.list_templates_compatible_with(
-            server_hardwares_not_created
-        )
-
-        node = node_creator.create_node(server_hardwares_not_created[0],
-                                        compatible_templates[0])
-        self.created_nodes.append(node.uuid)
-        server_hardwares_not_created = (
-            node_creator.list_server_hardware_not_enrolled(
-                hardware_manager.list(only_available=True)
-            )
-        )
-        self.assertEqual(9, len(server_hardwares_not_created))
-        ironic_node_list = self.ironic_client.node.list()
-        node_was_created = False
-        for ironic_node in ironic_node_list:
-            if ironic_node.uuid == node.uuid:
-                node_was_created = True
-                break
-        self.assertEqual(node_was_created, True)
-
-    def test_get_flavor_name(self):
-        flavor_info = {'cpu_arch': 'x64', 'ram_mb': '32000',
-                       'cpus': '8', 'disk': '120'}
-        flavor = Flavor(1, flavor_info)
-        flavor_name = flavor_commands._get_flavor_name(flavor)
-        self.assertEqual('32000MB-RAM_8_x64_120', flavor_name)
-
-    def test_get_flavor_from_ironic_node(self):
-        server_hardwares_not_created = (
-            self.node_creator.list_server_hardware_not_enrolled(
-                self.hardware_manager.list(only_available=True)
-            )
-        )
-        server_hardware_for_test = server_hardwares_not_created[0]
-        compatible_templates = (
-            self.profile_manager.list_templates_compatible_with(
-                server_hardwares_not_created
-            )
-        )
-        node = self.node_creator.create_node(server_hardware_for_test,
-                                             compatible_templates[0])
-        server_profile_for_test = compatible_templates[0]
-        flavor = flavor_commands.get_flavor_from_ironic_node(1, node)
-        self.assertEqual(server_hardware_for_test.memoryMb, flavor.ram_mb)
-        self.assertEqual(server_hardware_for_test.cpus, flavor.cpus)
-        self.assertEqual(120, flavor.disk)
-        self.assertEqual(server_hardware_for_test.cpu_arch, flavor.cpu_arch)
-        self.assertEqual(server_hardware_for_test.serverHardwareTypeUri,
-                         flavor.server_hardware_type_uri)
-        self.assertEqual(server_hardware_for_test.serverGroupUri,
-                         flavor.enclosure_group_uri)
-        self.assertEqual(server_profile_for_test.uri,
-                         flavor.server_profile_template_uri)
-
-    def test_create_node_retrieve_n_check(self):
-        node_creator = NodeCreator(self.config)
-        hardware_manager = ServerHardwareManager(self.config)
-        profile_manager = ServerProfileManager(self.config)
-        server_hardwares_not_created = (
-            node_creator.list_server_hardware_not_enrolled(
-                hardware_manager.list(only_available=True)
-            )
-        )
-        hardware_selected = server_hardwares_not_created[0]
-        compatible_templates = profile_manager.list_templates_compatible_with(
-            server_hardwares_not_created
-        )
-        template_selected = compatible_templates[0]
-
-        node = node_creator.create_node(hardware_selected, template_selected)
-        self.created_nodes.append(node.uuid)
-
-        self.assertEqual(node.driver_info.get('server_hardware_uri'),
-                         hardware_selected.uri)
-        self.assertEqual(node.driver_info.get('deploy_kernel'),
-                         self.config.ironic.default_deploy_kernel_id)
-        self.assertEqual(node.driver_info.get('deploy_ramdisk'),
-                         self.config.ironic.default_deploy_ramdisk_id)
-        capabilities = node.properties.get('capabilities')
-        self.assertIn('server_profile_template_uri:' + template_selected.uri,
-                      capabilities)
-
-    def test_create_flavor_with_server_hadware_type_enclosure_group_server_profile_template_name_is_not_empty(self):
-        flavors = flavor_commands.get_flavor_list(self.ironic_client, self.hardware_manager, self.profile_manager)
-        for flavor in flavors:
-            self.assertNotEqual("", flavor['server_hardware_type_name'])
-	    self.assertNotEqual("", flavor['enclosure_group_name'])
-	    self.assertNotEqual("", flavor['server_profile_template_name'])
-
-    def test_create_flavor_with_server_hadware_type_enclosure_group_server_profile_template_name_is_not_none(self):
-        flavors = flavor_commands.get_flavor_list(self.ironic_client, self.hardware_manager, self.profile_manager)
-        for flavor in flavors:
-            self.assertNotNone(flavor['server_hardware_type_name'])
-	    self.assertNotNone(flavor['enclosure_group_name'])
-	    self.assertNotNone(flavor['server_profile_template_name'])
-
-
-
-if __name__ == '__main__':
-    base.main()
-'''

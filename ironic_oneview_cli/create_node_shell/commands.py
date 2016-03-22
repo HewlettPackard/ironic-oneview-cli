@@ -20,7 +20,6 @@ import sys
 
 from builtins import input
 
-from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.facade import Facade
 from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.objects import ServerHardwareManager
