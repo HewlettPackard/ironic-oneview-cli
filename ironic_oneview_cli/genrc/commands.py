@@ -17,7 +17,6 @@
 #    under the License.
 
 import os
-import getpass
 
 from builtins import input
 
@@ -59,8 +58,7 @@ def _save(path, filename='ironic-oneviewrc.sh', **data):
 
 
 def do_genrc(args):
-    """Generates the ironic-oneviewrc.sh file according user input.
-    """
+    """Generates the ironic-oneviewrc.sh file according user input."""
 
     # OneView
 
@@ -95,4 +93,4 @@ def do_genrc(args):
 
     # Create ironic-oneviewrc.sh
 
-    print 'File saved in %s' % (_save(path, **ironic_oneviewrc))
+    print('File saved in %s' % (_save(path, **ironic_oneviewrc)))

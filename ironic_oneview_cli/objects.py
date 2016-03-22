@@ -19,7 +19,6 @@
 import abc
 import six
 
-from ironic_oneview_cli.oneview_client import OneViewClient
 from ironic_oneview_cli.oneview_client import get_oneview_client
 
 

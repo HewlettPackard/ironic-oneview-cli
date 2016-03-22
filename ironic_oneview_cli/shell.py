@@ -31,10 +31,10 @@ from ironic_oneview_cli.create_flavor_shell import commands \
     as flavor_create_commands
 from ironic_oneview_cli.create_node_shell import commands \
     as node_create_commands
+from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.openstack.common._i18n import _
 from ironic_oneview_cli.openstack.common import cliutils
-from ironic_oneview_cli import exceptions
 
 
 VERSION = '0.0.2'
@@ -62,7 +62,7 @@ class IronicOneView(object):
         parser.add_argument('--insecure',
                             default=False,
                             action="store_true",
-                            help="Explicitly allow ironic-oneview CLI to perform " 
+                            help="Explicitly allow ironic-oneview CLI to perform "
                             "\"insecure\" SSL (https) requests. The "
                             "server's certificate will not be verified "
                             "against any certificate authorities. This "
@@ -72,7 +72,7 @@ class IronicOneView(object):
                             metavar='<ca-certificate>',
                             default=cliutils.env('OS_CACERT'),
                             help='Defaults to env[OS_CACERT]')
-        
+
         parser.add_argument('--os_cacert',
                             help=argparse.SUPPRESS)
 
@@ -120,7 +120,6 @@ class IronicOneView(object):
         parser.add_argument('--os_auth_url',
                             help=argparse.SUPPRESS)
 
-
         # OneView Global arguments
         parser.add_argument('--ov-username',
                             default=cliutils.env('OV_USERNAME'),
@@ -153,22 +152,22 @@ class IronicOneView(object):
 
         # OpenStack Images arguments
         parser.add_argument('--os-ironic-node-driver',
-                             default=cliutils.env('OS_IRONIC_NODE_DRIVER'),
-                             help='Defaults to env[OS_IRONIC_NODE_DRIVER]')
+                            default=cliutils.env('OS_IRONIC_NODE_DRIVER'),
+                            help='Defaults to env[OS_IRONIC_NODE_DRIVER]')
 
         parser.add_argument('--os_ironic_node_driver',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-ironic-deploy-kernel-uuid',
-                             default=cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
-                             help='Defaults to env[OS_IRONIC_DEPLOY_KERNEL_UUID]')
+                            default=cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
+                            help='Defaults to env[OS_IRONIC_DEPLOY_KERNEL_UUID]')
 
         parser.add_argument('--os_ironic_deploy_kernel_uuid',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-ironic-deploy-ramdisk-uuid',
-                             default=cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
-                             help='Defaults to env[OS_IRONIC_DEPLOY_RAMDISK_UUID]')
+                            default=cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
+                            help='Defaults to env[OS_IRONIC_DEPLOY_RAMDISK_UUID]')
 
         parser.add_argument('--os_ironic_deploy_ramdisk_uuid',
                             help=argparse.SUPPRESS)

@@ -21,7 +21,6 @@ import sys
 from builtins import input
 
 from ironic_oneview_cli.facade import Facade
-from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
 from ironic_oneview_cli.openstack.common import cliutils
@@ -180,14 +179,20 @@ class NodeCreator(object):
                                 )
             }
         }
-        return self.facade.create_ironic_node(**attrs)
+
+        node = None
+        try:
+            node = self.facade.create_ironic_node(**attrs)
+        except Exception as e:
+            print(e.message)
+
+        return node
 
 
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
               help="Show detailed information about the nodes.")
 def do_node_create(args):
     """Creates nodes in Ironic given a list of available OneView servers."""
-    
 
     node_creator = NodeCreator(Facade(args))
     hardware_manager = ServerHardwareManager(args)
@@ -211,7 +216,7 @@ def do_node_create(args):
         template_selected = node_creator.select_server_profile_template(
             template_list
         )
-        print('\nListing compatible Server Hardware objects..')
+        print('\nListing compatible Server Hardware objects...')
 
         # FIXME(thiagop): doesn't uses facade or node_creator
         available_server_hardware_by_field = hardware_manager.list(
@@ -233,11 +238,12 @@ def do_node_create(args):
         for server_hardware_id in server_hardware_ids_selected:
             server_hardware_selected = node_creator.get_element_by_id(
                 server_hardware_list, server_hardware_id)
-            print('\nCreating a Node to represent the following Server Hardware..')
+            print('\nCreating a Node to represent the following Server '
+                  'Hardware...')
             cliutils.print_list(
                 [server_hardware_selected],
                 ['name', 'cpus', 'memoryMb', 'local_gb', 'serverGroupName',
-                'serverHardwareTypeName'],
+                 'serverHardwareTypeName'],
                 mixed_case_fields=[
                     'serverGroupName',
                     'memoryMb',
@@ -253,10 +259,12 @@ def do_node_create(args):
                 ]
             )
 
-            node_creator.create_node(
+            node = node_creator.create_node(
                 args, server_hardware_selected, template_selected
             )
-            print('Node created!')
+
+            if node:
+                print('Node created!\n')
 
         while True:
             response = input('Would you like to create another Node? [Y/n] ')

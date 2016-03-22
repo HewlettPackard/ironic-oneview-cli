@@ -19,10 +19,9 @@
 import json
 import requests
 
+from ironic_oneview_cli import exceptions
 from ironic_oneview_cli import oneview_uri
 from ironic_oneview_cli import service_logging as logging
-from ironic_oneview_cli import exceptions
-from ironic_oneview_cli.openstack.common import cliutils
 
 LOG = logging.getLogger(__name__)
 

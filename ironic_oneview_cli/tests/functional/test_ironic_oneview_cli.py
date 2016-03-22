@@ -17,17 +17,11 @@
 #    under the License.
 
 import mock
-import os
-import time
 import unittest
 
-from ironicclient import client as ironic_client
-
-from ironic_oneview_cli import facade
 from ironic_oneview_cli.create_flavor_shell.commands import FlavorCreator
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
-from ironic_oneview_cli.objects import ServerHardwareManager
-from ironic_oneview_cli.objects import ServerProfileManager
+from ironic_oneview_cli import facade
 from ironic_oneview_cli.tests import base
 
 
@@ -79,7 +73,7 @@ class FakeServerHardware(object):
                  server_hardware_type_uri, serverHardwareTypeUri,
                  enclosure_group_uri, serverGroupUri, status, state,
                  state_reason, enclosure_uri, local_gb, cpu_arch, cpus,
-                 processor_count, processor_core_count, memoryMb, memory_mb, 
+                 processor_count, processor_core_count, memoryMb, memory_mb,
                  port_map, mp_host_info):
 
         self.uuid = uuid
@@ -87,19 +81,19 @@ class FakeServerHardware(object):
         self.power_state = power_state
         self.server_profile_uri = server_profile_uri
         self.server_hardware_type_uri = server_hardware_type_uri
-        self.serverHardwareTypeUri = serverHardwareTypeUri # remove before python-oneviewclient
-        self.serverGroupUri = serverGroupUri # remove before python-oneviewclient
+        self.serverHardwareTypeUri = serverHardwareTypeUri  # remove before python-oneviewclient
+        self.serverGroupUri = serverGroupUri  # remove before python-oneviewclient
         self.enclosure_group_uri = enclosure_group_uri
         self.status = status
         self.state = state
         self.state_reason = state_reason
         self.enclosure_uri = enclosure_uri
-        self.local_gb = local_gb # remove before python-oneviewclient
-        self.cpu_arch = cpu_arch # remove before python-oneviewclient
-        self.cpus = cpus # remove before python-oneviewclient
+        self.local_gb = local_gb  # remove before python-oneviewclient
+        self.cpu_arch = cpu_arch  # remove before python-oneviewclient
+        self.cpus = cpus  # remove before python-oneviewclient
         self.processor_count = processor_count
         self.processor_core_count = processor_core_count
-        self.memoryMb = memoryMb # remove before python-oneviewclient
+        self.memoryMb = memoryMb  # remove before python-oneviewclient
         self.memory_mb = memory_mb
         self.port_map = port_map
         self.mp_host_info = mp_host_info
@@ -219,7 +213,6 @@ FAKE_PARAMETERS = FakeParameters(
 
 class TestIronicOneviewCli(base.TestCase):
 
-
     @mock.patch.object(facade.Facade, 'create_ironic_node')
     @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_node_creation(self, mock_facade, mock_create_ironic_node):
@@ -251,8 +244,8 @@ class TestIronicOneviewCli(base.TestCase):
                                 'server_profile_template_uri:%s' % (
                                     POOL_OF_FAKE_SERVER_HARDWARE[0].serverHardwareTypeUri,
                                     POOL_OF_FAKE_SERVER_HARDWARE[0].serverGroupUri,
-                                    POOL_OF_FAKE_SERVER_PROFILE_TEMPLATE[0].uri,
-                                )
+                                    POOL_OF_FAKE_SERVER_PROFILE_TEMPLATE[0].uri
+                )
             }
         }
 

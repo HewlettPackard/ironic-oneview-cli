@@ -62,8 +62,10 @@ def get_endpoint(client, **kwargs):
         filter_value=filter_value,
         endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
 
+
 def _is_string_equals_true(string):
     return string.lower() == 'true'
+
 
 def get_ironic_client(args):
 
@@ -97,12 +99,12 @@ def get_ironic_client(args):
 
     return ironic_client.Client(1, endpoint, **cli_kwargs)
 
+
 def get_nova_client(args):
-    ca_file = args.os_cacert if args.os_cacert else None
     LOG.debug("Using OpenStack credentials specified in the configuration file"
               " to get Nova Client")
 
-    nova = nova_client.Client(2, 
+    nova = nova_client.Client(2,
                               username=args.os_username,
                               api_key=args.os_password,
                               project_id=args.os_project_name or args.os_tenant_name,
