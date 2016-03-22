@@ -15,11 +15,13 @@ nodes representing a ``Server Hardware``.
 This tool creates ironic nodes basead in a concept within the Ironic OneView drivers'
 dynamic allocation model, for further information see here [1]_ and here [2]_.
 
+
 ..note::
   If the user wants to use ``pre-allocation`` instead of ``dynamic allocation``, the
   node will pass through a validation before the boot, checking the existence of
   the Server Profile applied. To use the deprecated pre-allocation model instead,
   use version 0.0.2 of this tool.
+
 
 For more information on *OneView* entities, see [3]_.
 
