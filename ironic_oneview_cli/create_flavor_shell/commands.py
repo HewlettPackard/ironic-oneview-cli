@@ -20,7 +20,6 @@ import os
 
 from builtins import input
 
-from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.facade import Facade
 from ironic_oneview_cli.genrc import commands as genrc_commands
@@ -113,38 +112,16 @@ def do_flavor_create(args):
     Shows a list with suggested flavors to be created based on OneView's Server
     Profile Templates. The user can then select a flavor to create based on
     it's ID.
-
     """
-    if args.config_file is not "":
-        config_file = os.path.realpath(os.path.expanduser(args.config_file))
 
-    defaults = {
-        "ca_file": "",
-        "insecure": False,
-        "tls_cacert_file": "",
-        "allow_insecure_connections": False,
-    }
+    facade = Facade(args)
+    hardware_manager = ServerHardwareManager(args)
+    profile_manager = ServerProfileManager(args)
 
-    if not os.path.isfile(config_file):
-        while True:
-            create = input("Config file not found on `%s`. Would you like to "
-                           "create one now? [Y/n] " % config_file) or 'y'
-            if create.lower() == 'y':
-                genrc_commands.do_genrc(args)
-                break
-            elif create.lower() == 'n':
-                return
-            else:
-                print("Invalid option.\n")
+    flavor_list = get_flavor_list(
+        facade.ironicclient, hardware_manager, profile_manager
+    )
 
-    conf = ConfClient(config_file, defaults)
-    facade = Facade(conf)
-    ironic_cli = facade.ironicclient
-    nova_cli = facade.novaclient
-    create_another_flavor_flag = True
-    hardware_manager = ServerHardwareManager(conf)
-    profile_manager = ServerProfileManager(conf)
-    flavor_list = get_flavor_list(ironic_cli, hardware_manager, profile_manager)
     flavor_list = list(flavor_list)
 
     for j in range(1, len(flavor_list)):
@@ -160,38 +137,45 @@ def do_flavor_create(args):
 
     flavor_list = set(flavor_list)
 
+    create_another_flavor_flag = True
     while create_another_flavor_flag:
         create_another_flavor_flag = False
         cliutils.print_list(
             flavor_list,
-            ['id', 'cpus', 'disk', 'ram_mb', 'server_profile_template_name', 'server_hardware_type_name', 'enclosure_group_name'],
-            field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB', 'Server Profile Template', 'Server Hardware Type', 'Enclosure Group Name'],
+            ['id', 'cpus', 'disk', 'ram_mb', 'server_profile_template_name',
+             'server_hardware_type_name', 'enclosure_group_name'],
+            field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB',
+                          'Server Profile Template', 'Server Hardware Type',
+                          'Enclosure Group Name'],
             sortby_index=1)
-        id = input("Insert flavor Id to add in OneView. Press 'q' to quit> ")
+        id = input("Insert Flavor ID to add in OneView. Press 'q' to quit> ")
 
         if id == "q":
             break
 
         if id.isdigit() is not True:
-            print('Invalid flavor Id. Please enter a valid Id.')
+            print('Invalid Flavor ID. Please enter a valid ID.')
             create_another_flavor_flag = True
             continue
 
         flavor = _get_element_by_id(flavor_list, int(id))
 
         if flavor is None:
-            print('Invalid flavor Id. Please enter a valid Id.')
+            print('Invalid Flavor ID. Please enter a valid ID.')
             create_another_flavor_flag = True
             continue
 
         cliutils.print_list(
             [flavor],
-            ['cpus', 'disk', 'ram_mb', 'server_profile_template_name', 'server_hardware_type_name', 'enclosure_group_name'],
-            field_labels=['CPUs', 'Disk GB', 'Memory MB', 'Server Profile Template', 'Server Hardware Type', 'Enclosure Group Name'],
+            ['cpus', 'disk', 'ram_mb', 'server_profile_template_name',
+             'server_hardware_type_name', 'enclosure_group_name'],
+            field_labels=['CPUs', 'Disk GB', 'Memory MB',
+                          'Server Profile Template', 'Server Hardware Type',
+                          'Enclosure Group Name'],
             sortby_index=2)
         flavor_name_default = _get_flavor_name(flavor)
         flavor_name = input(
-            "Insert the name of the flavor. Leave blank for [" +
+            "Insert a name for the Flavor. Or leave it blank for [" +
             flavor_name_default + "] (press 'q' to quit)> ")
 
         if flavor_name == "q":
@@ -200,13 +184,18 @@ def do_flavor_create(args):
         if len(flavor_name) == 0:
             flavor_name = flavor_name_default
 
-        nova_flavor = nova_cli.flavors.create(
-            flavor_name, flavor.ram_mb, flavor.cpus, flavor.disk)
-        nova_flavor.set_keys(flavor.extra_specs())
+        attrs = dict()
+        attrs['name'] = flavor_name
+        attrs['ram'] = flavor.ram_mb
+        attrs['vcpus'] = flavor.cpus
+        attrs['disk'] = flavor.disk
 
+        nova_flavor = facade.create_nova_flavor(**attrs)
+        nova_flavor.set_keys(flavor.extra_specs())
         print('Flavor created!\n')
+
         while True:
-            response = input('Would you like to create another flavor? [Y/n]')
+            response = input('Would you like to create another Flavor? [Y/n] ')
             if response == 'n':
                 create_another_flavor_flag = False
                 break

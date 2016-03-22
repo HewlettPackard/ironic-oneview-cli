@@ -31,9 +31,6 @@ class Facade(object):
     # =========================================================================
     # Ironic actions
     # =========================================================================
-#     def update_ironic_node_state(self, node, server_hardware_uri):
-#         return os_client._update_ironic_node_state(node, server_hardware_uri)
-
     def get_ironic_node_list(self):
         return self.ironicclient.node.list(detail=True)
 
@@ -53,8 +50,13 @@ class Facade(object):
     # =========================================================================
     # Nova actions
     # =========================================================================
-#     def is_nova_flavor_available(self, server_hardware_info):
-#         return os_client._is_flavor_available(server_hardware_info)
+    def create_nova_flavor(self, **attrs):
+        return self.novaclient.flavors.create(
+            name=attrs.get('name'),
+            ram=attrs.get('ram'),
+            vcpus=attrs.get('vcpus'),
+            disk=attrs.get('disk')
+        )
 
     # =========================================================================
     # OneView actions
