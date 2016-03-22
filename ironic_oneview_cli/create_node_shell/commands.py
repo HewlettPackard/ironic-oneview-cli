@@ -291,6 +291,5 @@ def do_node_create(args):
                 'UUID',
                 'Driver',
                 'Extra'
-
             ]
         )

@@ -13,10 +13,14 @@ nodes representing a ``Server Hardware``.
 
 This tool create ironic nodes basead in a concept called ``dynamic allocation``. In
 this concept a available node in Ironic can be taken by OneView at any moment and
-apply the Server Profile during the boot process insted of having one applied
-already at the node to validation. A node will be considered to be free for Ironic
-when there is no Server Profile applied to the Server Hardware the node
-represents, or there is a Server Profile applied, but this Server Profile is
+then the OneView driver can apply the Server Profile during the boot process insted
+of having one applied already at the node to validation. That is used because in an
+environment shared by Ironic and OneView users, to simply allocate a pool of
+Server Hardware items to Ironic, for which we do not know when they are going to
+be used, will result in hardware reserved but not in use, which from many
+perspectives, specially for OneView users, is undesirable. A node will be considered
+to be free for Ironic when there is no Server Profile applied to the Server Hardware
+the node represents, or there is a Server Profile applied, but this Server Profile is
 consistent with what is registered in Ironic's node data structure.
 
 ..note::
