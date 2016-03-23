@@ -102,10 +102,10 @@ class ServerProfileManager(Manager):
         enclosure_group_uri = filtered_server_profile_dict.get('enclosureGroupUri')
         if (enclosure_group_uri not in ('None', None)):
             enclosure_group = self.oneviewclient.enclosure_group.get(
-                filtered_server_profile_dict['enclosureGroupUri'])
+                enclosure_group_uri)
             filtered_server_profile_dict['enclosureGroupName'] = \
                 self.oneviewclient.enclosure_group.get(
-                    filtered_server_profile_dict['enclosureGroupUri'], 'name')
+                    enclosure_group_uri, 'name')
         return ServerProfile(id, filtered_server_profile_dict)
 
     def server_profile_template_list(self):
@@ -128,11 +128,21 @@ class ServerProfileManager(Manager):
                 server_hardware.serverGroupUri)
         server_profile_list = self.server_profile_template_list()
         for server_profile in server_profile_list:
-            if (server_profile.serverHardwareTypeUri in
-                server_hardware_type_list):
-                if (server_profile.enclosureGroupUri in server_group_list or
-                    server_profile.enclosureGroupUri in ('None', None)):
-                    compatible_server_profile_list.append(server_profile)
+            sp_enclosure_group_is_none = (
+                server_profile.enclosureGroupUri in ('None', None)
+            )
+            sp_enclosure_group_is_compatible = (
+                server_profile.enclosureGroupUri in server_group_list
+            )
+            sp_server_harware_type_is_compatible = (
+                server_profile.serverHardwareTypeUri in
+                server_hardware_type_list
+            )
+            if (sp_server_harware_type_is_compatible and
+               (sp_enclosure_group_is_compatible or
+                sp_enclosure_group_is_none)
+            ):
+                compatible_server_profile_list.append(server_profile)
 
         return compatible_server_profile_list
 

@@ -171,16 +171,11 @@ class ResourceAPI(OneViewRequestAPI):
     def _list(self, uri, fields=None):
         request_result = self.prepare_and_do_request(uri)
         obj_list = request_result.get("members")
-        count = 1        
         next_page_uri = request_result.get('nextPageUri')
-        print(next_page_uri)
-        print(count)
         while next_page_uri is not None:
             request_result = self.prepare_and_do_request(next_page_uri)
             obj_list = obj_list + request_result.get("members")
             next_page_uri = request_result.get('nextPageUri')
-            print('page: %s' % count)
-            count += 1
 
         if fields is None:
             return obj_list
@@ -226,7 +221,7 @@ class OneViewEnclosureGroupAPI(ResourceAPI):
 
 class OneViewServerHardwareAPI(ResourceAPI):
     def list(self, only_available=False, fields=None):
-        uri = "/rest/server-hardware?start=0&count=20"
+        uri = "/rest/server-hardware?start=0&count=-1"
         if only_available:
             if fields is None:
                 fields = {}
