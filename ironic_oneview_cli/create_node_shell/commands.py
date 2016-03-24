@@ -192,7 +192,7 @@ class NodeCreator(object):
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
               help="Show detailed information about the nodes.")
 def do_node_create(args):
-    """Creates nodes in Ironic given a list of available OneView servers."""
+    """Creates nodes based on available HP OneView Server Hardware."""
 
     node_creator = NodeCreator(Facade(args))
     hardware_manager = ServerHardwareManager(args)
