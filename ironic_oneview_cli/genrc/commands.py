@@ -58,7 +58,7 @@ def _save(path, filename='ironic-oneviewrc.sh', **data):
 
 
 def do_genrc(args):
-    """Generates the ironic-oneviewrc.sh file according user input."""
+    """Generates the ironic-oneviewrc.sh file according to user input."""
 
     # OneView
 

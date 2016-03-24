@@ -128,7 +128,7 @@ class FlavorCreator(object):
 
 
 def do_flavor_create(args):
-    """Creates flavors based on OneView available Ironic nodes.
+    """Creates flavors based on available Ironic nodes.
 
     Shows a list with suggested Flavors to be created based on OneView's Server
     Profile Templates. The user can then select a Flavor to create based on
