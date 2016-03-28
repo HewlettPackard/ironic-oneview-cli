@@ -37,7 +37,7 @@ from ironic_oneview_cli.openstack.common._i18n import _
 from ironic_oneview_cli.openstack.common import cliutils
 
 
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 
 COMMAND_MODULES = [
     node_create_commands,

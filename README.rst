@@ -25,8 +25,8 @@ The installation process occurs as every package on PyPI::
 Usage
 =====
 
-Once the necessaries environment variables are set, you are able to run the
-``Ironic-OneView CLI tool``.
+Once the command line parameters or the necessaries environment variables are
+set, the ``Ironic-OneView CLI Tool`` is ready to be used.
 
 Synopsis::
 
@@ -65,8 +65,8 @@ variables, by doing::
 For more information how to download and load the *OpenStack RC*, see [2]_.
 
 
-Examples
-========
+Usage
+=====
 
 Node creation
 ^^^^^^^^^^^^^
@@ -104,7 +104,7 @@ Ironic node you are creating.::
 
 Note that you can create multiple Ironic nodes at the same time. For this, you
 can type multiples ``Server Hardware`` IDs separated by blank spaces. The
-created Ironic nodes going to have *enroll* provisioning state.
+created Ironic nodes will have *enroll* provisioning state.
 
 For list all nodes in Ironic, use the command::
 
