@@ -16,6 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+
 class StubIronicNode(object):
     def __init__(self, id, uuid, chassis_uuid, provision_state, driver,
                  ports, driver_info={}, driver_internal_info={},
@@ -46,11 +47,11 @@ class StubNovaFlavor(object):
         self.uuid = uuid
         self.name = name
         self.memory_mb = memory_mb
-        self.ram_mb = ram_mb  #remove before python-oneviewclient
+        self.ram_mb = ram_mb  # remove before python-oneviewclient
         self.vcpus = vcpus
-        self.cpus = cpus  #remove before python-oneviewclient
-        self.cpu_arch = cpu_arch  #remove before python-oneviewclient
-        self.disk = disk  #remove before python-oneviewclient
+        self.cpus = cpus  # remove before python-oneviewclient
+        self.cpu_arch = cpu_arch  # remove before python-oneviewclient
+        self.disk = disk  # remove before python-oneviewclient
         self.root_gb = root_gb
         self.ephemeral_gb = ephemeral_gb
         self.flavorid = flavorid
@@ -120,5 +121,3 @@ class StubParameters(object):
         self.os_ironic_node_driver = os_ironic_node_driver
         self.os_ironic_deploy_kernel_uuid = os_ironic_deploy_kernel_uuid
         self.os_ironic_deploy_ramdisk_uuid = os_ironic_deploy_ramdisk_uuid
-
-

@@ -25,15 +25,15 @@ from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
 from ironic_oneview_cli import facade
 from ironic_oneview_cli.tests.stubs import StubIronicNode
-from ironic_oneview_cli.tests.stubs import StubParameters
 from ironic_oneview_cli.tests.stubs import StubNovaFlavor
+from ironic_oneview_cli.tests.stubs import StubParameters
 from ironic_oneview_cli.tests.stubs import StubServerHardware
 from ironic_oneview_cli.tests.stubs import StubServerProfileTemplate
 
 
 POOL_OF_STUB_IRONIC_NODES = [
     StubIronicNode(
-        id=001,
+        id=1,
         uuid='111111111-2222-8888-9999-000000000000',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
         maintenance=False,
@@ -52,7 +52,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         extra={}
     ),
     StubIronicNode(
-        id=002,
+        id=2,
         uuid='22222222-3333-8888-9999-000000000000',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
         maintenance=False,
@@ -67,14 +67,13 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
-                     'password': 'bar'
-        },
+                     'password': 'bar'},
         properties={'num_cpu': 4},
         name='fake-node-1',
         extra={}
     ),
     StubIronicNode(
-        id=003,
+        id=3,
         uuid='33333333-4444-8888-9999-000000000000',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
         maintenance=False,
@@ -89,8 +88,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
-                     'password': 'bar'
-        },
+                     'password': 'bar'},
         properties={'memory_mb': 32768,
                     'cpu_arch': 'x86_64',
                     'local_gb': 120,
@@ -100,8 +98,7 @@ POOL_OF_STUB_IRONIC_NODES = [
                                     "enclosure_group_uri:"
                                     "/rest/enclosure-groups/huehuehuehuehue,"
                                     "server_profile_template_uri:"
-                                    "/rest/server-profile-templates/huehuehuehuehue"
-        },
+                                    "/rest/server-profile-templates/huehuehuehuehue"},
         name='fake-node-1',
         extra={}
     )
@@ -187,7 +184,7 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         memory_mb=16384,
         port_map=[],
         mp_host_info={}
-    ) 
+    )
 ]
 
 
