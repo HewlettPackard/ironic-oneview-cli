@@ -19,16 +19,16 @@
 import mock
 import unittest
 
-from ironic_oneview_cli import facade
 from ironic_oneview_cli.create_flavor_shell.commands import FlavorCreator
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
-from ironic_oneview_cli.tests.stubs import StubNovaFlavor
+from ironic_oneview_cli import facade
 from ironic_oneview_cli.tests.stubs import StubIronicNode
+from ironic_oneview_cli.tests.stubs import StubNovaFlavor
 from ironic_oneview_cli.tests.stubs import StubServerHardware
 
 POOL_OF_STUB_IRONIC_NODES = [
     StubIronicNode(
-        id=001,
+        id=1,
         uuid='111111111-2222-8888-9999-000000000000',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
         maintenance=False,
@@ -47,7 +47,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         extra={}
     ),
     StubIronicNode(
-        id=002,
+        id=2,
         uuid='22222222-3333-8888-9999-000000000000',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
         maintenance=False,
@@ -62,8 +62,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
-                     'password': 'bar'
-        },
+                     'password': 'bar'},
         properties={'num_cpu': 4},
         name='fake-node-1',
         extra={}
@@ -123,7 +122,7 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         memory_mb=16384,
         port_map=[],
         mp_host_info={}
-    ) 
+    )
 ]
 
 POOL_OF_STUB_NOVA_FLAVORS = [
@@ -158,9 +157,7 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
     def test_list_server_hardware_not_enrolled(self,
                                                mock_facade,
                                                mock_ironic_node_list):
-        
         node_creator = NodeCreator(mock_facade)
-
         ironic_nodes = POOL_OF_STUB_IRONIC_NODES
         mock_ironic_node_list.return_value = ironic_nodes
         mock_facade.get_ironic_node_list = mock_ironic_node_list
@@ -171,13 +168,12 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
 
         self.assertEqual(1, len(not_enrolled))
 
-
     @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_generate_flavor_name(self, mock_facade):
 
         flavor_creator = FlavorCreator(mock_facade)
         flavor_name = flavor_creator.get_flavor_name(POOL_OF_STUB_NOVA_FLAVORS[0])
-        self.assertEqual('32000MB-RAM_8_x64_120', flavor_name) 
+        self.assertEqual('32000MB-RAM_8_x64_120', flavor_name)
 
 
 if __name__ == '__main__':
