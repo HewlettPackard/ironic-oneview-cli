@@ -16,10 +16,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import copy
 import mock
 import unittest
 
 from ironic_oneview_cli.create_flavor_shell.commands import FlavorCreator
+from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
 from ironic_oneview_cli import facade
 from ironic_oneview_cli.tests.stubs import StubIronicNode
@@ -70,19 +72,55 @@ POOL_OF_STUB_IRONIC_NODES = [
         properties={'num_cpu': 4},
         name='fake-node-1',
         extra={}
+    ),
+    StubIronicNode(
+        id=003,
+        uuid='33333333-4444-8888-9999-000000000000',
+        chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
+        maintenance=False,
+        provision_state='enroll',
+        ports=[
+            {'id': 987,
+             'uuid': '11111111-2222-3333-4444-555555555555',
+             'node_uuid': '66666666-7777-8888-9999-000000000000',
+             'address': 'AA:BB:CC:DD:EE:FF',
+             'extra': {}}
+        ],
+        driver='fake_oneview',
+        driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
+                     'user': 'foo',
+                     'password': 'bar'
+        },
+        properties={'memory_mb': 32768,
+                    'cpu_arch': 'x86_64',
+                    'local_gb': 120,
+                    'cpus': 8,
+                    'capabilities': "server_hardware_type_uri:"
+                                    "/rest/server-hardware-types/huehuehuehuehue,"
+                                    "enclosure_group_uri:"
+                                    "/rest/enclosure-groups/huehuehuehuehue,"
+                                    "server_profile_template_uri:"
+                                    "/rest/server-profile-templates/huehuehuehuehue"
+        },
+        name='fake-node-1',
+        extra={}
     )
+
 ]
 
 
 POOL_OF_STUB_SERVER_HARDWARE = [
     StubServerHardware(
+        name='AAAAA',
         uuid='11111111-7777-8888-9999-000000000000',
         uri='/rest/server-hardware/11111',
         power_state='Off',
         server_profile_uri='',
         server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
         serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        serverHardwareTypeName='BL XXX',
         serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
+        serverGroupName='virtual A',
         enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
         status='OK',
         state='Unknown',
@@ -99,14 +137,43 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         mp_host_info={}
     ),
     StubServerHardware(
+        name='BBBBB',
         uuid='22222222-7777-8888-9999-000000000000',
         uri='/rest/server-hardware/22222',
         power_state='Off',
         server_profile_uri='',
         server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
         serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        serverHardwareTypeName='BL XXX',
         serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
         enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
+        serverGroupName='virtual B',
+        status='OK',
+        state='Unknown',
+        state_reason='',
+        enclosure_uri='/rest/enclosures/huehuehuehuehue',
+        local_gb=72768,
+        cpu_arch='x86_64',
+        cpus=12,
+        processor_count=12,
+        processor_core_count=12,
+        memoryMb=16384,
+        memory_mb=16384,
+        port_map=[],
+        mp_host_info={}
+    ),
+    StubServerHardware(
+        name='CCCCC',
+        uuid='33333333-7777-8888-9999-000000000000',
+        uri='/rest/server-hardware/33333',
+        power_state='Off',
+        server_profile_uri='',
+        server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
+        serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        serverHardwareTypeName='DL XXX',
+        serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
+        enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
+        serverGroupName='virtual C',
         status='OK',
         state='Unknown',
         state_reason='',
@@ -141,7 +208,11 @@ POOL_OF_STUB_NOVA_FLAVORS = [
         uuid='66666666-7777-8888-9999-000000000000',
         name='fake-flavor',
         memory_mb=1024,
+        ram_mb=1024,
         vcpus=1,
+        cpus=1,
+        cpu_arch='x64',
+        disk=100,
         root_gb=100,
         ephemeral_gb=0,
         flavorid='abc',
@@ -234,6 +305,42 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
+    @mock.patch('ironic_oneview_cli.objects.ServerHardwareManager')
+    @mock.patch('ironic_oneview_cli.objects.ServerProfileManager')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_get_flavor_from_ironic_node(self, mock_facade,
+                                         mock_server_hardware_manager,
+                                         mock_server_profile_manager):
+
+        node = copy.deepcopy(POOL_OF_STUB_IRONIC_NODES[2])
+        hardware = copy.deepcopy(POOL_OF_STUB_SERVER_HARDWARE[2])
+        template = copy.deepcopy(POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[0])
+
+        mock_server_hardware_manager.list.return_value = [hardware]
+        mock_server_profile_manager.list.return_value = [template]
+
+        flavor_creator = FlavorCreator(mock_facade)
+        result_flavor = flavor_creator.get_flavor_from_ironic_node(
+            12345, node, mock_server_hardware_manager,
+            mock_server_profile_manager
+        )
+
+        flavor = dict()
+        flavor['ram_mb'] = node.properties.get("memory_mb")
+        flavor['cpus'] = node.properties.get("cpus")
+        flavor['disk'] = node.properties.get("local_gb")
+        flavor['cpu_arch'] = node.properties.get("cpu_arch")
+        flavor['server_hardware_type_uri'] = \
+            '/rest/server-hardware-types/huehuehuehuehue'
+        flavor['server_hardware_type_name'] = 'DL XXX'
+        flavor['server_profile_template_uri'] = \
+            '/rest/server-profile-templates/huehuehuehuehue'
+        flavor['enclosure_group_name'] = 'virtual C'
+        flavor['enclosure_group_uri'] = \
+            '/rest/enclosure-groups/huehuehuehuehue'
+
+        self.assertEqual.__self__.maxDiff = None
+        self.assertEqual(result_flavor, Flavor(id=12345, info=flavor))
 
 
 if __name__ == '__main__':

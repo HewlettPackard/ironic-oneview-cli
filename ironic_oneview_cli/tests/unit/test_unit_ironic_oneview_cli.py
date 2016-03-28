@@ -20,6 +20,7 @@ import mock
 import unittest
 
 from ironic_oneview_cli import facade
+from ironic_oneview_cli.create_flavor_shell.commands import FlavorCreator
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
 from ironic_oneview_cli.tests.stubs import StubNovaFlavor
 from ironic_oneview_cli.tests.stubs import StubIronicNode
@@ -72,13 +73,16 @@ POOL_OF_STUB_IRONIC_NODES = [
 
 POOL_OF_STUB_SERVER_HARDWARE = [
     StubServerHardware(
+        name='AAAAA',
         uuid='11111111-7777-8888-9999-000000000000',
         uri='/rest/server-hardware/11111',
         power_state='Off',
         server_profile_uri='',
         server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
         serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        serverHardwareTypeName='BL XXX',
         serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
+        serverGroupName='virtual A',
         enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
         status='OK',
         state='Unknown',
@@ -95,13 +99,16 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         mp_host_info={}
     ),
     StubServerHardware(
+        name='AAAAA',
         uuid='22222222-7777-8888-9999-000000000000',
         uri='/rest/server-hardware/22222',
         power_state='Off',
         server_profile_uri='',
         server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
         serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        serverHardwareTypeName='BL XXX',
         serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
+        serverGroupName='virtual A',
         enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
         status='OK',
         state='Unknown',
@@ -121,10 +128,25 @@ POOL_OF_STUB_SERVER_HARDWARE = [
 
 POOL_OF_STUB_NOVA_FLAVORS = [
     StubNovaFlavor(
-       ram_mb='32000',
-       cpus='8',
-       cpu_arch='x64',
-       disk='120'
+        id=123,
+        uuid='66666666-7777-8888-9999-000000000000',
+        name='fake-flavor',
+        memory_mb=32000,
+        ram_mb=32000,
+        vcpus=8,
+        cpus=8,
+        cpu_arch='x64',
+        disk=120,
+        root_gb=120,
+        ephemeral_gb=0,
+        flavorid='abc',
+        swap=0,
+        rxtx_factor=1,
+        vcpu_weight=1,
+        disabled=False,
+        is_public=True,
+        extra_specs={},
+        projects=[]
     )
 ]
 
@@ -156,6 +178,7 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         flavor_creator = FlavorCreator(mock_facade)
         flavor_name = flavor_creator.get_flavor_name(POOL_OF_STUB_NOVA_FLAVORS[0])
         self.assertEqual('32000MB-RAM_8_x64_120', flavor_name) 
+
 
 if __name__ == '__main__':
     unittest.main()

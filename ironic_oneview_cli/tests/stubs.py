@@ -37,9 +37,10 @@ class StubIronicNode(object):
 
 
 class StubNovaFlavor(object):
-    def __init__(self, id, uuid, memory_mb, vcpus, root_gb, ephemeral_gb,
-                 flavorid, swap, rxtx_factor, vcpu_weight, disabled,
-                 is_public, name='fake-flavor', extra_specs={}, projects=[]):
+    def __init__(self, id, uuid, memory_mb, ram_mb, vcpus, cpus, cpu_arch,
+                 disk, root_gb, ephemeral_gb, flavorid, swap, rxtx_factor,
+                 vcpu_weight, disabled, is_public, name='fake-flavor',
+                 extra_specs={}, projects=[]):
 
         self.id = id
         self.uuid = uuid
@@ -64,20 +65,24 @@ class StubNovaFlavor(object):
 
 class StubServerHardware(object):
 
-    def __init__(self, uuid, uri, power_state, server_profile_uri,
+    def __init__(self, name, uuid, uri, power_state, server_profile_uri,
                  server_hardware_type_uri, serverHardwareTypeUri,
-                 enclosure_group_uri, serverGroupUri, status, state,
-                 state_reason, enclosure_uri, local_gb, cpu_arch, cpus,
-                 processor_count, processor_core_count, memoryMb, memory_mb,
-                 port_map, mp_host_info):
+                 serverHardwareTypeName, enclosure_group_uri, serverGroupName,
+                 serverGroupUri, status, state, state_reason, enclosure_uri,
+                 local_gb, cpu_arch, cpus, processor_count,
+                 processor_core_count, memoryMb, memory_mb, port_map,
+                 mp_host_info):
 
+        self.name = name
         self.uuid = uuid
         self.uri = uri
         self.power_state = power_state
         self.server_profile_uri = server_profile_uri
         self.server_hardware_type_uri = server_hardware_type_uri
         self.serverHardwareTypeUri = serverHardwareTypeUri  # remove before python-oneviewclient
+        self.serverHardwareTypeName = serverHardwareTypeName  # remove before python-oneviewclient
         self.serverGroupUri = serverGroupUri  # remove before python-oneviewclient
+        self.serverGroupName = serverGroupName  # remove before python-oneviewclient
         self.enclosure_group_uri = enclosure_group_uri
         self.status = status
         self.state = state
