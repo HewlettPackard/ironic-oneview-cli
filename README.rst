@@ -22,7 +22,6 @@ dynamic allocation model, for further information see here [1]_ and here [2]_.
   the Server Profile applied. To use the deprecated pre-allocation model instead,
   use version 0.0.2 of this tool.
 
-
 For more information on *OneView* entities, see [3]_.
 
 Installation
