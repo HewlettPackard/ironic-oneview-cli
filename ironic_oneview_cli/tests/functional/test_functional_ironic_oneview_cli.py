@@ -237,7 +237,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
     @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_node_creation(self, mock_facade, mock_create_ironic_node):
 
-        ironic_node = POOL_OF_STUB_IRONIC_NODES[0]
+        ironic_node = copy.deepcopy(POOL_OF_STUB_IRONIC_NODES[0])
         mock_create_ironic_node.return_value = ironic_node
         mock_facade.create_ironic_node = mock_create_ironic_node
 
@@ -273,14 +273,12 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch.object(facade.Facade, 'create_nova_flavor')
     @mock.patch('ironic_oneview_cli.facade.Facade')
-    def test_flavor_creation(self, mock_facade, mock_create_nova_flavor):
+    def test_flavor_creation(self, mock_facade):
 
-        nova_flavor = POOL_OF_STUB_NOVA_FLAVORS[0]
+        nova_flavor = copy.deepcopy(POOL_OF_STUB_NOVA_FLAVORS[0])
         nova_flavor.set_keys = lambda extra_specs: None
-        mock_create_nova_flavor.return_value = nova_flavor
-        mock_facade.create_nova_flavor = mock_create_nova_flavor
+        mock_facade.create_nova_flavor.return_value = nova_flavor
 
         flavor_creator = FlavorCreator(mock_facade)
         flavor_creator.create_flavor(
@@ -298,7 +296,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             'disk': POOL_OF_STUB_NOVA_FLAVORS[0].root_gb
         }
 
-        mock_create_nova_flavor.assert_called_with(
+        mock_facade.create_nova_flavor.assert_called_with(
             **attrs
         )
 
