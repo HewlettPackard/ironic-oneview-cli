@@ -101,8 +101,6 @@ class ServerProfileManager(Manager):
         filtered_server_profile_dict['enclosureGroupName'] = 'None'
         enclosure_group_uri = filtered_server_profile_dict.get('enclosureGroupUri')
         if (enclosure_group_uri not in ('None', None)):
-            enclosure_group = self.oneviewclient.enclosure_group.get(
-                enclosure_group_uri)
             filtered_server_profile_dict['enclosureGroupName'] = \
                 self.oneviewclient.enclosure_group.get(
                     enclosure_group_uri, 'name')
@@ -171,10 +169,9 @@ class ServerHardwareManager(Manager):
                 filtered_server_profile_dict['serverHardwareTypeUri'], 'name')
         filtered_server_profile_dict['serverGroupName'] = 'None'
         enclosure_group_uri = filtered_server_profile_dict.get('serverGroupUri')
-        if (enclosure_group_uri != 'None' and enclosure_group_uri is not None):
+        if (enclosure_group_uri not in ('None', None)):
             filtered_server_profile_dict['serverGroupName'] = \
                 self.oneviewclient.enclosure_group.get(
                     filtered_server_profile_dict['serverGroupUri'], 'name')
 
-        server_hardware = ServerHardware(id, filtered_server_profile_dict)
-        return server_hardware
+        return ServerHardware(id, filtered_server_profile_dict)
