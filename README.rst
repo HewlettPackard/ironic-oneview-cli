@@ -27,7 +27,7 @@ consistent with what is registered in Ironic's node data structure.
   If the user wants to use ``pre-allocation`` instead of ``dynamic allocation``, the
   node will pass through a validation before the boot, checking the existence of
   the Server Profile applied. To use this other concept the user needs to download
-  version 0.0.2 (the last one before this).
+  version 0.0.2 .
 
 For more information on *OneView* entities, see [1]_.
 
