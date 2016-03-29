@@ -16,7 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 """
-Command-line interface to the HP OneView CLI tool.
+Command-line interface to the HP OneView CLI Tool.
 """
 
 from __future__ import print_function
@@ -71,7 +71,8 @@ class IronicOneView(object):
         parser.add_argument('--os-cacert',
                             metavar='<ca-certificate>',
                             default=cliutils.env('OS_CACERT'),
-                            help='Defaults to env[OS_CACERT]')
+                            help='Path to OpenStack certificate file. '
+                                 'Defaults to env[OS_CACERT]')
 
         parser.add_argument('--os_cacert',
                             help=argparse.SUPPRESS)
@@ -87,35 +88,40 @@ class IronicOneView(object):
 
         parser.add_argument('--os-username',
                             default=cliutils.env('OS_USERNAME'),
-                            help='Defaults to env[OS_USERNAME]')
+                            help='OpenStack username. '
+                                 'Defaults to env[OS_USERNAME]')
 
         parser.add_argument('--os_username',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-password',
                             default=cliutils.env('OS_PASSWORD'),
-                            help='Defaults to env[OS_PASSWORD]')
+                            help='OpenStack password. '
+                                 'Defaults to env[OS_PASSWORD]')
 
         parser.add_argument('--os_password',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-tenant-name',
                             default=cliutils.env('OS_TENANT_NAME'),
-                            help='Defaults to env[OS_TENANT_NAME]')
+                            help='OpenStack tenant name. '
+                                 'Defaults to env[OS_TENANT_NAME]')
 
         parser.add_argument('--os_tenant_name',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-project-name',
                             default=cliutils.env('OS_PROJECT_NAME'),
-                            help='Defaults to env[OS_PROJECT_NAME]')
+                            help='OpenStack project name. '
+                                 'Defaults to env[OS_PROJECT_NAME]')
 
         parser.add_argument('--os_project_name',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-auth-url',
                             default=cliutils.env('OS_AUTH_URL'),
-                            help='Defaults to env[OS_AUTH_URL]')
+                            help='OpenStack authentication URL. '
+                                 'Defaults to env[OS_AUTH_URL]')
 
         parser.add_argument('--os_auth_url',
                             help=argparse.SUPPRESS)
@@ -123,21 +129,24 @@ class IronicOneView(object):
         # OneView Global arguments
         parser.add_argument('--ov-username',
                             default=cliutils.env('OV_USERNAME'),
-                            help='Defaults to env[OV_USERNAME]')
+                            help='OneView username. '
+                                 'Defaults to env[OV_USERNAME]')
 
         parser.add_argument('--ov_username',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ov-password',
                             default=cliutils.env('OV_PASSWORD'),
-                            help='Defaults to env[OV_PASSWORD]')
+                            help='OneView password. '
+                                 'Defaults to env[OV_PASSWORD]')
 
         parser.add_argument('--ov_password',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ov-auth-url',
                             default=cliutils.env('OV_AUTH_URL'),
-                            help='Defaults to env[OV_AUTH_URL]')
+                            help='OneView authentication URL. '
+                                 'Defaults to env[OV_AUTH_URL]')
 
         parser.add_argument('--ov_auth_url',
                             help=argparse.SUPPRESS)
@@ -145,7 +154,8 @@ class IronicOneView(object):
         parser.add_argument('--ov-cacert',
                             metavar='<ca-certificate>',
                             default=cliutils.env('OV_CACERT'),
-                            help='Defaults to env[OV_CACERT]')
+                            help='Path to OneView certificate file. '
+                                 'Defaults to env[OV_CACERT]')
 
         parser.add_argument('--ov_cacert',
                             help=argparse.SUPPRESS)
@@ -153,21 +163,24 @@ class IronicOneView(object):
         # OpenStack Images arguments
         parser.add_argument('--os-ironic-node-driver',
                             default=cliutils.env('OS_IRONIC_NODE_DRIVER'),
-                            help='Defaults to env[OS_IRONIC_NODE_DRIVER]')
+                            help='Ironic driver for node creation. '
+                                 'Defaults to env[OS_IRONIC_NODE_DRIVER]')
 
         parser.add_argument('--os_ironic_node_driver',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-ironic-deploy-kernel-uuid',
                             default=cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
-                            help='Defaults to env[OS_IRONIC_DEPLOY_KERNEL_UUID]')
+                            help='Ironic deploy kernel image UUID. '
+                                 'Defaults to env[OS_IRONIC_DEPLOY_KERNEL_UUID]')
 
         parser.add_argument('--os_ironic_deploy_kernel_uuid',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-ironic-deploy-ramdisk-uuid',
                             default=cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
-                            help='Defaults to env[OS_IRONIC_DEPLOY_RAMDISK_UUID]')
+                            help='Ironic deploy ramdisk image UUID. '
+                                 'Defaults to env[OS_IRONIC_DEPLOY_RAMDISK_UUID]')
 
         parser.add_argument('--os_ironic_deploy_ramdisk_uuid',
                             help=argparse.SUPPRESS)
