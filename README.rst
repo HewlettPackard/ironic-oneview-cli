@@ -1,11 +1,11 @@
-=======================
-Ironic-OneView CLI Tool
-=======================
+==================
+Ironic-OneView CLI
+==================
 
 Overview
 ========
 
-The ``Ironic-OneView CLI Tool`` is a command line interface tool for easing the
+The ``Ironic-OneView CLI`` is a command line interface tool for easing the
 use of the OneView Driver for Ironic. It allows an user to easily create Ironic
 nodes compatible with OneView Server Hardware objects, as well as properly
 configuring them. It also creates Nova flavors to match available Ironic nodes
@@ -17,7 +17,7 @@ For more information on *HP OneView* entities, see [1]_.
 Installation
 ============
 
-The installation process occurs as every package on PyPI::
+To install the ironic-oneview CLI, use the following command::
 
     $ pip install ironic-oneview-cli
 
@@ -26,15 +26,14 @@ Usage
 =====
 
 Once the command line parameters or the necessaries environment variables are
-set, the ``Ironic-OneView CLI Tool`` is ready to be used.
+set, the ``Ironic-OneView CLI`` is ready to be used.
 
 Synopsis::
 
     $ ironic-oneview <subcommand>
 
 
-In the current version of ``Ironic-OneView CLI Tool`` the available subcommands
-are:
+In the current version of ``Ironic-OneView CLI`` the available subcommands are:
 
 +---------------+-----------------------------------------------------------------+
 |  node-create  | Creates nodes based on available HP OneView Server Hardware.    |
@@ -50,7 +49,7 @@ are:
 Configuration
 =============
 
-For use the ``Ironic-Oneview CLI Tool`` you must download the OpenStack RC file
+For use the ``Ironic-Oneview CLI`` you must download the OpenStack RC file
 from your OpenStack cloud controller. Once you have the OpenStack RC and the
 credentials loaded as environment variables, you must run the ``genrc``
 subcommand to generate the ``ironic-oneviewrc.sh`` file::
@@ -65,8 +64,8 @@ variables, by doing::
 For more information how to download and load the *OpenStack RC*, see [2]_.
 
 
-Usage
-=====
+Features
+========
 
 Node creation
 ^^^^^^^^^^^^^
