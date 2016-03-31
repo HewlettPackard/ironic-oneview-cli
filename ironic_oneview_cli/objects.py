@@ -72,12 +72,11 @@ class Manager(object):
         return self._dict_to_object(self.api.get(uri))
 
     def list(self, **kwargs):
+       
         objects = []
         items = self.api.list(**kwargs)
-
         for i in range(len(items)):
             objects.append(self._dict_to_object(items[i], i))
-
         return objects
 
 
@@ -91,7 +90,6 @@ class ServerProfileManager(Manager):
         self.api = self.oneviewclient.server_profile
 
     def _dict_to_object(self, dict, id=0):
-
         filtered_server_profile_dict = {}
         for field in self.fields:
             filtered_server_profile_dict[field] = dict[field]
@@ -99,10 +97,13 @@ class ServerProfileManager(Manager):
         filtered_server_profile_dict['serverHardwareTypeName'] = \
             self.oneviewclient.server_hardware_type.get(
                 filtered_server_profile_dict['serverHardwareTypeUri'], 'name')
-        filtered_server_profile_dict['enclosureGroupName'] = \
-            self.oneviewclient.enclosure_group.get(
-                filtered_server_profile_dict['enclosureGroupUri'], 'name')
-
+        
+        filtered_server_profile_dict['enclosureGroupName'] = 'None'
+        enclosure_group_uri = filtered_server_profile_dict.get('enclosureGroupUri')
+        if (enclosure_group_uri not in ('None', None)):
+            filtered_server_profile_dict['enclosureGroupName'] = \
+                self.oneviewclient.enclosure_group.get(
+                    enclosure_group_uri, 'name')
         return ServerProfile(id, filtered_server_profile_dict)
 
     def server_profile_template_list(self):
@@ -118,19 +119,28 @@ class ServerProfileManager(Manager):
         compatible_server_profile_list = []
         server_hardware_type_list = []
         server_group_list = []
-
         for server_hardware in server_hardware_list:
             server_hardware_type_list.append(
                 server_hardware.serverHardwareTypeUri)
             server_group_list.append(
                 server_hardware.serverGroupUri)
-
         server_profile_list = self.server_profile_template_list()
         for server_profile in server_profile_list:
-            if server_profile.serverHardwareTypeUri in\
-                server_hardware_type_list and\
-                server_profile.enclosureGroupUri in server_group_list:
-                    compatible_server_profile_list.append(server_profile)
+            sp_server_harware_type_is_compatible = (
+                server_profile.serverHardwareTypeUri in
+                server_hardware_type_list
+            )
+            sp_enclosure_group_is_compatible = (
+                server_profile.enclosureGroupUri in server_group_list
+            )
+            sp_enclosure_group_is_none = (
+                server_profile.enclosureGroupUri in ('None', None)
+            )
+            if (sp_server_harware_type_is_compatible and
+               (sp_enclosure_group_is_compatible or
+                sp_enclosure_group_is_none)
+            ):
+                compatible_server_profile_list.append(server_profile)
 
         return compatible_server_profile_list
 
@@ -145,7 +155,6 @@ class ServerHardwareManager(Manager):
         self.api = self.oneviewclient.server_hardware
 
     def _dict_to_object(self, dict, id=0):
-
         filtered_server_profile_dict = {}
         for field in self.fields:
             filtered_server_profile_dict[field] = dict[field]
@@ -158,8 +167,11 @@ class ServerHardwareManager(Manager):
         filtered_server_profile_dict['serverHardwareTypeName'] = \
             self.oneviewclient.server_hardware_type.get(
                 filtered_server_profile_dict['serverHardwareTypeUri'], 'name')
-        filtered_server_profile_dict['serverGroupName'] = \
-            self.oneviewclient.enclosure_group.get(
-                filtered_server_profile_dict['serverGroupUri'], 'name')
+        filtered_server_profile_dict['serverGroupName'] = 'None'
+        enclosure_group_uri = filtered_server_profile_dict.get('serverGroupUri')
+        if (enclosure_group_uri not in ('None', None)):
+            filtered_server_profile_dict['serverGroupName'] = \
+                self.oneviewclient.enclosure_group.get(
+                    filtered_server_profile_dict['serverGroupUri'], 'name')
 
         return ServerHardware(id, filtered_server_profile_dict)
