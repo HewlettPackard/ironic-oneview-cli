@@ -196,7 +196,7 @@ def do_flavor_create(args):
             sortby_index=2)
         flavor_name_default = flavor_creator.get_flavor_name(flavor)
         flavor_name = input(
-            "Insert a name for the Flavor. Or leave it blank for [" +
+            "Insert a name for the Flavor [" +
             flavor_name_default + "] (press 'q' to quit)> ")
 
         if flavor_name == "q":

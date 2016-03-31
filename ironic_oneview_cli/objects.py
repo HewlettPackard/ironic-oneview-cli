@@ -63,7 +63,6 @@ class Manager(object):
         return self._dict_to_object(self.api.get(uri))
 
     def list(self, **kwargs):
-       
         objects = []
         items = self.api.list(**kwargs)
         for i in range(len(items)):
@@ -88,7 +87,7 @@ class ServerProfileManager(Manager):
         filtered_server_profile_dict['serverHardwareTypeName'] = \
             self.oneviewclient.server_hardware_type.get(
                 filtered_server_profile_dict['serverHardwareTypeUri'], 'name')
-        
+
         filtered_server_profile_dict['enclosureGroupName'] = 'None'
         enclosure_group_uri = filtered_server_profile_dict.get('enclosureGroupUri')
         if (enclosure_group_uri not in ('None', None)):
@@ -128,9 +127,7 @@ class ServerProfileManager(Manager):
                 server_profile.enclosureGroupUri in ('None', None)
             )
             if (sp_server_harware_type_is_compatible and
-               (sp_enclosure_group_is_compatible or
-                sp_enclosure_group_is_none)
-            ):
+               (sp_enclosure_group_is_compatible or sp_enclosure_group_is_none)):
                 compatible_server_profile_list.append(server_profile)
 
         return compatible_server_profile_list
