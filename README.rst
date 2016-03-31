@@ -22,10 +22,34 @@ To install the ironic-oneview CLI, use the following command::
     $ pip install ironic-oneview-cli
 
 
+Configuration
+=============
+
+``Ironic-Oneview CLI`` uses credentials loaded into environment variables by
+the OpenStack RC and by the Ironic-OneView CLI RC files. You can download the
+OpenStack RC file from your cloud controller, or generate the
+Ironic-OneView CLI RC using the ``genrc`` subcommand::
+
+    $ ironic-oneview genrc
+
+Since you have the ``ironic-oneviewrc.sh`` file, load its environment
+variables by doing::
+
+    $ source ironic-oneviewrc.sh
+
+
+Another manner of set credentials is passing them as command line parameters.
+To see what parameters are necessary for credentials use the command::
+
+    $ ironic-oneview help
+
+For more information how to download and load the *OpenStack RC*, see [2]_.
+
+
 Usage
 =====
 
-Once the command line parameters or the necessaries environment variables are
+Once the necessary environment variables or the command line parameters are
 set, the ``Ironic-OneView CLI`` is ready to be used.
 
 Synopsis::
@@ -44,24 +68,6 @@ In the current version of ``Ironic-OneView CLI`` the available subcommands are:
 +---------------+-----------------------------------------------------------------+
 |     help      | Displays help about this program or one of its subcommands.     |
 +---------------+-----------------------------------------------------------------+
-
-
-Configuration
-=============
-
-For use the ``Ironic-Oneview CLI`` you must download the OpenStack RC file
-from your OpenStack cloud controller. Once you have the OpenStack RC and the
-credentials loaded as environment variables, you must run the ``genrc``
-subcommand to generate the ``ironic-oneviewrc.sh`` file::
-
-    $ ironic-oneview genrc
-
-Since you have the ``ironic-oneviewrc.sh`` file, load the environment
-variables, by doing::
-
-    $ source ironic-oneviewrc.sh
-
-For more information how to download and load the *OpenStack RC*, see [2]_.
 
 
 Features
@@ -101,11 +107,11 @@ Ironic node you are creating.::
     | 2  | VIRT-enl, bay 8 | 8    | 32768     | 120      | virt-enclosure-group | BL460c Gen8 3             |
     +----+-----------------+------+-----------+----------+----------------------+---------------------------+
 
-Note that you can create multiple Ironic nodes at the same time. For this, you
-can type multiples ``Server Hardware`` IDs separated by blank spaces. The
-created Ironic nodes will have *enroll* provisioning state.
+Note that you can create multiple Ironic nodes at once. For this, you can type
+multiple ``Server Hardware`` IDs separated by blank spaces. The created Ironic
+nodes will have *enroll* provisioning state.
 
-For list all nodes in Ironic, use the command::
+To list all nodes in Ironic, use the command::
 
     $ ironic node-list
 
@@ -134,7 +140,7 @@ to available Ironic nodes.::
 After choosing a valid configuration ID, you'll be prompted to name your
 flavor. If you leave the field blank, a default name will be given.
 
-For list all flavors in Nova, use the command::
+To list all flavors in Nova, use the command::
 
     $ nova flavor-list
 

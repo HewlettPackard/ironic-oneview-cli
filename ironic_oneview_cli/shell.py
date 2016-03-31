@@ -16,7 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 """
-Command-line interface to the HP OneView CLI Tool.
+Command-line interface to the Ironic - HP OneView drivers.
 """
 
 from __future__ import print_function
@@ -228,12 +228,15 @@ class IronicOneView(object):
             genrc_commands.do_genrc(args)
             return 0
 
-        if not args.insecure:
-            raise exceptions.CommandError(_("You must provide an ca "
+        if not args.insecure and not args.os_cacert:
+            raise exceptions.CommandError(_("You must provide the OpenStack CA "
                                             "certificate either --os-cacert "
-                                            "or via env[OS_CACERT] and "
-                                            "--ov-cacert or via "
-                                            "env[OV_CACERT]"))
+                                            "or via env[OS_CACERT]"))
+
+        if not args.insecure and not args.ov_cacert:
+            raise exceptions.CommandError(_("You must provide the HP OneView CA "
+                                            "certificate either --ov-cacert "
+                                            "or via env[OV_CACERT]"))
 
         if not args.os_username:
             raise exceptions.CommandError(_("You must provide a username via "

@@ -65,7 +65,7 @@ def do_genrc(args):
     auth_url = input("HP OneView URL: ")
     username = input("HP OneView username: ")
     cacert = input("HP OneView cacert file path "
-                   "[only for secure connections]: ")
+                   "(only for secure connections): ")
 
     # OpenStack
 
@@ -79,7 +79,8 @@ def do_genrc(args):
     if ironic_driver not in ENABLED_DRIVERS:
         ironic_driver = 'agent_pxe_oneview'
 
-    path = input("Path to save 'ironic-oneviewrc.sh' file: ")
+    path = input("Path to save 'ironic-oneviewrc.sh' file [%s]: " %
+                 os.path.join(os.getcwd(), 'ironic-oneviewrc.sh'))
 
     # Map Informations
 

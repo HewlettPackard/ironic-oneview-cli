@@ -94,11 +94,11 @@ POOL_OF_STUB_IRONIC_NODES = [
                     'local_gb': 120,
                     'cpus': 8,
                     'capabilities': "server_hardware_type_uri:"
-                                    "/rest/server-hardware-types/huehuehuehuehue,"
+                                    "/rest/server-hardware-types/1111112222233333,"
                                     "enclosure_group_uri:"
-                                    "/rest/enclosure-groups/huehuehuehuehue,"
+                                    "/rest/enclosure-groups/1111112222233333,"
                                     "server_profile_template_uri:"
-                                    "/rest/server-profile-templates/huehuehuehuehue"},
+                                    "/rest/server-profile-templates/1111112222233333"},
         name='fake-node-1',
         extra={}
     )
@@ -113,16 +113,16 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         uri='/rest/server-hardware/11111',
         power_state='Off',
         server_profile_uri='',
-        server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
-        serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        server_hardware_type_uri='/rest/server-hardware-types/1111112222233333',
+        serverHardwareTypeUri='/rest/server-hardware-types/1111112222233333',
         serverHardwareTypeName='BL XXX',
-        serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
+        serverGroupUri='/rest/enclosure-groups/1111112222233333',
         serverGroupName='virtual A',
-        enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
+        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
         status='OK',
         state='Unknown',
         state_reason='',
-        enclosure_uri='/rest/enclosures/huehuehuehuehue',
+        enclosure_uri='/rest/enclosures/1111112222233333',
         local_gb=72768,
         cpu_arch='x86_64',
         cpus=12,
@@ -139,16 +139,16 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         uri='/rest/server-hardware/22222',
         power_state='Off',
         server_profile_uri='',
-        server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
-        serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        server_hardware_type_uri='/rest/server-hardware-types/1111112222233333',
+        serverHardwareTypeUri='/rest/server-hardware-types/1111112222233333',
         serverHardwareTypeName='BL XXX',
-        serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
-        enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
+        serverGroupUri='/rest/enclosure-groups/1111112222233333',
+        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
         serverGroupName='virtual B',
         status='OK',
         state='Unknown',
         state_reason='',
-        enclosure_uri='/rest/enclosures/huehuehuehuehue',
+        enclosure_uri='/rest/enclosures/1111112222233333',
         local_gb=72768,
         cpu_arch='x86_64',
         cpus=12,
@@ -165,16 +165,16 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         uri='/rest/server-hardware/33333',
         power_state='Off',
         server_profile_uri='',
-        server_hardware_type_uri='/rest/server-hardware-types/huehuehuehuehue',
-        serverHardwareTypeUri='/rest/server-hardware-types/huehuehuehuehue',
+        server_hardware_type_uri='/rest/server-hardware-types/1111112222233333',
+        serverHardwareTypeUri='/rest/server-hardware-types/1111112222233333',
         serverHardwareTypeName='DL XXX',
-        serverGroupUri='/rest/enclosure-groups/huehuehuehuehue',
-        enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
+        serverGroupUri='/rest/enclosure-groups/1111112222233333',
+        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
         serverGroupName='virtual C',
         status='OK',
         state='Unknown',
         state_reason='',
-        enclosure_uri='/rest/enclosures/huehuehuehuehue',
+        enclosure_uri='/rest/enclosures/1111112222233333',
         local_gb=72768,
         cpu_arch='x86_64',
         cpus=12,
@@ -190,9 +190,9 @@ POOL_OF_STUB_SERVER_HARDWARE = [
 
 POOL_OF_STUB_SERVER_PROFILE_TEMPLATE = [
     StubServerProfileTemplate(
-        uri='/rest/server-profile-templates/huehuehuehuehue',
-        server_hardware_type_uri='/rest/server-hadware-types/huehuehuehuehue',
-        enclosure_group_uri='/rest/enclosure-groups/huehuehuehuehue',
+        uri='/rest/server-profile-templates/1111112222233333',
+        server_hardware_type_uri='/rest/server-hadware-types/1111112222233333',
+        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
         connections=[],
         boot={}
     )
@@ -326,13 +326,13 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         flavor['disk'] = node.properties.get("local_gb")
         flavor['cpu_arch'] = node.properties.get("cpu_arch")
         flavor['server_hardware_type_uri'] = \
-            '/rest/server-hardware-types/huehuehuehuehue'
+            '/rest/server-hardware-types/1111112222233333'
         flavor['server_hardware_type_name'] = 'DL XXX'
         flavor['server_profile_template_uri'] = \
-            '/rest/server-profile-templates/huehuehuehuehue'
+            '/rest/server-profile-templates/1111112222233333'
         flavor['enclosure_group_name'] = 'virtual C'
         flavor['enclosure_group_uri'] = \
-            '/rest/enclosure-groups/huehuehuehuehue'
+            '/rest/enclosure-groups/1111112222233333'
 
         self.assertEqual.__self__.maxDiff = None
         self.assertEqual(result_flavor, Flavor(id=12345, info=flavor))
