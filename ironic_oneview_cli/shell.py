@@ -69,9 +69,9 @@ class IronicOneView(object):
                             "option should be used with caution.")
 
         parser.add_argument('--os-cacert',
-                            metavar='<ca-certificate>',
+                            metavar='<os-ca-bundle-file>',
                             default=cliutils.env('OS_CACERT'),
-                            help='Path to OpenStack certificate file. '
+                            help='Path to OpenStack CA certificate bundle file. '
                                  'Defaults to env[OS_CACERT]')
 
         parser.add_argument('--os_cacert',
@@ -152,9 +152,9 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ov-cacert',
-                            metavar='<ca-certificate>',
+                            metavar='<ov-ca-bundle-file>',
                             default=cliutils.env('OV_CACERT'),
-                            help='Path to OneView certificate file. '
+                            help='Path to OneView CA certificate bundle file. '
                                  'Defaults to env[OV_CACERT]')
 
         parser.add_argument('--ov_cacert',
@@ -227,16 +227,6 @@ class IronicOneView(object):
         if args.func == genrc_commands.do_genrc:
             genrc_commands.do_genrc(args)
             return 0
-
-        if not args.insecure and not args.os_cacert:
-            raise exceptions.CommandError(_("You must provide the OpenStack CA "
-                                            "certificate either --os-cacert "
-                                            "or via env[OS_CACERT]"))
-
-        if not args.insecure and not args.ov_cacert:
-            raise exceptions.CommandError(_("You must provide the HP OneView CA "
-                                            "certificate either --ov-cacert "
-                                            "or via env[OV_CACERT]"))
 
         if not args.os_username:
             raise exceptions.CommandError(_("You must provide a username via "

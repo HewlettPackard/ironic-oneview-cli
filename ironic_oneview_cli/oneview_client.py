@@ -36,7 +36,7 @@ def get_oneview_client(args):
         'password': args.ov_password,
         'manager_url': args.ov_auth_url,
         'allow_insecure_connections': args.insecure,
-        'tls_cacert_file': args.ov_cacert or ''
+        'tls_cacert_file': args.ov_cacert
     }
     if args.insecure:
         print(
