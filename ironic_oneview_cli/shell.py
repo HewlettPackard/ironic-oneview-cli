@@ -16,11 +16,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 """
-Command-line interface to the OneView Sync.
+Command-line interface to the Ironic - HP OneView drivers.
 """
 
 from __future__ import print_function
 import argparse
+import getpass
 import six
 import sys
 
@@ -30,17 +31,18 @@ from ironic_oneview_cli.create_flavor_shell import commands \
     as flavor_create_commands
 from ironic_oneview_cli.create_node_shell import commands \
     as node_create_commands
-from ironic_oneview_cli.genconfig import commands as genconfig_commands
+from ironic_oneview_cli import exceptions
+from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.openstack.common._i18n import _
 from ironic_oneview_cli.openstack.common import cliutils
 
 
-VERSION = '1.0'
+VERSION = '0.0.3'
 
 COMMAND_MODULES = [
     node_create_commands,
     flavor_create_commands,
-    genconfig_commands
+    genrc_commands
 ]
 
 
@@ -56,7 +58,25 @@ class IronicOneView(object):
             formatter_class=HelpFormatter,
         )
 
-        # Global arguments
+        # OpenStack Global arguments
+        parser.add_argument('--insecure',
+                            default=False,
+                            action="store_true",
+                            help="Explicitly allow ironic-oneview CLI to perform "
+                            "\"insecure\" SSL (https) requests. The "
+                            "server's certificate will not be verified "
+                            "against any certificate authorities. This "
+                            "option should be used with caution.")
+
+        parser.add_argument('--os-cacert',
+                            metavar='<os-ca-bundle-file>',
+                            default=cliutils.env('OS_CACERT'),
+                            help='Path to OpenStack CA certificate bundle file. '
+                                 'Defaults to env[OS_CACERT]')
+
+        parser.add_argument('--os_cacert',
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('-h', '--help',
                             action='store_true',
                             help=argparse.SUPPRESS,
@@ -66,10 +86,104 @@ class IronicOneView(object):
                             action='version',
                             version=VERSION)
 
-        parser.add_argument('-c', '--config-file',
-                            default='~/ironic-oneview-cli.conf',
-                            help=('Default path to configuration file. '
-                                  'Defaults to `~/ironic-oneview-cli.conf`'))
+        parser.add_argument('--os-username',
+                            default=cliutils.env('OS_USERNAME'),
+                            help='OpenStack username. '
+                                 'Defaults to env[OS_USERNAME]')
+
+        parser.add_argument('--os_username',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-password',
+                            default=cliutils.env('OS_PASSWORD'),
+                            help='OpenStack password. '
+                                 'Defaults to env[OS_PASSWORD]')
+
+        parser.add_argument('--os_password',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-tenant-name',
+                            default=cliutils.env('OS_TENANT_NAME'),
+                            help='OpenStack tenant name. '
+                                 'Defaults to env[OS_TENANT_NAME]')
+
+        parser.add_argument('--os_tenant_name',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-project-name',
+                            default=cliutils.env('OS_PROJECT_NAME'),
+                            help='OpenStack project name. '
+                                 'Defaults to env[OS_PROJECT_NAME]')
+
+        parser.add_argument('--os_project_name',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-auth-url',
+                            default=cliutils.env('OS_AUTH_URL'),
+                            help='OpenStack authentication URL. '
+                                 'Defaults to env[OS_AUTH_URL]')
+
+        parser.add_argument('--os_auth_url',
+                            help=argparse.SUPPRESS)
+
+        # OneView Global arguments
+        parser.add_argument('--ov-username',
+                            default=cliutils.env('OV_USERNAME'),
+                            help='OneView username. '
+                                 'Defaults to env[OV_USERNAME]')
+
+        parser.add_argument('--ov_username',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-password',
+                            default=cliutils.env('OV_PASSWORD'),
+                            help='OneView password. '
+                                 'Defaults to env[OV_PASSWORD]')
+
+        parser.add_argument('--ov_password',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-auth-url',
+                            default=cliutils.env('OV_AUTH_URL'),
+                            help='OneView authentication URL. '
+                                 'Defaults to env[OV_AUTH_URL]')
+
+        parser.add_argument('--ov_auth_url',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-cacert',
+                            metavar='<ov-ca-bundle-file>',
+                            default=cliutils.env('OV_CACERT'),
+                            help='Path to OneView CA certificate bundle file. '
+                                 'Defaults to env[OV_CACERT]')
+
+        parser.add_argument('--ov_cacert',
+                            help=argparse.SUPPRESS)
+
+        # OpenStack Images arguments
+        parser.add_argument('--os-ironic-node-driver',
+                            default=cliutils.env('OS_IRONIC_NODE_DRIVER'),
+                            help='Ironic driver for node creation. '
+                                 'Defaults to env[OS_IRONIC_NODE_DRIVER]')
+
+        parser.add_argument('--os_ironic_node_driver',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-ironic-deploy-kernel-uuid',
+                            default=cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
+                            help='Ironic deploy kernel image UUID. '
+                                 'Defaults to env[OS_IRONIC_DEPLOY_KERNEL_UUID]')
+
+        parser.add_argument('--os_ironic_deploy_kernel_uuid',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-ironic-deploy-ramdisk-uuid',
+                            default=cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
+                            help='Ironic deploy ramdisk image UUID. '
+                                 'Defaults to env[OS_IRONIC_DEPLOY_RAMDISK_UUID]')
+
+        parser.add_argument('--os_ironic_deploy_ramdisk_uuid',
+                            help=argparse.SUPPRESS)
 
         return parser
 
@@ -109,7 +223,106 @@ class IronicOneView(object):
         if args.func == self.do_help:
             self.do_help(args)
             return 0
-        args.func(args)
+
+        if args.func == genrc_commands.do_genrc:
+            genrc_commands.do_genrc(args)
+            return 0
+
+        if not args.os_username:
+            raise exceptions.CommandError(_("You must provide a username via "
+                                            "either --os-username or via "
+                                            "env[OS_USERNAME]"))
+
+        if not (args.os_tenant_name or args.os_project_name):
+            raise exceptions.CommandError(
+                _("You must provide a tenant name or "
+                  "project name via --os-tenant-name or --os-project-name, "
+                  "env[OS_TENANT_NAME] or env[OS_PROJECT_NAME]. You may "
+                  "use os-tenant and os-project interchangeably."))
+
+        if not args.os_auth_url:
+            raise exceptions.CommandError(_("You must provide an auth url via "
+                                            "either --os-auth-url or via "
+                                            "env[OS_AUTH_URL]"))
+
+        if not args.os_password:
+            if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
+
+                try:
+                    args.os_password = getpass.getpass('OpenStack Password: ')
+
+                except EOFError:
+                    pass
+
+        if not args.os_password:
+            raise exceptions.CommandError(_("You must provide a password via "
+                                            "either --os-password, "
+                                            "env[OS_PASSWORD], "
+                                            "or prompted response"))
+
+        if not args.ov_username:
+            raise exceptions.CommandError(_("You must provide a username via "
+                                            "either --ov-username or via "
+                                            "env[OV_USERNAME]"))
+
+        if not args.ov_auth_url:
+            raise exceptions.CommandError(_("You must provide an auth url via "
+                                            "either --ov-auth-url or via "
+                                            "env[OV_AUTH_URL]"))
+
+        if not args.os_ironic_node_driver:
+            raise exceptions.CommandError(_("You must provide an node driver "
+                                            "via either "
+                                            "--os-ironic-node-driver or via "
+                                            "env[OS_IRONIC_NODE_DRIVER]"))
+
+        if not args.os_ironic_deploy_kernel_uuid:
+            raise exceptions.CommandError(_("You must provide an deploy "
+                                            "kernel uuid via either "
+                                            "--os-ironic-deploy-kernel-uuid "
+                                            "or via "
+                                            "env[OS_IRONIC_DEPLOY_KERNEL_UUID]"))
+
+        if not args.os_ironic_deploy_ramdisk_uuid:
+            raise exceptions.CommandError(_("You must provide an deploy "
+                                            "ramdisk uuid via either "
+                                            "--os-ironic-deploy-ramdisk-uuid "
+                                            "or via "
+                                            "env[OS_IRONIC_DEPLOY_RAMDISK_UUID]"))
+
+        if not args.ov_password:
+            if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
+
+                try:
+                    args.ov_password = getpass.getpass('HP OneView Password: ')
+
+                except EOFError:
+                    pass
+
+        if not args.ov_password:
+            raise exceptions.CommandError(_("You must provide a password via "
+                                            "either --ov-password, "
+                                            "env[OV_PASSWORD], "
+                                            "or prompted response"))
+
+        client_args = (
+            'os_username', 'os_password', 'os_tenant_name', 'os_project_name',
+            'os_cacert', 'os_auth_url', 'ov_username', 'ov_password',
+            'ov_auth_url', 'ov_cacert', 'insecure', 'os_ironic_node_driver',
+            'os_ironic_deploy_kernel_uuid', 'os_ironic_deploy_ramdisk_uuid'
+        )
+
+        kwargs = {}
+        for key in client_args:
+            kwargs[key] = getattr(args, key)
+
+        try:
+            args.func(args)
+        except exceptions.Unauthorized:
+            raise exceptions.CommandError(_("Invalid OpenStack Identity credentials"))
+        except exceptions.CommandError as e:
+            subcommand_parser = self.subcommands[args.subparser_name]
+            subcommand_parser.error(e)
 
 
 def define_command(subparsers, command, callback, cmd_mapper):

@@ -23,17 +23,14 @@ from ironic_oneview_cli.openstack_client import get_nova_client
 
 class Facade(object):
 
-    def __init__(self, config):
-        self.ironicclient = get_ironic_client(config)
-        self.novaclient = get_nova_client(config)
-        self.ovclient = get_oneview_client(config)
+    def __init__(self, args):
+        self.ironicclient = get_ironic_client(args)
+        self.novaclient = get_nova_client(args)
+        self.ovclient = get_oneview_client(args)
 
     # =========================================================================
     # Ironic actions
     # =========================================================================
-#     def update_ironic_node_state(self, node, server_hardware_uri):
-#         return os_client._update_ironic_node_state(node, server_hardware_uri)
-
     def get_ironic_node_list(self):
         return self.ironicclient.node.list(detail=True)
 
@@ -53,8 +50,13 @@ class Facade(object):
     # =========================================================================
     # Nova actions
     # =========================================================================
-#     def is_nova_flavor_available(self, server_hardware_info):
-#         return os_client._is_flavor_available(server_hardware_info)
+    def create_nova_flavor(self, **attrs):
+        return self.novaclient.flavors.create(
+            name=attrs.get('name'),
+            ram=attrs.get('ram'),
+            vcpus=attrs.get('vcpus'),
+            disk=attrs.get('disk')
+        )
 
     # =========================================================================
     # OneView actions
