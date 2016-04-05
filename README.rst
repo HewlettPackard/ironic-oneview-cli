@@ -5,11 +5,10 @@ Ironic-OneView CLI
 Overview
 ========
 
-The ``Ironic-OneView CLI`` is a command line interface tool for easing the
-use of the OneView Driver for Ironic. It allows an user to easily create Ironic
-nodes compatible with OneView Server Hardware objects, as well as properly
-configuring them. It also creates Nova flavors to match available Ironic nodes
-representing a ``Server Hardware``.
+Ironic-OneView CLI is a command line interface tool for easing the use of the
+OneView Drivers for Ironic. It allows the user to easily create and configure
+Ironic nodes compatible with OneView ``Server Hardware`` objects. It also helps
+create Nova flavors to match available Ironic nodes that use OneView drivers.
 
 For more information on *HP OneView* entities, see [1]_.
 
@@ -17,7 +16,7 @@ For more information on *HP OneView* entities, see [1]_.
 Installation
 ============
 
-To install the ironic-oneview CLI, use the following command::
+To install Ironic-OneView CLI from PyPi, use the following command::
 
     $ pip install ironic-oneview-cli
 
@@ -25,37 +24,37 @@ To install the ironic-oneview CLI, use the following command::
 Configuration
 =============
 
-``Ironic-Oneview CLI`` uses credentials loaded into environment variables by
-the OpenStack RC and by the Ironic-OneView CLI RC files. You can download the
-OpenStack RC file from your cloud controller, and you can generate the
-Ironic-OneView CLI RC using the ``genrc`` subcommand::
+Ironic-Oneview CLI uses credentials loaded into environment variables by
+the OpenStack RC and by the Ironic-OneView CLI RC files. You can download
+the OpenStack RC file from your cloud controller. The Ironic-OneView CLI RC
+file can be generated using the ``genrc`` subcommand::
 
     $ ironic-oneview genrc
 
 Since you have the ``ironic-oneviewrc.sh`` file, load its environment
-variables by doing::
+variables by running::
 
     $ source ironic-oneviewrc.sh
 
-Another manner of set credentials is passing them as command line parameters.
-To see what parameters are necessary for credentials use the command::
+You can also set credentials by passing them as command line parameters.
+To see which parameters to use for setting credentials, use the command::
 
     $ ironic-oneview help
 
-For more information how to download and load the *OpenStack RC*, see [2]_.
+For more information how to obtain and load the *OpenStack RC* file, see [2]_.
 
 
 Usage
 =====
 
-Once the necessary environment variables or the command line parameters are
-set, the ``Ironic-OneView CLI`` is ready to be used.
+Once the necessary environment variables and command line parameters are
+set, Ironic-OneView CLI is ready to be used.
 
 Synopsis::
 
     $ ironic-oneview <subcommand>
 
-In the current version of ``Ironic-OneView CLI`` the available subcommands are:
+In the current version of Ironic-OneView CLI, the available subcommands are:
 
 +---------------+-----------------------------------------------------------------+
 |  node-create  | Creates nodes based on available HP OneView Server Hardware.    |
@@ -74,7 +73,7 @@ Features
 Node creation
 ^^^^^^^^^^^^^
 
-To create Ironic nodes based on available HP OneView Server Hardware objects,
+To create Ironic nodes based on available HP OneView ``Server Hardware`` objects,
 use the following command::
 
     $ ironic-oneview node-create
@@ -94,7 +93,7 @@ Once you have chosen a valid ``Server Profile Template``, the tool lists the
 available ``Server Hardware`` that match the chosen ``Server Profile
 Template``.
 
-The tool will ask you to choose a ``Server Hardware`` to be used as base to the
+Choose a ``Server Hardware`` to be used as base to the
 Ironic node you are creating.::
 
     Listing compatible Server Hardware objects...
@@ -105,9 +104,9 @@ Ironic node you are creating.::
     | 2  | VIRT-enl, bay 8 | 8    | 32768     | 120      | virt-enclosure-group | BL460c Gen8 3             |
     +----+-----------------+------+-----------+----------+----------------------+---------------------------+
 
-Note that you can create multiple Ironic nodes at once. For this, you can type
+Notice that you can create multiple Ironic nodes at once. For that, type
 multiple ``Server Hardware`` IDs separated by blank spaces. The created Ironic
-nodes will have *enroll* provisioning state.
+nodes will be in the *enroll* provisioning state.
 
 To list all nodes in Ironic, use the command::
 
@@ -135,8 +134,8 @@ to available Ironic nodes.::
     | 1  | 8    | 120     | 8192      | second-virt-server-profile-template | BL460c Gen9 1        | virtual-enclosure-group |
     +----+------+---------+-----------+-------------------------------------+----------------------+-------------------------+
 
-After choosing a valid configuration ID, you'll be prompted to name your
-flavor. If you leave the field blank, a default name will be given.
+After choosing a valid configuration ID, you'll be prompted to name the new
+flavor. If you leave the field blank, a default name will be used.
 
 To list all flavors in Nova, use the command::
 
