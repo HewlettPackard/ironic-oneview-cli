@@ -12,8 +12,8 @@ configuring them. It also creates Nova flavors to match available Ironic
 nodes representing a ``Server Hardware``.
 
 
-This tool creates ironic nodes basead in a concept within the Ironic OneView drivers'
-dynamic allocation model, for further information see here [1]_ and here [2]_.
+This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
+allocation model [1]_ [2]_.
 
 
 ..note::
