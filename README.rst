@@ -15,7 +15,6 @@ nodes representing a ``Server Hardware``.
 This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
 allocation model [1]_ [2]_.
 
-
 ..note::
   If the user wants to use ``pre-allocation`` instead of ``dynamic allocation``, the
   node will pass through a validation before the boot, checking the existence of
