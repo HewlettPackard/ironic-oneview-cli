@@ -11,25 +11,16 @@ nodes compatible with OneView ``Server Hardware`` objects as well as properly
 configuring them. It also creates Nova flavors to match available Ironic
 nodes representing a ``Server Hardware``.
 
-This tool create ironic nodes basead in a concept called ``dynamic allocation``. In
-this concept an available node in Ironic can be taken by OneView at any moment
-and then the OneView driver can apply the Server Profile during the boot process
-instead of having one applied already at the node to validation. This is used
-since in an environment shared by Ironic and OneView users, to simply allocate
-a pool of Server Hardware items to Ironic, for which we do not know when they are
-going to be used, will result in hardware reserved but not in use, which from many
-perspectives, specially for OneView users, is undesirable. A node will be considered
-to be free for Ironic when there is no Server Profile applied to the Server Hardware
-the node represents, or there is a Server Profile applied, but this Server Profile is
-consistent with what is registered in Ironic's node data structure.
+This tool creates ironic nodes basead in a concept within the Ironic OneView drivers'
+dynamic allocation model, for further information see here [1]_ and here [2]_.
 
 ..note::
   If the user wants to use ``pre-allocation`` instead of ``dynamic allocation``, the
   node will pass through a validation before the boot, checking the existence of
-  the Server Profile applied. To use this other concept the user needs to download
-  version 0.0.2 .
+  the Server Profile applied. To use the deprecated pre-allocation model instead,
+  use version 0.0.2 of this tool.
 
-For more information on *OneView* entities, see [1]_.
+For more information on *OneView* entities, see [3]_.
 
 Installation
 ============
@@ -170,5 +161,7 @@ when running::
 
 References
 ==========
-.. [1] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
+.. [1] Dynamic allocation spec - https://review.openstack.org/#/c/275726/
+.. [2] Driver documentation - http://docs.openstack.org/developer/ironic/drivers/oneview.html
+.. [3] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
 

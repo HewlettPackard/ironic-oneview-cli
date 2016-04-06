@@ -176,6 +176,8 @@ class NodeCreator(object):
                 'server_hardware_uri': server_hardware.uri,
                 # NOTE (liliars): flag to turn on dynamic allocation for
                 # every new node
+                # NOTE(caiobo): the flag should be removed once the
+                # support for pre-allocation is dropped.
                 'dynamic_allocation': True,
             },
             'properties': {
