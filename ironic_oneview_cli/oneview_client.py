@@ -19,10 +19,9 @@
 import json
 import requests
 
+from ironic_oneview_cli import exceptions
 from ironic_oneview_cli import oneview_uri
 from ironic_oneview_cli import service_logging as logging
-from ironic_oneview_cli.sync_exceptions import OneViewConnectionError
-
 
 LOG = logging.getLogger(__name__)
 
@@ -31,23 +30,20 @@ ONEVIEW_POWER_OFF = 'Off'
 ONEVIEW_REST_API_VERSION = '200'
 
 
-def get_oneview_client(conf):
+def get_oneview_client(args):
     kwargs = {
-        'username': conf.oneview.username,
-        'password': conf.oneview.password,
-        'manager_url': conf.oneview.manager_url,
-        'allow_insecure_connections': False,
-        'tls_cacert_file': conf.oneview.tls_cacert_file
+        'username': args.ov_username,
+        'password': args.ov_password,
+        'manager_url': args.ov_auth_url,
+        'allow_insecure_connections': args.insecure,
+        'tls_cacert_file': args.ov_cacert
     }
-    if conf.oneview.allow_insecure_connections.lower() == 'true':
-        kwargs['allow_insecure_connections'] = True
+    if args.insecure:
         print(
             "InsecureRequestWarning: Unverified HTTPS requests are being made."
             " Adding certificate verification is strongly advised. See: "
             "https://urllib3.readthedocs.org/en/latest/security.html"
         )
-    if conf.oneview.tls_cacert_file:
-        kwargs['tls_cacert_file'] = conf.oneview.tls_cacert_file
     return OneViewClient(**kwargs)
 
 
@@ -82,7 +78,7 @@ class OneViewRequestAPI(object):
         except requests.RequestException as ex:
             LOG.error(("Can't connect to OneView: %s")
                       % (str(ex.message).split(':')[-1]))
-            raise OneViewConnectionError(
+            raise exceptions.OneViewConnectionError(
                 "Can't connect to OneView: %s" % str(ex.message))
 
     def _new_token(self):
@@ -138,7 +134,7 @@ class OneViewRequestAPI(object):
         self._update_token()
 
         if self.token is None:
-            raise OneViewConnectionError(
+            raise exceptions.OneViewConnectionError(
                 "Acess to OneView Not Authorized. Check the OneView credential"
                 " in the configuration file.")
 

@@ -16,28 +16,21 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 import sys
 
 from builtins import input
 
-from ironic_oneview_cli.config import ConfClient
 from ironic_oneview_cli.facade import Facade
-from ironic_oneview_cli.genconfig import commands as genconfig_commands
 from ironic_oneview_cli.objects import ServerHardwareManager
 from ironic_oneview_cli.objects import ServerProfileManager
 from ironic_oneview_cli.openstack.common import cliutils
 
 
-server_hardware_manager = None
-server_profile_manager = None
-
-
 # NOTE(thiagop): is this a facade too?
 class NodeCreator(object):
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, facade):
+        self.facade = facade
 
     def print_prompt(self, object_list, header_list, mixed_case_list,
                      input_message, field_labels=None):
@@ -70,9 +63,8 @@ class NodeCreator(object):
 
     def list_server_hardware_not_enrolled(self, server_hardware_objects):
         nodes_server_hardware_uris = []
-        facade = Facade(self.config)
         nodes = filter(lambda x: x.driver.endswith("_oneview"),
-                       facade.get_ironic_node_list())
+                       self.facade.get_ironic_node_list())
         for node in nodes:
             node_server_hardware_uri = node.driver_info.get(
                 'server_hardware_uri'
@@ -163,16 +155,14 @@ class NodeCreator(object):
 
         return server_hardware_ids_selected
 
-    def create_node(self, server_hardware, server_profile_template):
-        facade = Facade(self.config)
+    def create_node(self, args, server_hardware, server_profile_template):
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
-            'driver': self.config.ironic.default_driver,
+            'driver': args.os_ironic_node_driver,
             'driver_info': {
-                'deploy_kernel': self.config.ironic.default_deploy_kernel_id,
-                'deploy_ramdisk':
-                    self.config.ironic.default_deploy_ramdisk_id,
+                'deploy_kernel': args.os_ironic_deploy_kernel_uuid,
+                'deploy_ramdisk': args.os_ironic_deploy_ramdisk_uuid,
                 'server_hardware_uri': server_hardware.uri,
                 # NOTE (liliars): flag to turn on dynamic allocation for
                 # every new node
@@ -194,39 +184,24 @@ class NodeCreator(object):
                                 )
             }
         }
-        return facade.create_ironic_node(**attrs)
+
+        node = None
+        try:
+            node = self.facade.create_ironic_node(**attrs)
+        except Exception as e:
+            print(e.message)
+
+        return node
 
 
 @cliutils.arg('--detail', dest='detail', action='store_true', default=False,
               help="Show detailed information about the nodes.")
 def do_node_create(args):
-    """Creates nodes in Ironic given a list of available OneView servers."""
-    if args.config_file is not "":
-        config_file = os.path.realpath(os.path.expanduser(args.config_file))
+    """Creates nodes based on available HP OneView Server Hardware."""
 
-    defaults = {
-        "ca_file": "",
-        "insecure": False,
-        "tls_cacert_file": "",
-        "allow_insecure_connections": False,
-    }
-
-    if not os.path.isfile(config_file):
-        while True:
-            create = input("Config file not found on `%s`. Would you like to "
-                           "create one now? [Y/n] " % config_file) or 'y'
-            if create.lower() == 'y':
-                genconfig_commands.do_genconfig(args)
-                break
-            elif create.lower() == 'n':
-                return
-            else:
-                print("Invalid option.\n")
-
-    conf = ConfClient(config_file, defaults)
-    node_creator = NodeCreator(conf)
-    hardware_manager = ServerHardwareManager(conf)
-    profile_manager = ServerProfileManager(conf)
+    node_creator = NodeCreator(Facade(args))
+    hardware_manager = ServerHardwareManager(args)
+    profile_manager = ServerProfileManager(args)
 
     print("Retrieving Server Profile Templates from OneView...")
     available_hardware = node_creator.list_server_hardware_not_enrolled(
@@ -237,51 +212,62 @@ def do_node_create(args):
         available_hardware
     )
 
-    template_selected = node_creator.select_server_profile_template(
-        template_list
-    )
-    print('\nListing compatible Server Hardware objects..')
+    create_another_node_flag = True
+    while create_another_node_flag:
+        create_another_node_flag = False
 
-    # FIXME(thiagop): doesn't uses facade or node_creator
-    available_server_hardware_by_field = hardware_manager.list(
-        only_available=True,
-        fields={
-            'serverHardwareTypeUri':
-                template_selected.serverHardwareTypeUri,
-            'serverGroupUri':
-                template_selected.enclosureGroupUri
-        }
-    )
-
-    server_hardware_list = node_creator.list_server_hardware_not_enrolled(
-        available_server_hardware_by_field
-    )
-    server_hardware_ids_selected = node_creator.select_server_hardware_objects(
-        server_hardware_list
-    )
-
-    for server_hardware_id in server_hardware_ids_selected:
-        server_hardware_selected = node_creator.get_element_by_id(
-            server_hardware_list, server_hardware_id)
-        print('\nCreating a node to represent the following Server Hardware..')
-        cliutils.print_list(
-            [server_hardware_selected],
-            ['name', 'cpus', 'memoryMb', 'local_gb', 'serverGroupName',
-             'serverHardwareTypeName'],
-            mixed_case_fields=[
-                'serverGroupName',
-                'memoryMb',
-                'serverHardwareTypeName'
-            ],
-            field_labels=[
-                'Name',
-                'CPUs',
-                'Memory MB',
-                'Local GB',
-                'Server Group Name',
-                'Server Hardware Type Name'
-            ]
+        template_selected = node_creator.select_server_profile_template(
+            template_list
         )
+        print('\nListing compatible Server Hardware objects...')
+
+        # FIXME(thiagop): doesn't uses facade or node_creator
+        available_server_hardware_by_field = hardware_manager.list(
+            only_available=True,
+            fields={
+                'serverHardwareTypeUri':
+                    template_selected.serverHardwareTypeUri,
+                'serverGroupUri':
+                    template_selected.enclosureGroupUri
+            }
+        )
+
+        server_hardware_list = node_creator.list_server_hardware_not_enrolled(
+            available_server_hardware_by_field
+        )
+        server_hardware_ids_selected = node_creator.select_server_hardware_objects(
+            server_hardware_list
+        )
+        for server_hardware_id in server_hardware_ids_selected:
+            server_hardware_selected = node_creator.get_element_by_id(
+                server_hardware_list, server_hardware_id)
+            print('\nCreating a Node to represent the following Server '
+                  'Hardware...')
+            cliutils.print_list(
+                [server_hardware_selected],
+                ['name', 'cpus', 'memoryMb', 'local_gb', 'serverGroupName',
+                 'serverHardwareTypeName'],
+                mixed_case_fields=[
+                    'serverGroupName',
+                    'memoryMb',
+                    'serverHardwareTypeName'
+                ],
+                field_labels=[
+                    'Name',
+                    'CPUs',
+                    'Memory MB',
+                    'Local GB',
+                    'Server Group Name',
+                    'Server Hardware Type Name'
+                ]
+            )
+
+            node = node_creator.create_node(
+                args, server_hardware_selected, template_selected
+            )
+
+            if node:
+                print('Node created!\n')
 
         node = node_creator.create_node(server_hardware_selected, template_selected)
         print('Node created!')
@@ -295,3 +281,14 @@ def do_node_create(args):
                 'Extra'
             ]
         )
+
+        while True:
+            response = input('Would you like to create another Node? [Y/n] ')
+            if response == 'n':
+                create_another_node_flag = False
+                break
+            elif response.lower() == 'y' or not response:
+                create_another_node_flag = True
+                break
+            else:
+                print('Invalid option')

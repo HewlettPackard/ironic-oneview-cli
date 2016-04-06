@@ -5,11 +5,12 @@ Ironic-OneView CLI
 Overview
 ========
 
-The ironic-oneview is a ``command line interface tool`` for easing the use
-of the OneView Driver for Ironic. It allows a user to easily create Ironic
-nodes compatible with OneView ``Server Hardware`` objects as well as properly
-configuring them. It also creates Nova flavors to match available Ironic
-nodes representing a ``Server Hardware``.
+Ironic-OneView CLI is a command line interface tool for easing the use of the
+OneView Drivers for Ironic. It allows the user to easily create and configure
+Ironic nodes compatible with OneView ``Server Hardware`` objects. It also helps
+create Nova flavors to match available Ironic nodes that use OneView drivers.
+
+For more information on *HP OneView* entities, see [1]_.
 
 
 This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
@@ -26,48 +27,33 @@ For more information on *OneView* entities, see [3]_.
 Installation
 ============
 
-To install the ironic-oneview CLI tool, use the following command::
+To install Ironic-OneView CLI from PyPi, use the following command::
 
-    pip install ironic-oneview-cli
+    $ pip install ironic-oneview-cli
 
-Configuring the tool
-====================
 
-The ironic-oneview CLI tool uses a configuration file to get Ironic, Nova and
-OneView credentials and addresses. To generate and configure such file
-accordingly, run::
+Configuration
+=============
 
-    ironic-oneview genconfig
+Ironic-Oneview CLI uses credentials loaded into environment variables by
+the OpenStack RC and by the Ironic-OneView CLI RC files. You can download
+the OpenStack RC file from your cloud controller. The Ironic-OneView CLI RC
+file can be generated using the ``genrc`` subcommand::
 
-This tool asks you for such information and creates a *~/ironic-oneview-cli.conf*
-configuration file located at your home directory by default, or other
-location of your choice.
+    $ ironic-oneview genrc
 
-If you prefer to create your own configuration file, it should look like this::
+Since you have the ``ironic-oneviewrc.sh`` file, load its environment
+variables by running::
 
-    [ironic]
-    admin_user=<your admin user name>
-    admin_password=<your admin password>
-    admin_tenant_name=<your admin tenant name>
-    auth_url=<your Ironic authentication url>
-    insecure=<true,false>
-    default_deploy_kernel_id=<your deploy kernel uuid>
-    default_deploy_ramdisk_id=<your deploy ramdisk uuid>
-    default_driver=<iscsi_pxe_oneview,agent_pxe_oneview>
+    $ source ironic-oneviewrc.sh
 
-    [nova]
-    auth_url=<your Nova authentication url>
-    username=<your admin username>
-    password=<your admin password>
-    tenant_name=<your tenant name>
-    insecure=<true,false>
+You can also set credentials by passing them as command line parameters.
+To see which parameters to use for setting credentials, use the command::
 
-    [oneview]
-    manager_url=<your OneView appliance url>
-    username=<your OneView username>
-    password=<your OneView password>
-    allow_insecure_connections=<true,false>
-    tls_cacert_file=<path to your CA certfile, if any>
+    $ ironic-oneview help
+
+For more information how to obtain and load the *OpenStack RC* file, see [2]_.
+
 
 Usage
 =====
@@ -81,29 +67,34 @@ ironic-oneview-cli, do::
 If the user chose to place this file in a different location, you should pass it
 when starting the tool::
 
-    ironic-oneview --config-file <path to your configuration file> <command>
+    $ ironic-oneview <subcommand>
 
-or::
+In the current version of Ironic-OneView CLI, the available subcommands are:
 
-    ironic-oneview -c <path to your configuration file> <command>
++---------------+-----------------------------------------------------------------+
+|  node-create  | Creates nodes based on available HP OneView Server Hardware.    |
++---------------+-----------------------------------------------------------------+
+| flavor-create | Creates flavors based on available Ironic nodes.                |
++---------------+-----------------------------------------------------------------+
+|     genrc     | Generates the ironic-oneviewrc.sh file according to user input. |
++---------------+-----------------------------------------------------------------+
+|     help      | Displays help about this program or one of its subcommands.     |
++---------------+-----------------------------------------------------------------+
 
-Note that, in order to run this tool, you only have to pass the configuration
-file previously created containing the required credentials and addresses.
 
 Features
 ========
 
-Node Creation
+Node creation
 ^^^^^^^^^^^^^
 
-To create nodes in Ironic based on *OneView* available ``Server Hardware``
-objects, use the following command::
+To create Ironic nodes based on available HP OneView ``Server Hardware`` objects,
+use the following command::
 
-    ironic-oneview node-create
+    $ ironic-oneview node-create
 
-The tool will now prompt you to choose a valid ``Server Profile Template``
-(SPT) from the available ones listed, which were retrieved from your *OneView*
-appliance.::
+The tool will ask you to choose a valid ``Server Profile Template`` from those
+retrieved from HP OneView appliance.::
 
     Retrieving Server Profile Templates from OneView...
     +----+------------------------+----------------------+---------------------------+
@@ -113,9 +104,12 @@ appliance.::
     | 2  | template-dcs-virt-enc4 | virt-enclosure-group | BL660c Gen9 1             |
     +----+------------------------+----------------------+---------------------------+
 
-After choosing a valid ``SPT``, the tool lists the available Server Hardware
-objects that match the chosen ``SPT``, and prompt you to choose the ones you
-want to use to create Ironic nodes.::
+Once you have chosen a valid ``Server Profile Template``, the tool lists the
+available ``Server Hardware`` that match the chosen ``Server Profile
+Template``.
+
+Choose a ``Server Hardware`` to be used as base to the
+Ironic node you are creating.::
 
     Listing compatible Server Hardware objects...
     +----+-----------------+------+-----------+----------+----------------------+---------------------------+
@@ -125,27 +119,29 @@ want to use to create Ironic nodes.::
     | 2  | VIRT-enl, bay 8 | 8    | 32768     | 120      | virt-enclosure-group | BL460c Gen8 3             |
     +----+-----------------+------+-----------+----------+----------------------+---------------------------+
 
-Note that you can choose many ``Server Hardware`` objects in one go. In order
-to do that, type the respective IDs separated by blank spaces. If you
-choose more than one ID, the request will only be completed if all the
-values are valid.
+Notice that you can create multiple Ironic nodes at once. For that, type
+multiple ``Server Hardware`` IDs separated by blank spaces. The created Ironic
+nodes will be in the *enroll* provisioning state.
 
-Once you've typed all the values, nodes corresponding to each respective
-``Server Hardware`` are then created and put in an *enroll* provision state.
-If everything goes well, your nodes will be shown when running::
+To list all nodes in Ironic, use the command::
 
-    ironic node-list
+    $ ironic node-list
 
-Flavor Creation
+For more information about the created Ironic node, use the command::
+
+    $ ironic node-show [NODE_UUID]
+
+
+Flavor creation
 ^^^^^^^^^^^^^^^
 
-To create flavors compatible with available Ironic *OneView* nodes, use the
+To create Nova flavors compatible with available Ironic nodes, use the
 following command::
 
-    ironic-oneview flavor-create
+    $ ironic-oneview flavor-create
 
 The tool will now prompt you to choose a valid flavor configuration, according
-to the config of available nodes.::
+to available Ironic nodes.::
 
     +----+------+---------+-----------+-------------------------------------+----------------------+-------------------------+
     | Id | CPUs | Disk GB | Memory MB | Server Profile Template             | Server Hardware Type | Enclosure Group Name    |
@@ -153,16 +149,20 @@ to the config of available nodes.::
     | 1  | 8    | 120     | 8192      | second-virt-server-profile-template | BL460c Gen9 1        | virtual-enclosure-group |
     +----+------+---------+-----------+-------------------------------------+----------------------+-------------------------+
 
-After choosing a valid configuration ID, you'll be prompted to name your
-flavor. If you leave the field blank, a default name will be given. Press
-Enter and, if everything goes well, your flavor is created and will be shown
-when running::
+After choosing a valid configuration ID, you'll be prompted to name the new
+flavor. If you leave the field blank, a default name will be used.
 
-    nova flavor-list
+To list all flavors in Nova, use the command::
+
+    $ nova flavor-list
+
+For more information about the created Nova flavor, use the command::
+
+    $ nova flavor-show [FLAVOR_UUID]
+
 
 References
 ==========
 .. [1] Dynamic allocation spec - https://review.openstack.org/#/c/275726/
 .. [2] Driver documentation - http://docs.openstack.org/developer/ironic/drivers/oneview.html
 .. [3] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
-
