@@ -13,6 +13,7 @@ create Nova flavors to match available Ironic nodes that use OneView drivers.
 For more information on *HP OneView* entities, see [1]_.
 
 
+
 This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
 allocation model [1]_ [2]_.
 
@@ -166,3 +167,4 @@ References
 .. [1] Dynamic allocation spec - https://review.openstack.org/#/c/275726/
 .. [2] Driver documentation - http://docs.openstack.org/developer/ironic/drivers/oneview.html
 .. [3] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
+

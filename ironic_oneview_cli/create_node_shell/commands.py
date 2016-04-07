@@ -292,3 +292,4 @@ def do_node_create(args):
                 break
             else:
                 print('Invalid option')
+
