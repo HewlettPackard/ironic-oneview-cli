@@ -23,7 +23,7 @@ allocation model [1]_ [2]_.
   the Server Profile applied. To use the deprecated pre-allocation model instead,
   use version 0.0.2 of this tool.
 
-For more information on *OneView* entities, see [3]_.
+For more information on *HP OneView* entities, see [3]_.
 
 Installation
 ============
