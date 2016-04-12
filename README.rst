@@ -51,22 +51,16 @@ To see which parameters to use for setting credentials, use the command::
 
     $ ironic-oneview help
 
-For more information how to obtain and load the *OpenStack RC* file, see [2]_.
+For more information how to obtain and load the *OpenStack RC* file, see [4]_.
 
 
 Usage
 =====
 
-If the user's *~/ironic-oneview-cli.conf* configuration file is in your home directory,
-the tool will automatically use this conf. In this case, to run
-ironic-oneview-cli, do::
+Once the necessary environment variables and command line parameters are
+set, Ironic-OneView CLI is ready to be used.
 
-    ironic-oneview <command>
-
-If the user chose to place this file in a different location, you should pass it
-when starting the tool::
-
-    $ ironic-oneview <subcommand>
+Synopsis::
 
 In the current version of Ironic-OneView CLI, the available subcommands are:
 
@@ -165,4 +159,5 @@ References
 .. [1] Dynamic allocation spec - https://review.openstack.org/#/c/275726/
 .. [2] Driver documentation - http://docs.openstack.org/developer/ironic/drivers/oneview.html
 .. [3] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
+.. [4] OpenStack RC - http://docs.openstack.org/user-guide/common/cli_set_environment_variables_using_openstack_rc.html
 
