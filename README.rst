@@ -18,7 +18,7 @@ This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
 allocation model [1]_ [2]_.
 
 ..note::
-  If the user wants to use the deprecated pre-allocation model instead, use
+  If you still want to use the deprecated pre-allocation model instead, use
   version 0.0.2 of this tool.
 
 For more information on *HP OneView* entities, see [3]_.
