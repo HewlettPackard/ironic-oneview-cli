@@ -10,16 +10,12 @@ OneView Drivers for Ironic. It allows the user to easily create and configure
 Ironic nodes compatible with OneView ``Server Hardware`` objects. It also helps
 create Nova flavors to match available Ironic nodes that use OneView drivers.
 
-For more information on *HP OneView* entities, see [1]_.
-
-
-
 This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
 allocation model [1]_ [2]_.
 
-..note::
-  If you still want to use the deprecated pre-allocation model instead, use
-  version 0.0.2 of this tool.
+.. note::
+   If you still want to use the deprecated pre-allocation model instead, use
+   version 0.0.2 of this tool.
 
 For more information on *HP OneView* entities, see [3]_.
 
