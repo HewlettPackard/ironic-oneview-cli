@@ -183,7 +183,7 @@ class ResourceAPI(OneViewRequestAPI):
 
     def _is_dict_elegible(self, obj_dict, fields):
         for key, value in fields.items():
-            if str(obj_dict[key]) != str(value):
+            if str(obj_dict.get(key)) != str(value):
                 return False
         return True
 

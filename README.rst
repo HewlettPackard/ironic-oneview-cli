@@ -13,6 +13,16 @@ create Nova flavors to match available Ironic nodes that use OneView drivers.
 For more information on *HP OneView* entities, see [1]_.
 
 
+
+This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
+allocation model [1]_ [2]_.
+
+..note::
+  If you still want to use the deprecated pre-allocation model instead, use
+  version 0.0.2 of this tool.
+
+For more information on *HP OneView* entities, see [3]_.
+
 Installation
 ============
 
@@ -41,7 +51,7 @@ To see which parameters to use for setting credentials, use the command::
 
     $ ironic-oneview help
 
-For more information how to obtain and load the *OpenStack RC* file, see [2]_.
+For more information how to obtain and load the *OpenStack RC* file, see [4]_.
 
 
 Usage
@@ -51,8 +61,6 @@ Once the necessary environment variables and command line parameters are
 set, Ironic-OneView CLI is ready to be used.
 
 Synopsis::
-
-    $ ironic-oneview <subcommand>
 
 In the current version of Ironic-OneView CLI, the available subcommands are:
 
@@ -87,7 +95,7 @@ retrieved from HP OneView appliance.::
     +----+------------------------+----------------------+---------------------------+
     | 1  | template-dcs-virt-enc3 | virt-enclosure-group | BL460c Gen8 3             |
     | 2  | template-dcs-virt-enc4 | virt-enclosure-group | BL660c Gen9 1             |
-    +----+------------------------+----------------------+---------------------------+  
+    +----+------------------------+----------------------+---------------------------+
 
 Once you have chosen a valid ``Server Profile Template``, the tool lists the
 available ``Server Hardware`` that match the chosen ``Server Profile
@@ -148,5 +156,8 @@ For more information about the created Nova flavor, use the command::
 
 References
 ==========
-.. [1] HP OneView - https://www.hpe.com/us/en/integrated-systems/software.html
-.. [2] OpenStack RC - http://docs.openstack.org/user-guide/common/cli_set_environment_variables_using_openstack_rc.html
+.. [1] Dynamic allocation spec - https://review.openstack.org/#/c/275726/
+.. [2] Driver documentation - http://docs.openstack.org/developer/ironic/drivers/oneview.html
+.. [3] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
+.. [4] OpenStack RC - http://docs.openstack.org/user-guide/common/cli_set_environment_variables_using_openstack_rc.html
+

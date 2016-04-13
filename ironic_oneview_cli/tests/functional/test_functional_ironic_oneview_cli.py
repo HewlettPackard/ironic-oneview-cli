@@ -249,6 +249,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         attrs = {
             'driver': STUB_PARAMETERS.os_ironic_node_driver,
             'driver_info': {
+                'dynamic_allocation': True,
                 'deploy_kernel': STUB_PARAMETERS.os_ironic_deploy_kernel_uuid,
                 'deploy_ramdisk': STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid,
                 'server_hardware_uri':
