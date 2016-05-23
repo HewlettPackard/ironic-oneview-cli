@@ -18,10 +18,9 @@
 
 from builtins import input
 
-from ironic_oneview_cli.create_flavor_shell.objects import Flavor
-from ironic_oneview_cli.facade import Facade
-from ironic_oneview_cli.objects import ServerHardwareManager
-from ironic_oneview_cli.objects import ServerProfileManager
+from ironic_oneview_cli.create_flavor_shell import objects
+from ironic_oneview_cli import facade
+from ironic_oneview_cli import objects as cli_objects
 from ironic_oneview_cli.openstack.common import cliutils
 
 
@@ -66,32 +65,32 @@ class FlavorCreator(object):
                 elif data[0] == 'server_profile_template_uri':
                     flavor['server_profile_template_uri'] = data[1]
 
-        available_server_hardware_by_field = hardware_manager.list(
-            only_available=True,
-            fields={
-                'serverHardwareTypeUri':
-                flavor['server_hardware_type_uri'],
-                'serverGroupUri':
-                flavor['enclosure_group_uri'],
-                'serverProfileUri':
-                flavor['server_profile_template_uri'],
-                'uri':
-                node.driver_info.get('server_hardware_uri')
-            }
-        )
+            available_server_hardware_by_field = hardware_manager.list(
+                only_available=True,
+                fields={
+                    'serverHardwareTypeUri':
+                    flavor['server_hardware_type_uri'],
+                    'serverGroupUri':
+                    flavor['enclosure_group_uri'],
+                    'serverProfileUri':
+                    flavor['server_profile_template_uri'],
+                    'uri':
+                    node.driver_info.get('server_hardware_uri')
+                }
+            )
 
-        template_list = profile_manager.list_templates_compatible_with(
-            available_server_hardware_by_field
-        )
+            template_list = profile_manager.list_templates_compatible_with(
+                available_server_hardware_by_field
+            )
 
-        for available in available_server_hardware_by_field:
-            flavor['server_hardware_type_name'] = available.serverHardwareTypeName
-            flavor['enclosure_group_name'] = available.serverGroupName
+            for available in available_server_hardware_by_field:
+                flavor['server_hardware_type_name'] = available.serverHardwareTypeName
+                flavor['enclosure_group_name'] = available.serverGroupName
 
-        for available in template_list:
-            flavor['server_profile_template_name'] = available.name
+            for available in template_list:
+                flavor['server_profile_template_name'] = available.name
 
-        return Flavor(id=flavor_id, info=flavor)
+        return objects.Flavor(id=flavor_id, info=flavor)
 
     def get_flavor_list(self, hardware_manager, profile_manager):
         nodes = self.facade.get_ironic_node_list()
@@ -135,9 +134,16 @@ def do_flavor_create(args):
     it's ID.
     """
 
-    flavor_creator = FlavorCreator(Facade(args))
-    hardware_manager = ServerHardwareManager(args)
-    profile_manager = ServerProfileManager(args)
+    cli_facade = facade.Facade(args)
+    nodes = len(cli_facade.get_ironic_node_list())
+
+    if not nodes:
+        print("No Ironic nodes were found. Please, create a node to be used as base for the Flavor.")
+        return
+
+    flavor_creator = FlavorCreator(cli_facade)
+    hardware_manager = cli_objects.ServerHardwareManager(args)
+    profile_manager = cli_objects.ServerProfileManager(args)
 
     print("Retrieving possible configurations for Flavor creation...")
 

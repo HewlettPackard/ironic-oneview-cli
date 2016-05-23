@@ -269,19 +269,6 @@ def do_node_create(args):
             if node:
                 print('Node created!\n')
 
-        node = node_creator.create_node(server_hardware_selected, template_selected)
-        print('Node created!')
-        cliutils.print_list(
-            [node],
-            ['name', 'uuid', 'driver', 'extra'],
-            field_labels=[
-                'Name',
-                'UUID',
-                'Driver',
-                'Extra'
-            ]
-        )
-
         while True:
             response = input('Would you like to create another Node? [Y/n] ')
             if response == 'n':
@@ -292,4 +279,3 @@ def do_node_create(args):
                 break
             else:
                 print('Invalid option')
-
