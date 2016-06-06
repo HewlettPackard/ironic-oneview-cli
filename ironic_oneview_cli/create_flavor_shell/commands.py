@@ -16,11 +16,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import re
+
 from builtins import input
 
 from ironic_oneview_cli.create_flavor_shell import objects
 from ironic_oneview_cli import facade
-from ironic_oneview_cli import objects as cli_objects
 from ironic_oneview_cli.openstack.common import cliutils
 
 
@@ -42,8 +43,7 @@ class FlavorCreator(object):
             if element.id == element_id:
                 return element
 
-    def get_flavor_from_ironic_node(self, flavor_id, node, hardware_manager,
-                                    profile_manager):
+    def get_flavor_from_ironic_node(self, flavor_id, node):
         flavor = {}
 
         flavor['ram_mb'] = node.properties.get("memory_mb")
@@ -51,48 +51,39 @@ class FlavorCreator(object):
         flavor['disk'] = node.properties.get("local_gb")
         flavor['cpu_arch'] = 'x86_64'
 
+        server_hardware_uri = node.driver_info.get("server_hardware_uri")
+        server_hardware = self.facade.get_server_hardware(server_hardware_uri)
+
+        server_hardware_type = self.facade.get_server_hardware_type(
+            server_hardware.server_hardware_type_uri
+        )
+        flavor['server_hardware_type_name'] = server_hardware_type.name
+        flavor['server_hardware_type_uri'] = server_hardware_type.uri
+
+        enclosure_group = self.facade.get_enclosure_group(
+            server_hardware.enclosure_group_uri
+        )
+        flavor['enclosure_group_name'] = enclosure_group.name
+        flavor['enclosure_group_uri'] = enclosure_group.uri
+
         capabilities = node.properties.get("capabilities")
-
-        if capabilities is not None:
-            capabilities = capabilities.split(",")
-
-            for field in capabilities:
-                data = field.split(":")
-                if data[0] == 'server_hardware_type_uri':
-                    flavor['server_hardware_type_uri'] = data[1]
-                elif data[0] == 'enclosure_group_uri':
-                    flavor['enclosure_group_uri'] = data[1]
-                elif data[0] == 'server_profile_template_uri':
-                    flavor['server_profile_template_uri'] = data[1]
-
-            available_server_hardware_by_field = hardware_manager.list(
-                only_available=True,
-                fields={
-                    'serverHardwareTypeUri':
-                    flavor['server_hardware_type_uri'],
-                    'serverGroupUri':
-                    flavor['enclosure_group_uri'],
-                    'serverProfileUri':
-                    flavor['server_profile_template_uri'],
-                    'uri':
-                    node.driver_info.get('server_hardware_uri')
-                }
+        match = re.search(
+            "server_profile_template_uri:(?P<uri>[a-zA-Z0-9\-\/]+)",
+            capabilities
+        )
+        server_profile_template_uri = match.group('uri')
+        if server_profile_template_uri:
+            server_profile_template = self.facade.get_server_profile_template(
+                server_profile_template_uri
             )
-
-            template_list = profile_manager.list_templates_compatible_with(
-                available_server_hardware_by_field
+            flavor['server_profile_template_name'] = (
+                server_profile_template.name
             )
-
-            for available in available_server_hardware_by_field:
-                flavor['server_hardware_type_name'] = available.serverHardwareTypeName
-                flavor['enclosure_group_name'] = available.serverGroupName
-
-            for available in template_list:
-                flavor['server_profile_template_name'] = available.name
+            flavor['server_profile_template_uri'] = server_profile_template.uri
 
         return objects.Flavor(id=flavor_id, info=flavor)
 
-    def get_flavor_list(self, hardware_manager, profile_manager):
+    def get_flavor_list(self):
         nodes = self.facade.get_ironic_node_list()
         flavors = []
 
@@ -100,12 +91,9 @@ class FlavorCreator(object):
         for node in nodes:
             if node.properties.get('memory_mb') is not None:
                 flavors.append(
-                    self.get_flavor_from_ironic_node(
-                        id_counter, node, hardware_manager, profile_manager
-                    )
+                    self.get_flavor_from_ironic_node(id_counter, node)
                 )
                 id_counter += 1
-
         return set(flavors)
 
     def create_flavor(self, name, ram, vcpus, disk, extra_specs={}):
@@ -138,16 +126,15 @@ def do_flavor_create(args):
     nodes = len(cli_facade.get_ironic_node_list())
 
     if not nodes:
-        print("No Ironic nodes were found. Please, create a node to be used as base for the Flavor.")
+        print("No Ironic nodes were found. Please, create a node to be used" +
+              " as base for the Flavor.")
         return
 
     flavor_creator = FlavorCreator(cli_facade)
-    hardware_manager = cli_objects.ServerHardwareManager(args)
-    profile_manager = cli_objects.ServerProfileManager(args)
 
     print("Retrieving possible configurations for Flavor creation...")
 
-    flavor_list = flavor_creator.get_flavor_list(hardware_manager, profile_manager)
+    flavor_list = flavor_creator.get_flavor_list()
     flavor_list = list(flavor_list)
     for j in range(1, len(flavor_list)):
         key = flavor_list[j]
@@ -156,7 +143,6 @@ def do_flavor_create(args):
             flavor_list[i + 1] = flavor_list[i]
             i -= 1
         flavor_list[i + 1] = key
-
     for i in range(0, len(flavor_list)):
         flavor_list[i].__setitem__(i + 1)
 
@@ -173,17 +159,18 @@ def do_flavor_create(args):
                           'Server Profile Template', 'Server Hardware Type',
                           'Enclosure Group Name'],
             sortby_index=1)
-        id = input("Insert Flavor ID to add in OneView. Press 'q' to quit> ")
+        flavor_id = input("Insert Flavor ID to add in OneView. Press 'q' to "
+                          "quit> ")
 
-        if id == "q":
+        if flavor_id == "q":
             break
 
-        if id.isdigit() is not True:
+        if flavor_id.isdigit() is not True:
             print('Invalid Flavor ID. Please enter a valid ID.')
             create_another_flavor_flag = True
             continue
 
-        flavor = flavor_creator.get_element_by_id(flavor_list, int(id))
+        flavor = flavor_creator.get_element_by_id(flavor_list, int(flavor_id))
 
         if flavor is None:
             print('Invalid Flavor ID. Please enter a valid ID.')

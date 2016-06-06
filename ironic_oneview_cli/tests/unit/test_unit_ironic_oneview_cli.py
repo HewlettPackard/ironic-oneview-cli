@@ -20,14 +20,14 @@ import mock
 import unittest
 
 from ironic_oneview_cli.create_flavor_shell.commands import FlavorCreator
+from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
 from ironic_oneview_cli import facade
-from ironic_oneview_cli.tests.stubs import StubIronicNode
-from ironic_oneview_cli.tests.stubs import StubNovaFlavor
-from ironic_oneview_cli.tests.stubs import StubServerHardware
+from ironic_oneview_cli.migrate_node_shell.commands import NodeMigrator
+from ironic_oneview_cli.tests import stubs
 
 POOL_OF_STUB_IRONIC_NODES = [
-    StubIronicNode(
+    stubs.StubIronicNode(
         id=1,
         uuid='111111111-2222-8888-9999-000000000000',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
@@ -41,12 +41,14 @@ POOL_OF_STUB_IRONIC_NODES = [
              'extra': {}}
         ],
         driver='fake_oneview',
-        driver_info={'user': 'foo', 'password': 'bar'},
+        driver_info={'user': 'foo',
+                     'dynamic_allocation': True,
+                     'password': 'bar'},
         properties={'num_cpu': 4},
         name='fake-node-1',
         extra={}
     ),
-    StubIronicNode(
+    stubs.StubIronicNode(
         id=2,
         uuid='22222222-3333-8888-9999-000000000000',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
@@ -66,67 +68,113 @@ POOL_OF_STUB_IRONIC_NODES = [
         properties={'num_cpu': 4},
         name='fake-node-1',
         extra={}
+    ),
+    stubs.StubIronicNode(
+        id=3,
+        uuid='33333333-2222-8888-9999-000000000000',
+        chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
+        maintenance=False,
+        provision_state='enroll',
+        ports=[{}],
+        driver='fake_oneview',
+        driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
+                     'user': 'foo',
+                     'dynamic_allocation': False,
+                     'password': 'bar'},
+        properties={'cpu_arch': 'x86_64',
+                    'capabilities': 'server_hardware_type_uri:'
+                                    '/rest/server-hardware-types/'
+                                    '61720699-7D89-4E3E-BFC4-32FB9BBE2E71/'
+                                    'enclosure_group_uri:'
+                                    '/rest/enclosure-groups/'
+                                    'c02d2e96-6142-49d6-bd38-0ce9d371e94f'
+                                    'server_profile_template_uri:'
+                                    '/rest/server-profile-templates/'
+                                    '40ca74f8-65af-419a-b0cc-76af12b4f908'},
+        name='fake-node-3',
+        extra={}
+    ),
+    stubs.StubIronicNode(
+        id=4,
+        uuid='4444444-3333-8888-9999-000000000000',
+        chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
+        maintenance=False,
+        provision_state='enroll',
+        ports=[{}],
+        driver='fake',
+        driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
+                     'user': 'foo',
+                     'password': 'bar'},
+        properties={'num_cpu': 4},
+        name='fake-node-4',
+        extra={}
     )
 ]
 
+STUB_ENCLOSURE_GROUP = stubs.StubEnclosureGroup(
+    name='ENCLGROUP',
+    uuid='22222222-TTTT-BBBB-9999-AAAAAAAAAAA',
+    uri='/rest/server-hardware/22222222-TTTT-BBBB-9999-AAAAAAAAAAA',
+)
+
+STUB_SERVER_HARDWARE_TYPE = stubs.StubServerHardwareType(
+    name='TYPETYPETYPE',
+    uuid='22222222-7777-8888-9999-AAAAAAAAAAA',
+    uri='/rest/server-hardware/22222222-7777-8888-9999-AAAAAAAAAAA',
+)
 
 POOL_OF_STUB_SERVER_HARDWARE = [
-    StubServerHardware(
+    stubs.StubServerHardware(
         name='AAAAA',
         uuid='11111111-7777-8888-9999-000000000000',
         uri='/rest/server-hardware/11111',
         power_state='Off',
-        server_profile_uri='',
-        server_hardware_type_uri='/rest/server-hardware-types/1111112222233333',
-        serverHardwareTypeUri='/rest/server-hardware-types/1111112222233333',
-        serverHardwareTypeName='BL XXX',
-        serverGroupUri='/rest/enclosure-groups/1111112222233333',
-        serverGroupName='virtual A',
+        server_profile_uri='1111-2222-3333',
+        server_hardware_type_uri='/rest/server-hardware-types/111112222233333',
         enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
         status='OK',
         state='Unknown',
         state_reason='',
         enclosure_uri='/rest/enclosures/1111112222233333',
-        local_gb=72768,
-        cpu_arch='x86_64',
-        cpus=12,
         processor_count=12,
         processor_core_count=12,
-        memoryMb=16384,
         memory_mb=16384,
         port_map=[],
         mp_host_info={}
     ),
-    StubServerHardware(
+    stubs.StubServerHardware(
         name='AAAAA',
         uuid='22222222-7777-8888-9999-000000000000',
         uri='/rest/server-hardware/22222',
         power_state='Off',
         server_profile_uri='',
-        server_hardware_type_uri='/rest/server-hardware-types/1111112222233333',
-        serverHardwareTypeUri='/rest/server-hardware-types/1111112222233333',
-        serverHardwareTypeName='BL XXX',
-        serverGroupUri='/rest/enclosure-groups/1111112222233333',
-        serverGroupName='virtual A',
+        server_hardware_type_uri='/rest/server-hardware-types/111111222233333',
         enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
         status='OK',
         state='Unknown',
         state_reason='',
         enclosure_uri='/rest/enclosures/1111112222233333',
-        local_gb=72768,
-        cpu_arch='x86_64',
-        cpus=12,
         processor_count=12,
         processor_core_count=12,
-        memoryMb=16384,
         memory_mb=16384,
         port_map=[],
         mp_host_info={}
     )
 ]
 
+POOL_OF_STUB_SERVER_PROFILE_TEMPLATE = [
+    stubs.StubServerProfileTemplate(
+        uri='/rest/server-profile-templates/1111112222233333',
+        name='TEMPLATETEMPLATETEMPLATE',
+        server_hardware_type_uri='/rest/server-hardware-types/111112222233333',
+        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
+        connections=[],
+        boot={}
+    )
+]
+
 POOL_OF_STUB_NOVA_FLAVORS = [
-    StubNovaFlavor(
+    stubs.StubNovaFlavor(
         id=123,
         uuid='66666666-7777-8888-9999-000000000000',
         name='fake-flavor',
@@ -161,19 +209,138 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         ironic_nodes = POOL_OF_STUB_IRONIC_NODES
         mock_ironic_node_list.return_value = ironic_nodes
         mock_facade.get_ironic_node_list = mock_ironic_node_list
-
-        not_enrolled = node_creator.list_server_hardware_not_enrolled(
+        mock_facade.list_server_hardware_available.return_value = (
             POOL_OF_STUB_SERVER_HARDWARE
         )
 
+        not_enrolled = node_creator.list_server_hardware_not_enrolled()
+
         self.assertEqual(1, len(not_enrolled))
+
+    @mock.patch.object(facade.Facade, 'get_ironic_node_list')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_list_pre_allocation_nodes(self,
+                                       mock_facade,
+                                       mock_ironic_node_list):
+        node_migrator = NodeMigrator(mock_facade)
+        ironic_nodes = POOL_OF_STUB_IRONIC_NODES
+        mock_ironic_node_list.return_value = ironic_nodes
+        mock_facade.get_ironic_node_list = mock_ironic_node_list
+
+        pre_allocation_nodes = node_migrator.list_pre_allocation_nodes()
+
+        self.assertEqual(2, len(pre_allocation_nodes))
+
+    @mock.patch.object(facade.Facade, 'node_update')
+    @mock.patch.object(facade.Facade, 'node_set_maintenance')
+    @mock.patch.object(facade.Facade, 'delete_server_profile')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_migrate_idle_node(self,
+                               mock_facade,
+                               mock_delete_server_profile,
+                               mock_set_maintenance,
+                               mock_node_update):
+
+        node_migrator = NodeMigrator(mock_facade)
+
+        mock_facade.node_set_maintenance = mock_set_maintenance
+        mock_facade.node_update = mock_node_update
+        mock_facade.delete_server_profile = mock_delete_server_profile
+
+        node = POOL_OF_STUB_IRONIC_NODES[0]
+        node.server_profile_uri = \
+            POOL_OF_STUB_SERVER_HARDWARE[0].server_profile_uri
+        patch_test = [{'op': 'add',
+                       'path': '/driver_info/dynamic_allocation',
+                       'value': True}]
+
+        node_migrator.migrate_idle_node(node)
+
+        mock_delete_server_profile.assert_called_with(
+            node.server_profile_uri
+        )
+        mock_node_update.assert_called_with(
+            node.uuid, patch_test
+        )
+        self.assertEqual(2, mock_set_maintenance.call_count)
+
+    @mock.patch.object(facade.Facade, 'node_update')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_migrate_node_with_instance(self,
+                                        mock_facade,
+                                        mock_node_update):
+        node_migrator = NodeMigrator(mock_facade)
+        mock_facade.node_update = mock_node_update
+
+        node = POOL_OF_STUB_IRONIC_NODES[0]
+        node.server_profile_uri = \
+            POOL_OF_STUB_SERVER_HARDWARE[0].server_profile_uri
+
+        patch_test_dynamic = [{'op': 'add',
+                               'path': '/driver_info/dynamic_allocation',
+                               'value': True}]
+        patch_test_sp_applied = [{'op': 'add',
+                                  'path': '/driver_info/'
+                                          'applied_server_profile_uri',
+                                  'value':
+                                          '1111-2222-3333'}]
+
+        node_migrator.migrate_node_with_instance(node)
+
+        mock_node_update.assert_any_call(
+            node.uuid, patch_test_dynamic
+        )
+        mock_node_update.assert_any_call(
+            node.uuid, patch_test_sp_applied
+        )
 
     @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_generate_flavor_name(self, mock_facade):
 
         flavor_creator = FlavorCreator(mock_facade)
-        flavor_name = flavor_creator.get_flavor_name(POOL_OF_STUB_NOVA_FLAVORS[0])
+        flavor_name = flavor_creator.get_flavor_name(
+            POOL_OF_STUB_NOVA_FLAVORS[0]
+        )
         self.assertEqual('32000MB-RAM_8_x64_120', flavor_name)
+
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_get_flavor_from_ironic_node(self, mock_facade):
+        mock_facade.get_server_hardware.return_value = (
+            POOL_OF_STUB_SERVER_HARDWARE[0]
+        )
+        mock_facade.get_server_profile_template.return_value = (
+            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[0]
+        )
+        mock_facade.get_server_hardware_type.return_value = (
+            STUB_SERVER_HARDWARE_TYPE
+        )
+        mock_facade.get_enclosure_group.return_value = (
+            STUB_ENCLOSURE_GROUP
+        )
+        node = POOL_OF_STUB_IRONIC_NODES[2]
+
+        flavor_creator = FlavorCreator(mock_facade)
+        result_flavor = flavor_creator.get_flavor_from_ironic_node(
+            12345, node
+        )
+
+        flavor = dict()
+        flavor['ram_mb'] = node.properties.get("memory_mb")
+        flavor['cpus'] = node.properties.get("cpus")
+        flavor['disk'] = node.properties.get("local_gb")
+        flavor['cpu_arch'] = node.properties.get("cpu_arch")
+        flavor['server_hardware_type_uri'] = \
+            '/rest/server-hardware/22222222-7777-8888-9999-AAAAAAAAAAA'
+        flavor['server_hardware_type_name'] = 'TYPETYPETYPE'
+        flavor['server_profile_template_uri'] = \
+            '/rest/server-profile-templates/1111112222233333'
+        flavor['server_profile_template_name'] = 'TEMPLATETEMPLATETEMPLATE'
+        flavor['enclosure_group_name'] = 'ENCLGROUP'
+        flavor['enclosure_group_uri'] = \
+            '/rest/server-hardware/22222222-TTTT-BBBB-9999-AAAAAAAAAAA'
+
+        self.assertEqual.__self__.maxDiff = None
+        self.assertEqual(result_flavor, Flavor(id=12345, info=flavor))
 
 
 if __name__ == '__main__':

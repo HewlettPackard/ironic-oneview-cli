@@ -7,8 +7,10 @@ Overview
 
 Ironic-OneView CLI is a command line interface tool for easing the use of the
 OneView Drivers for Ironic. It allows the user to easily create and configure
-Ironic nodes compatible with OneView ``Server Hardware`` objects. It also helps
-create Nova flavors to match available Ironic nodes that use OneView drivers.
+Ironic nodes compatible with OneView ``Server Hardware`` objects and create
+Nova flavors to match available Ironic nodes that use OneView drivers. It also
+offers the option to migrate Ironic nodes using pre-allocation model to the
+dynamic allocation model.
 
 This tool creates Ironic nodes based on the Ironic OneView drivers' dynamic
 allocation model [1]_ [2]_.
@@ -22,7 +24,7 @@ For more information on *HP OneView* entities, see [3]_.
 Installation
 ============
 
-To install Ironic-OneView CLI from PyPi, use the following command::
+To install Ironic-OneView CLI from PyPI, use the following command::
 
     $ pip install ironic-oneview-cli
 
@@ -56,19 +58,21 @@ Usage
 Once the necessary environment variables and command line parameters are
 set, Ironic-OneView CLI is ready to be used.
 
-Synopsis::
+Synopsis:
 
 In the current version of Ironic-OneView CLI, the available subcommands are:
 
-+---------------+-----------------------------------------------------------------+
-|  node-create  | Creates nodes based on available HP OneView Server Hardware.    |
-+---------------+-----------------------------------------------------------------+
-| flavor-create | Creates flavors based on available Ironic nodes.                |
-+---------------+-----------------------------------------------------------------+
-|     genrc     | Generates the ironic-oneviewrc.sh file according to user input. |
-+---------------+-----------------------------------------------------------------+
-|     help      | Displays help about this program or one of its subcommands.     |
-+---------------+-----------------------------------------------------------------+
++--------------------+--------------------------------------------------------------+
+|     node-create    | Creates nodes based on available HP OneView Server Hardware. |
++--------------------+--------------------------------------------------------------+
+|    flavor-create   | Creates flavors based on available Ironic nodes.             |
++--------------------+--------------------------------------------------------------+
+| migrate-to-dynamic | Migrate Ironic nodes to dynamic allocation model.            |
++--------------------+--------------------------------------------------------------+
+|        genrc       | Generates the Ironic-OneView CLI RC file.                    |
++--------------------+--------------------------------------------------------------+
+|        help        | Displays help about this program or one of its subcommands.  |
++--------------------+--------------------------------------------------------------+
 
 
 Features
@@ -118,7 +122,7 @@ To list all nodes in Ironic, use the command::
 
 For more information about the created Ironic node, use the command::
 
-    $ ironic node-show [NODE_UUID]
+    $ ironic node-show <node>
 
 
 Flavor creation
@@ -147,8 +151,42 @@ To list all flavors in Nova, use the command::
 
 For more information about the created Nova flavor, use the command::
 
-    $ nova flavor-show [FLAVOR_UUID]
+    $ nova flavor-show <flavor>
 
+
+Node migration
+^^^^^^^^^^^^^^
+
+To migrate pre-allocation Ironic nodes to the Ironic OneView drivers' dynamic
+allocation model, use the following command::
+
+    $ ironic-oneview migrate-to-dynamic
+
+The tool will prompt you to choose the available pre-allocation nodes to
+migrate, those retrieved from Ironic.::
+
+    Retrieving pre-allocation Nodes from Ironic...
+    +----+--------------------------------------+----------------------+---------------------------+--------------------+
+    | Id | UUID                                 | Server Hardware Name | Server Hardware Type Name | Enclose Group Name |
+    +----+--------------------------------------+----------------------+---------------------------+--------------------+
+    | 1  | 607e269f-155e-443e-83af-d3a553c8b535 | Encl1, bay 6         | BL460c Gen8 1             | VirtualEnclosure   |
+    | 2  | 3ca132c0-0769-48d1-a2af-9a67f363345e | Encl1, bay 7         | BL460c Gen8 1             | VirtualEnclosure   |
+    | 3  | e9eb685d-cb46-4645-9980-f27b44e472f9 | Encl1, bay 8         | BL460c Gen8 1             | VirtualEnclosure   |
+    +----+--------------------------------------+----------------------+---------------------------+--------------------+
+
+Once you have chosen a valid pre-allocation node ID, the tool will migrate the
+node to dynamic allocation model. Notice that you can type ``all`` to migrate
+all nodes shown at once.
+
+To migrate one or more specific pre-allocation node(s), without showing the
+table of pre-allocation nodes available, use the command::
+
+    $ ironic-oneview migrate-to-dynamic --node <node> [<node> ...]
+
+To migrate all available pre-allocation nodes at once, without showing the
+table of pre-allocation nodes available, use the command::
+
+    $ ironic-oneview migrate-to-dynamic --all
 
 References
 ==========
@@ -156,4 +194,3 @@ References
 .. [2] Driver documentation - http://docs.openstack.org/developer/ironic/drivers/oneview.html
 .. [3] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
 .. [4] OpenStack RC - http://docs.openstack.org/user-guide/common/cli_set_environment_variables_using_openstack_rc.html
-
