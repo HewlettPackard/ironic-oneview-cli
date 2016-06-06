@@ -45,7 +45,13 @@ class Facade(object):
 
     def node_set_maintenance(self, node_uuid, maintenance_mode, maint_reason):
         return self.ironicclient.node.set_maintenance(
-            node_uuid, maintenance_mode, maint_reason=maint_reason)
+            node_uuid, maintenance_mode, maint_reason=maint_reason
+        )
+
+    def node_update(self, node_uuid, patch):
+        return self.ironicclient.node.update(
+            node_uuid, patch
+        )
 
     def create_ironic_node(self, **attrs):
         return self.ironicclient.node.create(**attrs)
@@ -82,6 +88,10 @@ class Facade(object):
     def get_server_hardware_type(self, uri):
         uuid = uri[uri.rfind("/") + 1:]
         return self.oneview_client.server_hardware_type.get(uuid)
+
+    def delete_server_profile(self, uri):
+        uuid = uri[uri.rfind("/") + 1:]
+        return self.oneview_client.server_profile.delete(uuid)
 
     # Next generation
     def list_server_hardware_available(self):

@@ -20,9 +20,9 @@
 class StubIronicNode(object):
 
     def __init__(self, id, uuid, chassis_uuid, provision_state, driver,
-                 ports, driver_info={}, driver_internal_info={},
-                 name='fake-node', maintenance='False', properties={},
-                 extra={}):
+                 ports, instance_uuid=None, driver_info={},
+                 driver_internal_info={}, name='fake-node',
+                 maintenance='False', properties={}, extra={}):
 
         self.id = id
         self.uuid = uuid
@@ -34,6 +34,7 @@ class StubIronicNode(object):
         self.driver_internal_info = driver_internal_info
         self.maintenance = maintenance
         self.properties = properties
+        self.instance_uuid = instance_uuid
         self.extra = extra
         self.name = name
 

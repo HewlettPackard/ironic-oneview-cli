@@ -23,6 +23,7 @@ from ironic_oneview_cli.create_flavor_shell.commands import FlavorCreator
 from ironic_oneview_cli.create_flavor_shell.objects import Flavor
 from ironic_oneview_cli.create_node_shell.commands import NodeCreator
 from ironic_oneview_cli import facade
+from ironic_oneview_cli.migrate_node_shell.commands import NodeMigrator
 from ironic_oneview_cli.tests import stubs
 
 POOL_OF_STUB_IRONIC_NODES = [
@@ -40,7 +41,9 @@ POOL_OF_STUB_IRONIC_NODES = [
              'extra': {}}
         ],
         driver='fake_oneview',
-        driver_info={'user': 'foo', 'password': 'bar'},
+        driver_info={'user': 'foo',
+                     'dynamic_allocation': True,
+                     'password': 'bar'},
         properties={'num_cpu': 4},
         name='fake-node-1',
         extra={}
@@ -68,33 +71,42 @@ POOL_OF_STUB_IRONIC_NODES = [
     ),
     stubs.StubIronicNode(
         id=3,
-        uuid='33333333-4444-8888-9999-000000000000',
+        uuid='33333333-2222-8888-9999-000000000000',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
         maintenance=False,
         provision_state='enroll',
-        ports=[
-            {'id': 987,
-             'uuid': '11111111-2222-3333-4444-555555555555',
-             'node_uuid': '66666666-7777-8888-9999-000000000000',
-             'address': 'AA:BB:CC:DD:EE:FF',
-             'extra': {}}
-        ],
+        ports=[{}],
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
+                     'dynamic_allocation': False,
                      'password': 'bar'},
-        properties={'memory_mb': 32768,
-                    'cpu_arch': 'x86_64',
-                    'local_gb': 120,
-                    'cpus': 8,
-                    'capabilities':
-                        "server_hardware_type_uri:"
-                        "/rest/server-hardware-types/1111112222233333,"
-                        "enclosure_group_uri:"
-                        "/rest/enclosure-groups/1111112222233333,"
-                        "server_profile_template_uri:"
-                        "/rest/server-profile-templates/1111112222233333"},
-        name='fake-node-1',
+        properties={'cpu_arch': 'x86_64',
+                    'capabilities': 'server_hardware_type_uri:'
+                                    '/rest/server-hardware-types/'
+                                    '61720699-7D89-4E3E-BFC4-32FB9BBE2E71/'
+                                    'enclosure_group_uri:'
+                                    '/rest/enclosure-groups/'
+                                    'c02d2e96-6142-49d6-bd38-0ce9d371e94f'
+                                    'server_profile_template_uri:'
+                                    '/rest/server-profile-templates/'
+                                    '40ca74f8-65af-419a-b0cc-76af12b4f908'},
+        name='fake-node-3',
+        extra={}
+    ),
+    stubs.StubIronicNode(
+        id=4,
+        uuid='4444444-3333-8888-9999-000000000000',
+        chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
+        maintenance=False,
+        provision_state='enroll',
+        ports=[{}],
+        driver='fake',
+        driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
+                     'user': 'foo',
+                     'password': 'bar'},
+        properties={'num_cpu': 4},
+        name='fake-node-4',
         extra={}
     )
 ]
@@ -117,7 +129,7 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         uuid='11111111-7777-8888-9999-000000000000',
         uri='/rest/server-hardware/11111',
         power_state='Off',
-        server_profile_uri='',
+        server_profile_uri='1111-2222-3333',
         server_hardware_type_uri='/rest/server-hardware-types/111112222233333',
         enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
         status='OK',
@@ -204,6 +216,83 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         not_enrolled = node_creator.list_server_hardware_not_enrolled()
 
         self.assertEqual(1, len(not_enrolled))
+
+    @mock.patch.object(facade.Facade, 'get_ironic_node_list')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_list_pre_allocation_nodes(self,
+                                       mock_facade,
+                                       mock_ironic_node_list):
+        node_migrator = NodeMigrator(mock_facade)
+        ironic_nodes = POOL_OF_STUB_IRONIC_NODES
+        mock_ironic_node_list.return_value = ironic_nodes
+        mock_facade.get_ironic_node_list = mock_ironic_node_list
+
+        pre_allocation_nodes = node_migrator.list_pre_allocation_nodes()
+
+        self.assertEqual(2, len(pre_allocation_nodes))
+
+    @mock.patch.object(facade.Facade, 'node_update')
+    @mock.patch.object(facade.Facade, 'node_set_maintenance')
+    @mock.patch.object(facade.Facade, 'delete_server_profile')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_migrate_idle_node(self,
+                               mock_facade,
+                               mock_delete_server_profile,
+                               mock_set_maintenance,
+                               mock_node_update):
+
+        node_migrator = NodeMigrator(mock_facade)
+
+        mock_facade.node_set_maintenance = mock_set_maintenance
+        mock_facade.node_update = mock_node_update
+        mock_facade.delete_server_profile = mock_delete_server_profile
+
+        node = POOL_OF_STUB_IRONIC_NODES[0]
+        node.server_profile_uri = \
+            POOL_OF_STUB_SERVER_HARDWARE[0].server_profile_uri
+        patch_test = [{'op': 'add',
+                       'path': '/driver_info/dynamic_allocation',
+                       'value': True}]
+
+        node_migrator.migrate_idle_node(node)
+
+        mock_delete_server_profile.assert_called_with(
+            node.server_profile_uri
+        )
+        mock_node_update.assert_called_with(
+            node.uuid, patch_test
+        )
+        self.assertEqual(2, mock_set_maintenance.call_count)
+
+    @mock.patch.object(facade.Facade, 'node_update')
+    @mock.patch('ironic_oneview_cli.facade.Facade')
+    def test_migrate_node_with_instance(self,
+                                        mock_facade,
+                                        mock_node_update):
+        node_migrator = NodeMigrator(mock_facade)
+        mock_facade.node_update = mock_node_update
+
+        node = POOL_OF_STUB_IRONIC_NODES[0]
+        node.server_profile_uri = \
+            POOL_OF_STUB_SERVER_HARDWARE[0].server_profile_uri
+
+        patch_test_dynamic = [{'op': 'add',
+                               'path': '/driver_info/dynamic_allocation',
+                               'value': True}]
+        patch_test_sp_applied = [{'op': 'add',
+                                  'path': '/driver_info/'
+                                          'applied_server_profile_uri',
+                                  'value':
+                                          '1111-2222-3333'}]
+
+        node_migrator.migrate_node_with_instance(node)
+
+        mock_node_update.assert_any_call(
+            node.uuid, patch_test_dynamic
+        )
+        mock_node_update.assert_any_call(
+            node.uuid, patch_test_sp_applied
+        )
 
     @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_generate_flavor_name(self, mock_facade):

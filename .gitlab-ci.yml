@@ -1,0 +1,10 @@
+before_script:
+  - pip install tox
+
+unit:
+  script:
+    - tox
+
+functional:
+  script:
+    - tox -e functional

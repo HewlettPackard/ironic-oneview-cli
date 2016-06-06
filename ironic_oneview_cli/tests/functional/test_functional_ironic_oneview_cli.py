@@ -22,7 +22,10 @@ import unittest
 
 from ironic_oneview_cli.create_flavor_shell import \
     commands as create_flavor_cmd
-from ironic_oneview_cli.create_node_shell import commands as create_node_cmd
+from ironic_oneview_cli.create_node_shell import \
+    commands as create_node_cmd
+from ironic_oneview_cli.migrate_node_shell import \
+    commands as migrate_node_cmd
 from ironic_oneview_cli.tests import stubs
 
 
@@ -41,7 +44,9 @@ POOL_OF_STUB_IRONIC_NODES = [
              'extra': {}}
         ],
         driver='fake_oneview',
-        driver_info={'user': 'foo', 'password': 'bar'},
+        driver_info={'user': 'foo',
+                     'password': 'bar',
+                     'dynamic_allocation': True},
         properties={'num_cpu': 4},
         name='fake-node-1',
         extra={}
@@ -64,7 +69,7 @@ POOL_OF_STUB_IRONIC_NODES = [
                      'user': 'foo',
                      'password': 'bar'},
         properties={'num_cpu': 4},
-        name='fake-node-1',
+        name='fake-node-2',
         extra={}
     ),
     stubs.StubIronicNode(
@@ -83,7 +88,8 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
-                     'password': 'bar'},
+                     'password': 'bar',
+                     'dynamic_allocation': False},
         properties={'memory_mb': 32768,
                     'cpu_arch': 'x86_64',
                     'local_gb': 120,
@@ -96,7 +102,23 @@ POOL_OF_STUB_IRONIC_NODES = [
                         "server_profile_template_uri:"
                         "/rest/server-profile-templates/1111112222233333"
                     },
-        name='fake-node-1',
+        instance_uuid='1111-2222-3333-4444-5555',
+        name='fake-node-3',
+        extra={}
+    ),
+    stubs.StubIronicNode(
+        id=4,
+        uuid='4444444-3333-8888-9999-000000000000',
+        chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
+        maintenance=False,
+        provision_state='enroll',
+        ports=[{}],
+        driver='fake',
+        driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
+                     'user': 'foo',
+                     'password': 'bar'},
+        properties={'num_cpu': 4},
+        name='fake-node-4',
         extra={}
     )
 
@@ -138,7 +160,7 @@ POOL_OF_STUB_SERVER_HARDWARE = [
         uuid='22222222-7777-8888-9999-000000000000',
         uri='/rest/server-hardware/22222',
         power_state='Off',
-        server_profile_uri='',
+        server_profile_uri='/rest/server-profile/1111-2222',
         server_hardware_type_uri='/rest/server-hardware-types/111111222233333',
         enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
         status='OK',
@@ -239,7 +261,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             ),
             os_ironic_deploy_ramdisk_uuid=(
                 STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid
-            )
+            ),
+            all=False,
+            node=None
         )
 
     @mock.patch('ironic_oneview_cli.create_node_shell.commands.input')
@@ -298,7 +322,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
     @mock.patch('ironic_oneview_cli.create_flavor_shell.commands.input')
     @mock.patch('ironic_oneview_cli.facade.get_nova_client')
     def test_flavor_creation(self, mock_nova_client, mock_input,
-                             mock_oneview_client, mock_ironic_client,):
+                             mock_oneview_client, mock_ironic_client):
         ironic_client = mock_ironic_client.return_value
         ironic_client.node.list.return_value = (
             POOL_OF_STUB_IRONIC_NODES
@@ -322,6 +346,112 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
+    @mock.patch('ironic_oneview_cli.migrate_node_shell.commands.input')
+    def test_node_migration(self, mock_input,
+                            mock_oneview_client,
+                            mock_ironic_client):
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.list.return_value = (
+            POOL_OF_STUB_IRONIC_NODES[1],
+            POOL_OF_STUB_IRONIC_NODES[2]
+        )
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = \
+            POOL_OF_STUB_SERVER_HARDWARE[1]
+
+        mock_input.side_effect = ['1', 'n']
+
+        update_patch_test = [{'op': 'add',
+                              'path': '/driver_info/dynamic_allocation',
+                              'value': True}]
+
+        migrate_node_cmd.do_migrate_to_dynamic(self.args)
+
+        self.assertEqual(2, ironic_client.node.set_maintenance.call_count)
+
+        ironic_client.node.update.assert_called_with(
+            POOL_OF_STUB_IRONIC_NODES[1].uuid,
+            update_patch_test
+        )
+
+    def test_node_migration_all(self, mock_oneview_client, mock_ironic_client):
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.list.return_value = (
+            POOL_OF_STUB_IRONIC_NODES[1],
+            POOL_OF_STUB_IRONIC_NODES[2]
+        )
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = \
+            POOL_OF_STUB_SERVER_HARDWARE[1]
+
+        update_patch_test = [{'op': 'add',
+                              'path': '/driver_info/dynamic_allocation',
+                              'value': True}]
+
+        sp_patch_test = [{'op': 'add',
+                          'path': '/driver_info/'
+                                  'applied_server_profile_uri',
+                          'value': '/rest/server-profile/1111-2222'}]
+        self.args.all = True
+
+        migrate_node_cmd.do_migrate_to_dynamic(self.args)
+
+        self.assertEqual(2, ironic_client.node.set_maintenance.call_count)
+
+        oneview_client.server_profile.delete.assert_called_with(
+            '1111-2222'
+        )
+
+        ironic_client.node.update.assert_any_call(
+            POOL_OF_STUB_IRONIC_NODES[1].uuid,
+            update_patch_test
+        )
+
+        ironic_client.node.update.assert_any_call(
+            POOL_OF_STUB_IRONIC_NODES[2].uuid,
+            update_patch_test
+        )
+
+        ironic_client.node.update.assert_any_call(
+            POOL_OF_STUB_IRONIC_NODES[2].uuid,
+            sp_patch_test
+        )
+
+    def test_node_migration_specific(self,
+                                     mock_oneview_client,
+                                     mock_ironic_client):
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.get.return_value = (
+            POOL_OF_STUB_IRONIC_NODES[2]
+        )
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = \
+            POOL_OF_STUB_SERVER_HARDWARE[1]
+
+        update_patch_test = [{'op': 'add',
+                              'path': '/driver_info/dynamic_allocation',
+                              'value': True}]
+
+        sp_patch_test = [{'op': 'add',
+                          'path': '/driver_info/'
+                                  'applied_server_profile_uri',
+                          'value': '/rest/server-profile/1111-2222'}]
+
+        self.args.node = '33333333-4444-8888-9999-000000000000'
+
+        migrate_node_cmd.do_migrate_to_dynamic(self.args)
+
+        self.assertEqual(0, ironic_client.node.set_maintenance.call_count)
+
+        ironic_client.node.update.assert_any_call(
+            POOL_OF_STUB_IRONIC_NODES[2].uuid,
+            update_patch_test
+        )
+
+        ironic_client.node.update.assert_any_call(
+            POOL_OF_STUB_IRONIC_NODES[2].uuid,
+            sp_patch_test
+        )
 
 if __name__ == '__main__':
     unittest.main()
