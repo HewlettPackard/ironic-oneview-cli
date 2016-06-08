@@ -229,7 +229,7 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
 
         pre_allocation_nodes = node_migrator.list_pre_allocation_nodes()
 
-        self.assertEqual(2, len(pre_allocation_nodes))
+        self.assertEqual(2, len(list(pre_allocation_nodes)))
 
     @mock.patch.object(facade.Facade, 'node_update')
     @mock.patch.object(facade.Facade, 'node_set_maintenance')

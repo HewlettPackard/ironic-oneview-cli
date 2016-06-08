@@ -261,7 +261,7 @@ def do_migrate_to_dynamic(args):
                     "'q' to quit)> ",
                     field_labels=[
                         'Id',
-                        'UUID',
+                        'Node UUID',
                         'Server Hardware Name',
                         'Server Hardware Type Name',
                         'Enclosure Group Name'
@@ -288,7 +288,7 @@ def do_migrate_to_dynamic(args):
                 ['uuid', 'server_hardware_name',
                  'server_hardware_type_name', 'enclosure_group_name'],
                 field_labels=[
-                    'UUID',
+                    'Node UUID',
                     'Server Hardware Name',
                     'Server Hardware Type Name',
                     'Enclosure Group Name'

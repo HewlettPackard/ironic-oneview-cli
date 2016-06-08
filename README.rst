@@ -122,7 +122,7 @@ To list all nodes in Ironic, use the command::
 
 For more information about the created Ironic node, use the command::
 
-    $ ironic node-show <node>
+    $ ironic node-show <node_uuid>
 
 
 Flavor creation
@@ -167,7 +167,7 @@ migrate, those retrieved from Ironic.::
 
     Retrieving pre-allocation Nodes from Ironic...
     +----+--------------------------------------+----------------------+---------------------------+--------------------+
-    | Id | UUID                                 | Server Hardware Name | Server Hardware Type Name | Enclose Group Name |
+    | Id | Node UUID                            | Server Hardware Name | Server Hardware Type Name | Enclose Group Name |
     +----+--------------------------------------+----------------------+---------------------------+--------------------+
     | 1  | 607e269f-155e-443e-83af-d3a553c8b535 | Encl1, bay 6         | BL460c Gen8 1             | VirtualEnclosure   |
     | 2  | 3ca132c0-0769-48d1-a2af-9a67f363345e | Encl1, bay 7         | BL460c Gen8 1             | VirtualEnclosure   |
@@ -181,7 +181,7 @@ all nodes shown at once.
 To migrate one or more specific pre-allocation node(s), without showing the
 table of pre-allocation nodes available, use the command::
 
-    $ ironic-oneview migrate-to-dynamic --node <node> [<node> ...]
+    $ ironic-oneview migrate-to-dynamic --node <node_uuid> [<node_uuid> ...]
 
 To migrate all available pre-allocation nodes at once, without showing the
 table of pre-allocation nodes available, use the command::

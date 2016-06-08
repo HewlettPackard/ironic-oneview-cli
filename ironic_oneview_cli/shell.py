@@ -31,10 +31,10 @@ from ironic_oneview_cli.create_flavor_shell import commands \
     as flavor_create_commands
 from ironic_oneview_cli.create_node_shell import commands \
     as node_create_commands
-from ironic_oneview_cli.migrate_node_shell import commands \
-    as node_migrate_commands
 from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
+from ironic_oneview_cli.migrate_node_shell import commands \
+    as node_migrate_commands
 from ironic_oneview_cli.openstack.common._i18n import _
 from ironic_oneview_cli.openstack.common import cliutils
 
