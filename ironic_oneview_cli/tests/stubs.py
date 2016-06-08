@@ -18,6 +18,7 @@
 
 
 class StubIronicNode(object):
+
     def __init__(self, id, uuid, chassis_uuid, provision_state, driver,
                  ports, driver_info={}, driver_internal_info={},
                  name='fake-node', maintenance='False', properties={},
@@ -38,6 +39,7 @@ class StubIronicNode(object):
 
 
 class StubNovaFlavor(object):
+
     def __init__(self, id, uuid, memory_mb, ram_mb, vcpus, cpus, cpu_arch,
                  disk, root_gb, ephemeral_gb, flavorid, swap, rxtx_factor,
                  vcpu_weight, disabled, is_public, name='fake-flavor',
@@ -64,15 +66,21 @@ class StubNovaFlavor(object):
         self.projects = projects
 
 
+class StubEnclosureGroup(object):
+
+    def __init__(self, uri, uuid, name):
+
+        self.uri = uri
+        self.uuid = uuid
+        self.name = name
+
+
 class StubServerHardware(object):
 
     def __init__(self, name, uuid, uri, power_state, server_profile_uri,
-                 server_hardware_type_uri, serverHardwareTypeUri,
-                 serverHardwareTypeName, enclosure_group_uri, serverGroupName,
-                 serverGroupUri, status, state, state_reason, enclosure_uri,
-                 local_gb, cpu_arch, cpus, processor_count,
-                 processor_core_count, memoryMb, memory_mb, port_map,
-                 mp_host_info):
+                 server_hardware_type_uri, enclosure_group_uri, status, state,
+                 state_reason, enclosure_uri, processor_count,
+                 processor_core_count, memory_mb, port_map, mp_host_info):
 
         self.name = name
         self.uuid = uuid
@@ -80,32 +88,33 @@ class StubServerHardware(object):
         self.power_state = power_state
         self.server_profile_uri = server_profile_uri
         self.server_hardware_type_uri = server_hardware_type_uri
-        self.serverHardwareTypeUri = serverHardwareTypeUri  # remove before python-oneviewclient
-        self.serverHardwareTypeName = serverHardwareTypeName  # remove before python-oneviewclient
-        self.serverGroupUri = serverGroupUri  # remove before python-oneviewclient
-        self.serverGroupName = serverGroupName  # remove before python-oneviewclient
         self.enclosure_group_uri = enclosure_group_uri
         self.status = status
         self.state = state
         self.state_reason = state_reason
         self.enclosure_uri = enclosure_uri
-        self.local_gb = local_gb  # remove before python-oneviewclient
-        self.cpu_arch = cpu_arch  # remove before python-oneviewclient
-        self.cpus = cpus  # remove before python-oneviewclient
-        self.processor_count = processor_count
-        self.processor_core_count = processor_core_count
-        self.memoryMb = memoryMb  # remove before python-oneviewclient
+        self.cpus = processor_count * processor_core_count
         self.memory_mb = memory_mb
         self.port_map = port_map
         self.mp_host_info = mp_host_info
 
 
-class StubServerProfileTemplate(object):
+class StubServerHardwareType(object):
 
-    def __init__(self, uri, server_hardware_type_uri, enclosure_group_uri,
-                 connections, boot):
+    def __init__(self, uri, uuid, name):
 
         self.uri = uri
+        self.uuid = uuid
+        self.name = name
+
+
+class StubServerProfileTemplate(object):
+
+    def __init__(self, uri, name, server_hardware_type_uri,
+                 enclosure_group_uri, connections, boot):
+
+        self.uri = uri
+        self.name = name
         self.server_hardware_type_uri = server_hardware_type_uri
         self.enclosure_group_uri = enclosure_group_uri
         self.connections = connections
@@ -118,6 +127,7 @@ class StubParameters(object):
                  os_ironic_node_driver,
                  os_ironic_deploy_kernel_uuid,
                  os_ironic_deploy_ramdisk_uuid):
+
         self.os_ironic_node_driver = os_ironic_node_driver
         self.os_ironic_deploy_kernel_uuid = os_ironic_deploy_kernel_uuid
         self.os_ironic_deploy_ramdisk_uuid = os_ironic_deploy_ramdisk_uuid
