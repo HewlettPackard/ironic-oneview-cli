@@ -19,12 +19,7 @@
 import os
 
 from builtins import input
-
-
-ENABLED_DRIVERS = [
-    'agent_pxe_oneview',
-    'iscsi_pxe_oneview'
-]
+from ironic_oneview_cli import common
 
 
 def _generate(**data):
@@ -74,9 +69,9 @@ def do_genrc(args):
     ironic_driver = input(
         "Select an Ironic OneView driver [%s]"
         "\nDefault to agent_pxe_oneview: " %
-        ', '.join(ENABLED_DRIVERS)
+        ', '.join(common.SUPPORTED_DRIVERS)
     )
-    if ironic_driver not in ENABLED_DRIVERS:
+    if ironic_driver not in common.SUPPORTED_DRIVERS:
         ironic_driver = 'agent_pxe_oneview'
 
     path = input("Path to save 'ironic-oneviewrc.sh' file [%s]: " %

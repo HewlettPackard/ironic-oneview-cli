@@ -238,7 +238,7 @@ STUB_PARAMETERS = stubs.StubParameters(
 )
 
 
-@mock.patch('ironic_oneview_cli.facade.get_ironic_client')
+@mock.patch('ironic_oneview_cli.openstack_client.get_ironic_client')
 @mock.patch('ironic_oneview_cli.common.client.ClientV2')
 class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
@@ -263,7 +263,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                 STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid
             ),
             all=False,
-            node=None
+            nodes=None
         )
 
     @mock.patch('ironic_oneview_cli.create_node_shell.commands.input')
@@ -320,7 +320,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
 
     @mock.patch('ironic_oneview_cli.create_flavor_shell.commands.input')
-    @mock.patch('ironic_oneview_cli.facade.get_nova_client')
+    @mock.patch('ironic_oneview_cli.openstack_client.get_nova_client')
     def test_flavor_creation(self, mock_nova_client, mock_input,
                              mock_oneview_client, mock_ironic_client):
         ironic_client = mock_ironic_client.return_value
@@ -409,12 +409,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         ironic_client.node.update.assert_any_call(
             POOL_OF_STUB_IRONIC_NODES[2].uuid,
-            update_patch_test
-        )
-
-        ironic_client.node.update.assert_any_call(
-            POOL_OF_STUB_IRONIC_NODES[2].uuid,
-            sp_patch_test
+            sp_patch_test + update_patch_test
         )
 
     def test_node_migration_specific(self,
@@ -437,20 +432,15 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                                   'applied_server_profile_uri',
                           'value': '/rest/server-profile/1111-2222'}]
 
-        self.args.node = '33333333-4444-8888-9999-000000000000'
+        self.args.nodes = '33333333-4444-8888-9999-000000000000'
 
         migrate_node_cmd.do_migrate_to_dynamic(self.args)
 
         self.assertEqual(0, ironic_client.node.set_maintenance.call_count)
 
-        ironic_client.node.update.assert_any_call(
+        ironic_client.node.update.assert_called_with(
             POOL_OF_STUB_IRONIC_NODES[2].uuid,
-            update_patch_test
-        )
-
-        ironic_client.node.update.assert_any_call(
-            POOL_OF_STUB_IRONIC_NODES[2].uuid,
-            sp_patch_test
+            sp_patch_test + update_patch_test
         )
 
 if __name__ == '__main__':

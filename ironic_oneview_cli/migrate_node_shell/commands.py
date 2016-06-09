@@ -20,21 +20,21 @@ import sys
 
 from builtins import input
 
-from ironic_oneview_cli.facade import Facade
+from ironic_oneview_cli import common
+from ironic_oneview_cli import facade
 from ironic_oneview_cli.openstack.common import cliutils
 from ironic_oneview_cli import service_logging as logging
 
 LOG = logging.getLogger(__name__)
-NODE_MIGRATING_TO_DYNAMIC_ALLOCATION = 'Migrating to dynamic allocation'
 
 
 class NodeMigrator(object):
-    def __init__(self, facade):
-        self.facade = facade
+    def __init__(self, facade_cli):
+        self.facade = facade_cli
 
     def list_pre_allocation_nodes(self):
         pre_allocation_nodes = filter(
-            lambda x: x.driver.endswith('_oneview')
+            lambda x: x.driver in common.SUPPORTED_DRIVERS
             and x.driver_info.get('dynamic_allocation')
             in (None, False, 'False'),
             self.facade.get_ironic_node_list()
@@ -109,7 +109,7 @@ class NodeMigrator(object):
                 self.migrate_idle_node(node)
 
     def migrate_idle_node(self, node_to_migrate):
-        maintenance_reason = NODE_MIGRATING_TO_DYNAMIC_ALLOCATION
+        maintenance_reason = 'Migrating to dynamic allocation'
         add_dynamic_flag = [{'op': 'add',
                              'path': '/driver_info/dynamic_allocation',
                              'value': True}]
@@ -126,7 +126,7 @@ class NodeMigrator(object):
             )
         # NOTE(nicodemos): Ignore in case the operation fails because
         # there is not a server profile;
-        except AttributeError:
+        except ValueError:
             pass
         except Exception as e:
             print(e.message)
@@ -142,9 +142,11 @@ class NodeMigrator(object):
         )
 
     def migrate_node_with_instance(self, node_to_migrate):
-        add_dynamic_flag = [{'op': 'add',
-                             'path': '/driver_info/dynamic_allocation',
-                             'value': True}]
+        add_dynamic_flag = [
+            {'op': 'add',
+             'path': '/driver_info/dynamic_allocation',
+             'value': True}
+        ]
         add_applied_server_profile = [
             {'op': 'add',
              'path': '/driver_info/'
@@ -154,11 +156,7 @@ class NodeMigrator(object):
         ]
         self.facade.node_update(
             node_to_migrate.uuid,
-            add_applied_server_profile
-        )
-        self.facade.node_update(
-            node_to_migrate.uuid,
-            add_dynamic_flag
+            add_applied_server_profile + add_dynamic_flag
         )
 
 
@@ -191,50 +189,55 @@ def get_element_by_id(element_list, element_id):
         return None
 
 
+def is_entry_invalid(entries, objects_list):
+    for entry in entries:
+        element = get_element_by_id(objects_list, entry)
+        if element is None:
+            return True
+    return False
+
+
 @cliutils.arg(
     '--all',
     action='store_true',
     help="Migrate all pre-allocation nodes to dynamic allocation")
 @cliutils.arg(
-    '--node',
+    '--nodes',
     nargs='+',
-    help="UUID of the node you want to migrate.")
-@cliutils.arg(
-    '--detail',
-    dest='detail',
-    action='store_true',
-    default=False,
-    help="Show detailed information about the nodes.")
+    help="UUID of the nodes you want to migrate.")
 def do_migrate_to_dynamic(args):
     """Migrate nodes from pre-allocation to dynamic allocation model."""
 
-    node_migrator = NodeMigrator(Facade(args))
-
-    pre_allocation_nodes = node_migrator.list_pre_allocation_nodes()
-    nodes_allow_to_migrate = node_migrator.filter_nodes_by_state(
-        pre_allocation_nodes
-    )
-    nodes_oneview_fields = node_migrator.update_nodes_with_oneview_fields(
-        nodes_allow_to_migrate
-    )
+    node_migrator = NodeMigrator(facade.Facade(args))
 
     if args.all:
+        pre_allocation_nodes = \
+            node_migrator.list_pre_allocation_nodes()
+        nodes_allow_to_migrate = \
+            node_migrator.filter_nodes_by_state(
+                pre_allocation_nodes
+            )
+        nodes_oneview_fields = \
+            node_migrator.update_nodes_with_oneview_fields(
+                nodes_allow_to_migrate
+            )
         node_migrator.verify_nodes_with_instances_and_migrate(
             nodes_oneview_fields
         )
 
         print("All pre-allocation nodes migrated to dynamic allocation!\n")
-    elif args.node:
-        nodes_to_migrate = node_migrator.get_ironic_nodes_by_uuid(args.node)
-        nodes_filtered = node_migrator.filter_nodes_by_state(nodes_to_migrate)
-        nodes_with_server_profile_uri = \
+    elif args.nodes:
+        nodes_to_migrate = node_migrator.get_ironic_nodes_by_uuid(args.nodes)
+        nodes_allow_to_migrate = \
+            node_migrator.filter_nodes_by_state(nodes_to_migrate)
+        nodes_oneview_fields = \
             node_migrator.update_nodes_with_oneview_fields(
-                nodes_filtered
+                nodes_allow_to_migrate
             )
 
-        if nodes_with_server_profile_uri:
+        if nodes_oneview_fields:
             node_migrator.verify_nodes_with_instances_and_migrate(
-                nodes_with_server_profile_uri
+                nodes_oneview_fields
             )
 
             print('Migration complete.\n')
@@ -244,9 +247,20 @@ def do_migrate_to_dynamic(args):
         while migrate_another_node_flag:
             migrate_another_node_flag = False
 
+            pre_allocation_nodes = \
+                node_migrator.list_pre_allocation_nodes()
+            nodes_allow_to_migrate = \
+                node_migrator.filter_nodes_by_state(
+                    pre_allocation_nodes
+                )
+            nodes_oneview_fields = \
+                node_migrator.update_nodes_with_oneview_fields(
+                    nodes_allow_to_migrate
+                )
+
             assign_elements_with_new_id(nodes_oneview_fields)
-            pre_allocation_node_selected = None
-            while pre_allocation_node_selected is None:
+            invalid_pre_allocation_node = True
+            while invalid_pre_allocation_node:
                 input_id = print_prompt(
                     nodes_oneview_fields,
                     [
@@ -256,8 +270,9 @@ def do_migrate_to_dynamic(args):
                         'server_hardware_type_name',
                         'enclosure_group_name'
                     ],
-                    input_message="Enter the Id of the pre-allocation Node "
-                    "you want to migrate. ('all' to migrate all nodes or "
+                    input_message="Enter a space separated list of "
+                    "pre-allocation nodes Id's you want to migrate. "
+                    "e.g. 1 2 3. ('all' to migrate all nodes or "
                     "'q' to quit)> ",
                     field_labels=[
                         'Id',
@@ -279,35 +294,45 @@ def do_migrate_to_dynamic(args):
                 if input_id == 'q':
                     sys.exit()
 
-                pre_allocation_node_selected = get_element_by_id(
-                    nodes_oneview_fields, input_id)
+                pre_allocation_nodes_selected = input_id.split()
+                invalid_pre_allocation_node = is_entry_invalid(
+                    pre_allocation_nodes_selected, nodes_oneview_fields
+                )
 
-            print("\nMigrating the following pre-allocation Node: ")
-            cliutils.print_list(
-                [pre_allocation_node_selected],
-                ['uuid', 'server_hardware_name',
-                 'server_hardware_type_name', 'enclosure_group_name'],
-                field_labels=[
-                    'Node UUID',
-                    'Server Hardware Name',
-                    'Server Hardware Type Name',
-                    'Enclosure Group Name'
-                ]
-            )
+                for node_id in pre_allocation_nodes_selected:
+                    node_selected = get_element_by_id(
+                        nodes_oneview_fields,
+                        node_id
+                    )
 
-            node_migrator.verify_nodes_with_instances_and_migrate(
-                [pre_allocation_node_selected]
-            )
+                    print("\nMigrating the following pre-allocation Node: ")
+                    cliutils.print_list(
+                        [node_selected],
+                        ['uuid', 'server_hardware_name',
+                         'server_hardware_type_name', 'enclosure_group_name'],
+                        field_labels=[
+                            'Node UUID',
+                            'Server Hardware Name',
+                            'Server Hardware Type Name',
+                            'Enclosure Group Name'
+                        ]
+                    )
 
-            print('Node migrated!\n')
+                    node_migrator.verify_nodes_with_instances_and_migrate(
+                        [node_selected]
+                    )
 
-        while True:
-            response = input('Would you like to migrate another Node? [y/N] ')
-            if response.lower() == 'n' or not response:
-                migrate_another_node_flag = False
-                break
-            elif response == 'y':
-                migrate_another_node_flag = True
-                break
-            else:
-                print('Invalid option')
+                    print('Node migrated!\n')
+
+            while True:
+                response = input(
+                    'Would you like to migrate another Node? [y/N] '
+                )
+                if response.lower() == 'n' or not response:
+                    migrate_another_node_flag = False
+                    break
+                elif response == 'y':
+                    migrate_another_node_flag = True
+                    break
+                else:
+                    print('Invalid option')

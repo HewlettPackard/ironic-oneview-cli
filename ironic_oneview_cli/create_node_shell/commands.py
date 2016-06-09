@@ -20,6 +20,7 @@ import sys
 
 from builtins import input
 
+from ironic_oneview_cli import common
 from ironic_oneview_cli import facade
 from ironic_oneview_cli.openstack.common import cliutils
 
@@ -31,7 +32,7 @@ class NodeCreator(object):
 
     def filter_not_enrolled_on_ironic(self, server_hardware_objects):
         nodes_server_hardware_uris = []
-        nodes = filter(lambda x: x.driver.endswith("_oneview"),
+        nodes = filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
                        self.facade.get_ironic_node_list())
         for node in nodes:
             node_server_hardware_uri = node.driver_info.get(
@@ -172,8 +173,6 @@ def is_entry_invalid(entries, objects_list):
     return False
 
 
-@cliutils.arg('--detail', dest='detail', action='store_true', default=False,
-              help="Show detailed information about the nodes.")
 def do_node_create(args):
     """Creates nodes based on available HP OneView Server Hardware."""
 

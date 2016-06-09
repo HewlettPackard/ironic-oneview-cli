@@ -19,11 +19,15 @@
 import mock
 import unittest
 
-from ironic_oneview_cli.create_flavor_shell.commands import FlavorCreator
-from ironic_oneview_cli.create_flavor_shell.objects import Flavor
-from ironic_oneview_cli.create_node_shell.commands import NodeCreator
+from ironic_oneview_cli.create_flavor_shell import \
+    commands as create_flavor_cmd
+from ironic_oneview_cli.create_flavor_shell import \
+    objects as flavor_objs
+from ironic_oneview_cli.create_node_shell import \
+    commands as create_node_cmd
 from ironic_oneview_cli import facade
-from ironic_oneview_cli.migrate_node_shell.commands import NodeMigrator
+from ironic_oneview_cli.migrate_node_shell import \
+    commands as migrate_node_cmd
 from ironic_oneview_cli.tests import stubs
 
 POOL_OF_STUB_IRONIC_NODES = [
@@ -198,14 +202,14 @@ POOL_OF_STUB_NOVA_FLAVORS = [
 ]
 
 
+@mock.patch('ironic_oneview_cli.facade.Facade')
 class UnitTestIronicOneviewCli(unittest.TestCase):
 
     @mock.patch.object(facade.Facade, 'get_ironic_node_list')
-    @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_list_server_hardware_not_enrolled(self,
-                                               mock_facade,
-                                               mock_ironic_node_list):
-        node_creator = NodeCreator(mock_facade)
+                                               mock_ironic_node_list,
+                                               mock_facade):
+        node_creator = create_node_cmd.NodeCreator(mock_facade)
         ironic_nodes = POOL_OF_STUB_IRONIC_NODES
         mock_ironic_node_list.return_value = ironic_nodes
         mock_facade.get_ironic_node_list = mock_ironic_node_list
@@ -218,11 +222,10 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         self.assertEqual(1, len(not_enrolled))
 
     @mock.patch.object(facade.Facade, 'get_ironic_node_list')
-    @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_list_pre_allocation_nodes(self,
                                        mock_facade,
                                        mock_ironic_node_list):
-        node_migrator = NodeMigrator(mock_facade)
+        node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
         ironic_nodes = POOL_OF_STUB_IRONIC_NODES
         mock_ironic_node_list.return_value = ironic_nodes
         mock_facade.get_ironic_node_list = mock_ironic_node_list
@@ -234,14 +237,13 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
     @mock.patch.object(facade.Facade, 'node_update')
     @mock.patch.object(facade.Facade, 'node_set_maintenance')
     @mock.patch.object(facade.Facade, 'delete_server_profile')
-    @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_migrate_idle_node(self,
-                               mock_facade,
                                mock_delete_server_profile,
                                mock_set_maintenance,
-                               mock_node_update):
+                               mock_node_update,
+                               mock_facade):
 
-        node_migrator = NodeMigrator(mock_facade)
+        node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
 
         mock_facade.node_set_maintenance = mock_set_maintenance
         mock_facade.node_update = mock_node_update
@@ -265,11 +267,10 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         self.assertEqual(2, mock_set_maintenance.call_count)
 
     @mock.patch.object(facade.Facade, 'node_update')
-    @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_migrate_node_with_instance(self,
-                                        mock_facade,
-                                        mock_node_update):
-        node_migrator = NodeMigrator(mock_facade)
+                                        mock_node_update,
+                                        mock_facade):
+        node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
         mock_facade.node_update = mock_node_update
 
         node = POOL_OF_STUB_IRONIC_NODES[0]
@@ -287,23 +288,18 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
 
         node_migrator.migrate_node_with_instance(node)
 
-        mock_node_update.assert_any_call(
-            node.uuid, patch_test_dynamic
-        )
-        mock_node_update.assert_any_call(
-            node.uuid, patch_test_sp_applied
+        mock_node_update.assert_called_with(
+            node.uuid, patch_test_sp_applied + patch_test_dynamic
         )
 
-    @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_generate_flavor_name(self, mock_facade):
 
-        flavor_creator = FlavorCreator(mock_facade)
+        flavor_creator = create_flavor_cmd.FlavorCreator(mock_facade)
         flavor_name = flavor_creator.get_flavor_name(
             POOL_OF_STUB_NOVA_FLAVORS[0]
         )
         self.assertEqual('32000MB-RAM_8_x64_120', flavor_name)
 
-    @mock.patch('ironic_oneview_cli.facade.Facade')
     def test_get_flavor_from_ironic_node(self, mock_facade):
         mock_facade.get_server_hardware.return_value = (
             POOL_OF_STUB_SERVER_HARDWARE[0]
@@ -319,7 +315,7 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         )
         node = POOL_OF_STUB_IRONIC_NODES[2]
 
-        flavor_creator = FlavorCreator(mock_facade)
+        flavor_creator = create_flavor_cmd.FlavorCreator(mock_facade)
         result_flavor = flavor_creator.get_flavor_from_ironic_node(
             12345, node
         )
@@ -340,7 +336,8 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
             '/rest/server-hardware/22222222-TTTT-BBBB-9999-AAAAAAAAAAA'
 
         self.assertEqual.__self__.maxDiff = None
-        self.assertEqual(result_flavor, Flavor(id=12345, info=flavor))
+        self.assertEqual(result_flavor,
+                         flavor_objs.Flavor(id=12345, info=flavor))
 
 
 if __name__ == '__main__':

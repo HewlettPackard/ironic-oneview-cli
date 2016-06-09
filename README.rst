@@ -175,13 +175,14 @@ migrate, those retrieved from Ironic.::
     +----+--------------------------------------+----------------------+---------------------------+--------------------+
 
 Once you have chosen a valid pre-allocation node ID, the tool will migrate the
-node to dynamic allocation model. Notice that you can type ``all`` to migrate
-all nodes shown at once.
+node to dynamic allocation model. Notice that you can migrate multiple nodes at
+once. For that, type multiple nodes ``Id`` separated by blank spaces or type
+``all`` to migrate all nodes shown at once.
 
 To migrate one or more specific pre-allocation node(s), without showing the
 table of pre-allocation nodes available, use the command::
 
-    $ ironic-oneview migrate-to-dynamic --node <node_uuid> [<node_uuid> ...]
+    $ ironic-oneview migrate-to-dynamic --nodes <node_uuid> [<node_uuid> ...]
 
 To migrate all available pre-allocation nodes at once, without showing the
 table of pre-allocation nodes available, use the command::

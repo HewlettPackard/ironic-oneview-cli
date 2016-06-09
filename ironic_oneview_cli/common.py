@@ -19,8 +19,13 @@
 from oslo_utils import importutils
 
 client = importutils.try_import('oneview_client.client')
-oneview_states = importutils.try_import('oneview_client.states')
-oneview_exceptions = importutils.try_import('oneview_client.exceptions')
+oneview_utils = importutils.try_import('oneview_client.utils')
+
+SUPPORTED_DRIVERS = [
+    'agent_pxe_oneview',
+    'iscsi_pxe_oneview',
+    'fake_oneview'
+]
 
 
 def get_oneview_client(manager_url, username, password,
