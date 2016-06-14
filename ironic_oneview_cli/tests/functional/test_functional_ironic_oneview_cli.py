@@ -513,14 +513,14 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             sp_patch_test + update_patch_test
         )
 
-    def test_migration_with_dyalloc_flag_and_maintenance_reason_not_none(self,
-                                                                         mock_oneview_client,
-                                                                         mock_ironic_client):
+    def test_migration_dyalloc_and_maintenance_reason_not_none(
+            self,
+            mock_oneview_client,
+            mock_ironic_client):
         ironic_client = mock_ironic_client.return_value
         ironic_client.node.get.return_value = (
             POOL_OF_STUB_IRONIC_NODES[4]
         )
-        oneview_client = mock_oneview_client.return_value
 
         self.args.nodes = '33333333-4444-8888-9999-11111111111'
 
@@ -534,15 +534,15 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             maint_reason=''
         )
 
-    def test_migration_with_dyalloc_flag_and_maintenance_reason_none(self,
-                                                                     mock_oneview_client,
-                                                                     mock_ironic_client):
+    def test_migration_dyalloc_and_maintenance_reason_none(
+            self,
+            mock_oneview_client,
+            mock_ironic_client):
 
         ironic_client = mock_ironic_client.return_value
         ironic_client.node.get.return_value = (
             POOL_OF_STUB_IRONIC_NODES[5]
         )
-        oneview_client = mock_oneview_client.return_value
 
         self.args.nodes = '33333333-4444-8888-9999-22222222222'
 
