@@ -26,6 +26,7 @@ from ironic_oneview_cli.openstack.common import cliutils
 from ironic_oneview_cli import service_logging as logging
 
 LOG = logging.getLogger(__name__)
+NODE_MIGRATING_TO_DYNAMIC_ALLOCATION = 'Migrating to dynamic allocation'
 
 
 class NodeMigrator(object):
@@ -36,7 +37,8 @@ class NodeMigrator(object):
         pre_allocation_nodes = filter(
             lambda x: x.driver in common.SUPPORTED_DRIVERS
             and x.driver_info.get('dynamic_allocation')
-            in (None, False, 'False'),
+            in (None, False, 'False')
+            or x.maintenance_reason == NODE_MIGRATING_TO_DYNAMIC_ALLOCATION,
             self.facade.get_ironic_node_list()
         )
 
@@ -90,16 +92,30 @@ class NodeMigrator(object):
         for node_uuid in list_nodes_uuid:
             try:
                 node = self.facade.get_ironic_node(node_uuid)
-                if node.driver_info.get('dynamic_allocation') is True:
-                    message = ("The following node is already in the "
-                               "dynamic allocation model: %s" % (node.uuid))
-                    LOG.warn(message)
-                else:
+                if self.is_node_in_dynamic_allocation(node) is False:
                     list_nodes_to_migrate.append(node)
             except Exception as e:
                 print(e.message)
 
         return list_nodes_to_migrate
+
+    def is_node_in_dynamic_allocation(self, node):
+        if node.driver_info.get('dynamic_allocation') \
+                in (None, False, 'False'):
+            return False
+        else:
+            if node.maintenance_reason == NODE_MIGRATING_TO_DYNAMIC_ALLOCATION:
+                self.facade.node_set_maintenance(
+                    node.uuid,
+                    False,
+                    ''
+                )
+
+            message = ("The following node is already in the "
+                       "dynamic allocation model: %s" % (node.uuid))
+            LOG.warn(message)
+
+            return True
 
     def verify_nodes_with_instances_and_migrate(self, nodes_to_migrate):
         for node in nodes_to_migrate:
@@ -109,7 +125,7 @@ class NodeMigrator(object):
                 self.migrate_idle_node(node)
 
     def migrate_idle_node(self, node_to_migrate):
-        maintenance_reason = 'Migrating to dynamic allocation'
+        maintenance_reason = NODE_MIGRATING_TO_DYNAMIC_ALLOCATION
         add_dynamic_flag = [{'op': 'add',
                              'path': '/driver_info/dynamic_allocation',
                              'value': True}]
@@ -142,22 +158,23 @@ class NodeMigrator(object):
         )
 
     def migrate_node_with_instance(self, node_to_migrate):
-        add_dynamic_flag = [
-            {'op': 'add',
-             'path': '/driver_info/dynamic_allocation',
-             'value': True}
-        ]
-        add_applied_server_profile = [
-            {'op': 'add',
-             'path': '/driver_info/'
-                     'applied_server_profile_uri',
-             'value':
-                     node_to_migrate.server_profile_uri}
-        ]
-        self.facade.node_update(
-            node_to_migrate.uuid,
-            add_applied_server_profile + add_dynamic_flag
-        )
+        if self.is_node_in_dynamic_allocation(node_to_migrate) is False:
+            add_dynamic_flag = [
+                {'op': 'add',
+                 'path': '/driver_info/dynamic_allocation',
+                 'value': True}
+            ]
+            add_applied_server_profile = [
+                {'op': 'add',
+                 'path': '/driver_info/'
+                         'applied_server_profile_uri',
+                 'value':
+                         node_to_migrate.server_profile_uri}
+            ]
+            self.facade.node_update(
+                node_to_migrate.uuid,
+                add_applied_server_profile + add_dynamic_flag
+            )
 
 
 def print_prompt(object_list, header_list, input_message=None,

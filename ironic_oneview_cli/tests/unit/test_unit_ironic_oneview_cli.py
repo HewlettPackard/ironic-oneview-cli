@@ -70,6 +70,7 @@ POOL_OF_STUB_IRONIC_NODES = [
                      'user': 'foo',
                      'password': 'bar'},
         properties={'num_cpu': 4},
+        instance_uuid='1111-2222-3333-4444-5555',
         name='fake-node-1',
         extra={}
     ),
@@ -273,7 +274,7 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
         mock_facade.node_update = mock_node_update
 
-        node = POOL_OF_STUB_IRONIC_NODES[0]
+        node = POOL_OF_STUB_IRONIC_NODES[1]
         node.server_profile_uri = \
             POOL_OF_STUB_SERVER_HARDWARE[0].server_profile_uri
 
