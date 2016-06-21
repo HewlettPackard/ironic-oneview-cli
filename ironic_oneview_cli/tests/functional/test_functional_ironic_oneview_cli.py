@@ -222,7 +222,6 @@ POOL_OF_STUB_IRONIC_NODES = [
                         "server_profile_template_uri:"
                         "/rest/server-profile-templates/1111112222233333"
                     },
-       # instance_uuid='1111-2222-3333-4444-5555',
         name='fake-node-3',
         extra={}
     )
@@ -596,7 +595,6 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         server_profile_uri = '/rest/server-profile/1111-2222'
         node.server_profile_uri = server_profile_uri
         POOL_OF_STUB_IRONIC_NODES[6] = node
-
 
         update_patch_test = [{'op': 'add',
                               'path': '/driver_info/dynamic_allocation',
