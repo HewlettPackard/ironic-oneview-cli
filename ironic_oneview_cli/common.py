@@ -28,9 +28,12 @@ SUPPORTED_DRIVERS = [
 ]
 
 
-def get_oneview_client(manager_url, username, password,
-                       allow_insecure_connections=False, tls_cacert_file='',
-                       polling_timeout=20):
+def get_oneview_client(
+    manager_url, username, password,
+    allow_insecure_connections=False, tls_cacert_file='',
+    polling_timeout=20, audit_enabled=False,
+    audit_map_file='', audit_output_file=''
+):
     """Generates an instance of the OneView client.
 
     Generates an instance of the OneView client using the imported
@@ -46,6 +49,7 @@ def get_oneview_client(manager_url, username, password,
         allow_insecure_connections=allow_insecure_connections,
         tls_cacert_file=tls_cacert_file,
         max_polling_attempts=polling_timeout,
+        # TODO(nicodemos): change hard code paths
         audit_enabled=True,
         audit_map_file='/opt/stack/oneview_audit_cases.conf',
         audit_output_file='/opt/stack/oneview_audit_output.json'

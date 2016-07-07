@@ -319,10 +319,8 @@ def do_node_pool(args):
     print("Retrieving Server Profile Templates from OneView...")
     available_hardware = node_creator.list_server_hardware_not_enrolled()
 
-    create_another_node_flag = True
-    while create_another_node_flag:
-        create_another_node_flag = False
-
+    valid_numbers_of_hardwares = True
+    while valid_numbers_of_hardwares:
         spt_list = node_creator.filter_templates_compatible_with(
             available_hardware
         )
@@ -398,9 +396,9 @@ def do_node_pool(args):
 
         s_hardware_ids_selected = int(input_id)
 
-        for node_number in range(s_hardware_ids_selected):
+        for node_index in range(s_hardware_ids_selected):
             server_hardware_selected = get_element_by_id(s_hardware_list,
-                                                         str(node_number + 1))
+                                                         str(node_index + 1))
             node_creator.create_node(
                 args, server_hardware_selected, template_selected
             )

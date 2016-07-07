@@ -423,6 +423,31 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
+    @mock.patch('ironic_oneview_cli.create_node_shell.commands.input')
+    def test_node_pool(self, mock_input,
+                       mock_oneview_client, mock_ironic_client):
+        number_of_nodes_to_create = 3
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.list.return_value = (
+            POOL_OF_STUB_SERVER_HARDWARE
+        )
+
+        oneview_client.server_profile_template.list.return_value = (
+            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        )
+        spt_index = 0
+        mock_input.side_effect = [
+            str(spt_index + 1),
+            str(number_of_nodes_to_create),
+        ]
+
+        create_node_cmd.do_node_pool(self.args)
+
+        ironic_client = mock_ironic_client.return_value
+        self.assertEqual(
+            number_of_nodes_to_create, ironic_client.node.create.call_count
+        )
+
     @mock.patch('ironic_oneview_cli.create_flavor_shell.commands.input')
     @mock.patch('ironic_oneview_cli.openstack_client.get_nova_client')
     def test_flavor_creation(self, mock_nova_client, mock_input,
