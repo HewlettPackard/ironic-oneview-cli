@@ -45,6 +45,9 @@ def get_oneview_client(manager_url, username, password,
         password=password,
         allow_insecure_connections=allow_insecure_connections,
         tls_cacert_file=tls_cacert_file,
-        max_polling_attempts=polling_timeout
+        max_polling_attempts=polling_timeout,
+        audit_enabled=True,
+        audit_map_file='/opt/stack/oneview_audit_cases.conf',
+        audit_output_file='/opt/stack/oneview_audit_output.json'
     )
     return oneview_client
