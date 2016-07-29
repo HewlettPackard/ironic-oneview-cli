@@ -81,6 +81,8 @@ class Facade(object):
         return self.oneview_client.server_profile_template.get(uuid)
 
     def get_enclosure_group(self, uri):
+        if uri is None:
+            return None
         uuid = common.oneview_utils.get_uuid_from_uri(uri)
         return self.oneview_client.enclosure_group.get(uuid)
 
