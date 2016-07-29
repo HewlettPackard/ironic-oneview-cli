@@ -33,6 +33,8 @@ from ironic_oneview_cli.create_node_shell import commands \
     as node_create_commands
 from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
+from ironic_oneview_cli.migrate_node_shell import commands \
+    as node_migrate_commands
 from ironic_oneview_cli.openstack.common._i18n import _
 from ironic_oneview_cli.openstack.common import cliutils
 
@@ -42,6 +44,7 @@ VERSION = '0.0.3'
 COMMAND_MODULES = [
     node_create_commands,
     flavor_create_commands,
+    node_migrate_commands,
     genrc_commands
 ]
 
