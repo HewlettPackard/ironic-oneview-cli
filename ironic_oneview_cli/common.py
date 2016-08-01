@@ -49,9 +49,8 @@ def get_oneview_client(
         allow_insecure_connections=allow_insecure_connections,
         tls_cacert_file=tls_cacert_file,
         max_polling_attempts=polling_timeout,
-        # TODO(nicodemos): change hard code paths
-        audit_enabled=True,
-        audit_map_file='/opt/stack/oneview_audit_cases.conf',
-        audit_output_file='/opt/stack/oneview_audit_output.json'
+        audit_enabled=audit_enabled,
+        audit_map_file=audit_map_file,
+        audit_output_file=audit_output_file
     )
     return oneview_client

@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-#
 # Copyright 2015 Hewlett-Packard Development Company, L.P.
 # Copyright 2015 Universidade Federal de Campina Grande
 # All Rights Reserved.
@@ -321,6 +319,8 @@ def do_node_pool(args):
 
     valid_numbers_of_hardwares = True
     while valid_numbers_of_hardwares:
+        valid_numbers_of_hardwares = False
+
         spt_list = node_creator.filter_templates_compatible_with(
             available_hardware
         )

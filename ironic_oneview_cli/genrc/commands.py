@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-#
 # Copyright 2015 Hewlett-Packard Development Company, L.P.
 # Copyright 2015 Universidade Federal de Campina Grande
 # All Rights Reserved.
@@ -61,6 +59,9 @@ def do_genrc(args):
     username = input("HP OneView username: ")
     cacert = input("HP OneView cacert file path "
                    "(only for secure connections): ")
+    audit = input("Enable OneView Audit: ")
+    audit_map_file = input("OneView Audit input file path: ")
+    audit_output_file = input("OneView Audit output file path: ")
 
     # OpenStack
 
@@ -86,6 +87,9 @@ def do_genrc(args):
     ironic_oneviewrc['OS_IRONIC_DEPLOY_KERNEL_UUID'] = ironic_deploy_kernel
     ironic_oneviewrc['OS_IRONIC_DEPLOY_RAMDISK_UUID'] = ironic_deploy_ramdisk
     ironic_oneviewrc['OS_IRONIC_NODE_DRIVER'] = ironic_driver
+    ironic_oneviewrc['OV_AUDIT'] = audit
+    ironic_oneviewrc['OV_AUDIT_INPUT'] = audit_map_file
+    ironic_oneviewrc['OV_AUDIT_OUTPUT'] = audit_output_file
 
     # Create ironic-oneviewrc.sh
 

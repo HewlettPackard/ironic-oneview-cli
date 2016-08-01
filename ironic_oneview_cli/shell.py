@@ -31,6 +31,8 @@ from ironic_oneview_cli.create_flavor_shell import commands \
     as flavor_create_commands
 from ironic_oneview_cli.create_node_shell import commands \
     as node_create_commands
+from ironic_oneview_cli.delete_node_shell import commands \
+    as node_delete_commands
 from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.migrate_node_shell import commands \
@@ -45,6 +47,7 @@ COMMAND_MODULES = [
     node_create_commands,
     flavor_create_commands,
     node_migrate_commands,
+    node_delete_commands,
     genrc_commands
 ]
 
@@ -161,6 +164,32 @@ class IronicOneView(object):
                                  'Defaults to env[OV_CACERT]')
 
         parser.add_argument('--ov_cacert',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-audit',
+                            default=cliutils.env('OV_AUDIT'),
+                            help='OneView audit. '
+                                 'Defaults to env[OV_AUDIT]')
+
+        parser.add_argument('--ov_audit',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-audit-input',
+                            metavar='<ov-audit-input-file>',
+                            default=cliutils.env('OV_AUDIT_INPUT'),
+                            help='Path to OneView audit input file. '
+                                 'Defaults to env[OV_AUDIT_INPUT]')
+
+        parser.add_argument('--ov_audit_input',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-audit-output',
+                            metavar='<ov-audit-output-file>',
+                            default=cliutils.env('OV_AUDIT_OUTPUT'),
+                            help='Path to OneView audit output file. '
+                                 'Defaults to env[OV_AUDIT_OUTPUT]')
+
+        parser.add_argument('--ov_audit_output',
                             help=argparse.SUPPRESS)
 
         # OpenStack Images arguments

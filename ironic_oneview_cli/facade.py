@@ -30,7 +30,10 @@ class Facade(object):
             username=args.ov_username,
             password=args.ov_password,
             allow_insecure_connections=args.insecure,
-            tls_cacert_file=args.ov_cacert
+            tls_cacert_file=args.ov_cacert,
+            audit_enabled=args.ov_audit,
+            audit_map_file=args.ov_audit_input,
+            audit_output_file=args.ov_audit_output
         )
 
     # =========================================================================
@@ -50,6 +53,11 @@ class Facade(object):
     def node_update(self, node_uuid, patch):
         return self.ironicclient.node.update(
             node_uuid, patch
+        )
+
+    def node_delete(self, node_uuid):
+        return self.ironicclient.node.delete(
+            node_uuid
         )
 
     def create_ironic_node(self, **attrs):
