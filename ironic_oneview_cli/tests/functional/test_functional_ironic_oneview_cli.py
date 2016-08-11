@@ -24,6 +24,8 @@ from ironic_oneview_cli.create_flavor_shell import \
     commands as create_flavor_cmd
 from ironic_oneview_cli.create_node_shell import \
     commands as create_node_cmd
+from ironic_oneview_cli.delete_node_shell import \
+    commands as delete_node_cmd
 from ironic_oneview_cli.migrate_node_shell import \
     commands as migrate_node_cmd
 from ironic_oneview_cli.tests import stubs
@@ -430,14 +432,15 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
     def test_node_pool(self, mock_input,
                        mock_oneview_client, mock_ironic_client):
         number_of_nodes_to_create = 3
+
         oneview_client = mock_oneview_client.return_value
         oneview_client.server_hardware.list.return_value = (
             POOL_OF_STUB_SERVER_HARDWARE
         )
-
         oneview_client.server_profile_template.list.return_value = (
             POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
         )
+
         spt_index = 0
         mock_input.side_effect = [
             str(spt_index + 1),
@@ -650,6 +653,19 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             POOL_OF_STUB_IRONIC_NODES[6].uuid,
             update_patch_test
         )
+
+    @mock.patch('ironic_oneview_cli.delete_node_shell.commands.input')
+    def test_delete_node(self, mock_input,
+                         mock_oneview_client, mock_ironic_client):
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.list.return_value = POOL_OF_STUB_IRONIC_NODES
+
+        self.args.all = True
+        mock_input.side_effect = ['y']
+
+        delete_node_cmd.do_node_delete(self.args)
+
+        self.assertEqual(7, ironic_client.node.delete.call_count)
 
 
 if __name__ == '__main__':

@@ -14,6 +14,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from builtins import input
+
 from ironic_oneview_cli import facade
 from ironic_oneview_cli.openstack.common import cliutils
 
@@ -26,8 +28,10 @@ class NodeDelete(object):
     def delete_all_ironic_nodes(self):
         nodes = self.facade.get_ironic_node_list()
         for node in nodes:
-            node_uuid = node.uuid
-            self.facade.node_delete(node_uuid)
+            try:
+                self.facade.node_delete(node.uuid)
+            except Exception as e:
+                print(e.message)
 
 
 @cliutils.arg(
@@ -41,4 +45,15 @@ def do_node_delete(args):
     node_delete = NodeDelete(facade.Facade(args))
 
     if args.all:
-        node_delete.delete_all_ironic_nodes()
+        while True:
+            response = input('Do you really want to delete all nodes? [y/N] ')
+            if response.lower() == 'n' or not response:
+                break
+            elif response.lower() == 'y':
+                node_delete.delete_all_ironic_nodes()
+                print('Nodes deleted')
+                break
+            else:
+                print('Invalid option')
+    else:
+        print("Not implemented")
