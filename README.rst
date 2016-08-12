@@ -116,6 +116,12 @@ Notice that you can create multiple Ironic nodes at once. For that, type
 multiple ``Server Hardware`` IDs separated by blank spaces. The created Ironic
 nodes will be in the *enroll* provisioning state.
 
+Alternatively, you can create multiple nodes choosing only a valid
+``Server Profile Template`` and the number of nodes you want to create.
+For that, use the following command::
+
+    $ ironic-oneview node-create --multiple
+
 To list all nodes in Ironic, use the command::
 
     $ ironic node-list

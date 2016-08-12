@@ -372,6 +372,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                 STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid
             ),
             all=False,
+            multiple=False,
             nodes=None
         )
 
@@ -429,9 +430,10 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
 
     @mock.patch('ironic_oneview_cli.create_node_shell.commands.input')
-    def test_node_pool(self, mock_input,
-                       mock_oneview_client, mock_ironic_client):
+    def test_multiple_node_creation(self, mock_input,
+                                    mock_oneview_client, mock_ironic_client):
         number_of_nodes_to_create = 3
+        self.args.multiple = True
 
         oneview_client = mock_oneview_client.return_value
         oneview_client.server_hardware.list.return_value = (
@@ -445,9 +447,10 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         mock_input.side_effect = [
             str(spt_index + 1),
             str(number_of_nodes_to_create),
+            'n'
         ]
 
-        create_node_cmd.do_node_pool(self.args)
+        create_node_cmd.do_node_create(self.args)
 
         ironic_client = mock_ironic_client.return_value
         self.assertEqual(
