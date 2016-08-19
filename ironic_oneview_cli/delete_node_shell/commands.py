@@ -25,19 +25,32 @@ class NodeDelete(object):
     def __init__(self, facade_cli):
         self.facade = facade_cli
 
-    def delete_all_ironic_nodes(self):
+    def delete_ironic_nodes(self, number=None):
         nodes = self.facade.get_ironic_node_list()
-        for node in nodes:
-            try:
-                self.facade.node_delete(node.uuid)
-            except Exception as e:
-                print(e.message)
+        if number:
+            for n in range(number):
+                try:
+                    self.facade.node_delete(nodes[n].uuid)
+                except Exception as e:
+                    print(e.message)
+        else:
+            for node in nodes:
+                try:
+                    self.facade.node_delete(node.uuid)
+                except Exception as e:
+                    print(e.message)
 
 
 @cliutils.arg(
     '--all',
     action='store_true',
     help='Delete all ironic nodes'
+)
+@cliutils.arg(
+    '-n', '--number',
+    metavar='<number>',
+    type=int,
+    help='Delete multiple ironic nodes'
 )
 def do_node_delete(args):
     """Delete nodes in Ironic"""
@@ -50,10 +63,14 @@ def do_node_delete(args):
             if response.lower() == 'n' or not response:
                 break
             elif response.lower() == 'y':
-                node_delete.delete_all_ironic_nodes()
+                node_delete.delete_ironic_nodes()
                 print('Nodes deleted')
                 break
             else:
                 print('Invalid option')
+    elif args.number:
+        node_delete.delete_ironic_nodes(args.number)
+        print(('%(nodes_number)s nodes deleted') %
+              {'nodes_number': args.number})
     else:
         print("Not implemented")
