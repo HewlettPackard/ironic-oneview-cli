@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-#
 # Copyright 2016 Hewlett-Packard Development Company, L.P.
 # Copyright 2016 Universidade Federal de Campina Grande
 # All Rights Reserved.
@@ -19,15 +17,15 @@
 import mock
 import unittest
 
-from ironic_oneview_cli.create_flavor_shell import \
-    commands as create_flavor_cmd
-from ironic_oneview_cli.create_flavor_shell import \
-    objects as flavor_objs
-from ironic_oneview_cli.create_node_shell import \
-    commands as create_node_cmd
+from ironic_oneview_cli.create_flavor_shell import (
+    commands as create_flavor_cmd)
+from ironic_oneview_cli.create_flavor_shell import (
+    objects as flavor_objs)
+from ironic_oneview_cli.create_node_shell import (
+    commands as create_node_cmd)
 from ironic_oneview_cli import facade
-from ironic_oneview_cli.migrate_node_shell import \
-    commands as migrate_node_cmd
+from ironic_oneview_cli.migrate_node_shell import (
+    commands as migrate_node_cmd)
 from ironic_oneview_cli.tests import stubs
 
 POOL_OF_STUB_IRONIC_NODES = [
@@ -292,14 +290,6 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         mock_node_update.assert_called_with(
             node.uuid, patch_test_sp_applied + patch_test_dynamic
         )
-
-    def test_generate_flavor_name(self, mock_facade):
-
-        flavor_creator = create_flavor_cmd.FlavorCreator(mock_facade)
-        flavor_name = flavor_creator.get_flavor_name(
-            POOL_OF_STUB_NOVA_FLAVORS[0]
-        )
-        self.assertEqual('32000MB-RAM_8_x64_120', flavor_name)
 
     def test_get_flavor_from_ironic_node(self, mock_facade):
         mock_facade.get_server_hardware.return_value = (

@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-#
 # Copyright 2015 Hewlett-Packard Development Company, L.P.
 # Copyright 2015 Universidade Federal de Campina Grande
 # All Rights Reserved.
@@ -18,30 +16,15 @@
 
 import re
 
-from builtins import input
-
+from ironic_oneview_cli import common
 from ironic_oneview_cli.create_flavor_shell import objects
 from ironic_oneview_cli import facade
-from ironic_oneview_cli.openstack.common import cliutils
 
 
 class FlavorCreator(object):
 
     def __init__(self, facade):
         self.facade = facade
-
-    def get_flavor_name(self, flavor):
-        FLAVOR_NAME_TEMPLATE = "%sMB-RAM_%s_%s_%s"
-        return FLAVOR_NAME_TEMPLATE % (
-            flavor.ram_mb,
-            flavor.cpus,
-            flavor.cpu_arch,
-            flavor.disk)
-
-    def get_element_by_id(self, element_list, element_id):
-        for element in element_list:
-            if element.id == element_id:
-                return element
 
     def get_flavor_from_ironic_node(self, flavor_id, node):
         flavor = {}
@@ -104,14 +87,11 @@ class FlavorCreator(object):
             'disk': disk
         }
 
-        flavor = None
         try:
             flavor = self.facade.create_nova_flavor(**attrs)
             flavor.set_keys(extra_specs)
         except Exception as e:
-            print(e.message)
-
-        return flavor
+            raise e
 
 
 def do_flavor_create(args):
@@ -123,14 +103,13 @@ def do_flavor_create(args):
     """
 
     cli_facade = facade.Facade(args)
-    nodes = len(cli_facade.get_ironic_node_list())
+    flavor_creator = FlavorCreator(cli_facade)
+    nodes = cli_facade.get_ironic_node_list()
 
     if not nodes:
-        print("No Ironic nodes were found. Please, create a node to be used" +
+        print("No Ironic nodes were found. Please, create a node to be used"
               " as base for the Flavor.")
         return
-
-    flavor_creator = FlavorCreator(cli_facade)
 
     print("Retrieving possible configurations for Flavor creation...")
 
@@ -148,55 +127,61 @@ def do_flavor_create(args):
 
     flavor_list = set(flavor_list)
 
-    create_another_flavor_flag = True
-    while create_another_flavor_flag:
-        create_another_flavor_flag = False
-        cliutils.print_list(
+    while True:
+        input_id = common.print_prompt(
             flavor_list,
-            ['id', 'cpus', 'disk', 'ram_mb', 'server_profile_template_name',
-             'server_hardware_type_name', 'enclosure_group_name'],
-            field_labels=['Id', 'CPUs', 'Disk GB', 'Memory MB',
-                          'Server Profile Template', 'Server Hardware Type',
-                          'Enclosure Group Name'],
-            sortby_index=1)
-        flavor_id = input("Insert Flavor ID to add in OneView. Press 'q' to "
-                          "quit> ")
-
-        if flavor_id == "q":
+            [
+                'id',
+                'cpus',
+                'disk',
+                'ram_mb',
+                'server_profile_template_name',
+                'server_hardware_type_name',
+                'enclosure_group_name'
+            ],
+            "Insert Flavor ID to add in OneView. Press 'q' to quit> ",
+            [
+                'Id',
+                'CPUs',
+                'Disk GB',
+                'Memory MB',
+                'Server Profile Template',
+                'Server Hardware Type',
+                'Enclosure Group Name'
+            ],
+        )
+        if input_id == "q":
             break
 
-        if flavor_id.isdigit() is not True:
+        invalid_entry_id = common.is_entry_invalid(input_id, flavor_list)
+        if invalid_entry_id:
             print('Invalid Flavor ID. Please enter a valid ID.')
-            create_another_flavor_flag = True
             continue
 
-        flavor = flavor_creator.get_element_by_id(flavor_list, int(flavor_id))
-
-        if flavor is None:
-            print('Invalid Flavor ID. Please enter a valid ID.')
-            create_another_flavor_flag = True
-            continue
+        flavor = common.get_element_by_id(flavor_list, input_id)
 
         print("Listing chosen Flavor configuration...")
-
-        cliutils.print_list(
+        common.print_prompt(
             [flavor],
-            ['cpus', 'disk', 'ram_mb', 'server_profile_template_name',
-             'server_hardware_type_name', 'enclosure_group_name'],
-            field_labels=['CPUs', 'Disk GB', 'Memory MB',
-                          'Server Profile Template', 'Server Hardware Type',
-                          'Enclosure Group Name'],
-            sortby_index=2)
-        flavor_name_default = flavor_creator.get_flavor_name(flavor)
-        flavor_name = input(
-            "Insert a name for the Flavor [" +
-            flavor_name_default + "] (press 'q' to quit)> ")
+            [
+                'cpus',
+                'disk',
+                'ram_mb',
+                'server_profile_template_name',
+                'server_hardware_type_name',
+                'enclosure_group_name'
+            ],
+            field_labels=[
+                'CPUs',
+                'Disk GB',
+                'Memory MB',
+                'Server Profile Template',
+                'Server Hardware Type',
+                'Enclosure Group Name'
+            ]
+        )
 
-        if flavor_name == "q":
-            break
-
-        if len(flavor_name) == 0:
-            flavor_name = flavor_name_default
+        flavor_name = common.set_flavor_name(flavor)
 
         flavor = flavor_creator.create_flavor(
             flavor_name,
@@ -206,16 +191,9 @@ def do_flavor_create(args):
             flavor.extra_specs()
         )
 
-        if flavor:
-            print('Flavor created!\n')
+        print('Flavor created!\n')
 
-        while True:
-            response = input('Would you like to create another Flavor? [Y/n] ')
-            if response == 'n':
-                create_another_flavor_flag = False
-                break
-            elif response.lower() == 'y' or not response:
-                create_another_flavor_flag = True
-                break
-            else:
-                print('Invalid option')
+        message = 'Would you like to create another Node(s)? [y/N] '
+        response = common.approve_command_prompt(message)
+        if not response:
+            break

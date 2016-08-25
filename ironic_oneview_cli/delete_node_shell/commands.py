@@ -14,40 +14,35 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from builtins import input
-
+from ironic_oneview_cli import common
 from ironic_oneview_cli import facade
-from ironic_oneview_cli.openstack.common import cliutils
 
 
 class NodeDelete(object):
 
-    def __init__(self, facade_cli):
-        self.facade = facade_cli
+    def __init__(self, facade):
+        self.facade = facade
 
-    def delete_ironic_nodes(self, number=None):
+    def delete_ironic_nodes(self, number=0):
         nodes = self.facade.get_ironic_node_list()
-        if number:
-            for n in range(number):
-                try:
+        try:
+            if number:
+                for n in range(number):
                     self.facade.node_delete(nodes[n].uuid)
-                except Exception as e:
-                    print(e.message)
-        else:
-            for node in nodes:
-                try:
+            else:
+                for node in nodes:
                     self.facade.node_delete(node.uuid)
-                except Exception as e:
-                    print(e.message)
+        except Exception as e:
+            raise e
 
 
-@cliutils.arg(
+@common.arg(
     '--all',
     action='store_true',
     help='Delete all ironic nodes'
 )
-@cliutils.arg(
-    '-n', '--number',
+@common.arg(
+    'number',
     metavar='<number>',
     type=int,
     help='Delete multiple ironic nodes'
@@ -58,19 +53,11 @@ def do_node_delete(args):
     node_delete = NodeDelete(facade.Facade(args))
 
     if args.all:
-        while True:
-            response = input('Do you really want to delete all nodes? [y/N] ')
-            if response.lower() == 'n' or not response:
-                break
-            elif response.lower() == 'y':
-                node_delete.delete_ironic_nodes()
-                print('Nodes deleted')
-                break
-            else:
-                print('Invalid option')
-    elif args.number:
-        node_delete.delete_ironic_nodes(args.number)
-        print(('%(nodes_number)s nodes deleted') %
-              {'nodes_number': args.number})
+        message = '\nDo you really want to delete all nodes? [y/N] '
+        response = common.approve_command_prompt(message)
+        if response:
+            node_delete.delete_ironic_nodes()
+            print('\nNodes deleted!')
     else:
-        print("Not implemented")
+        node_delete.delete_ironic_nodes(args.number)
+        print('\nNodes deleted!')

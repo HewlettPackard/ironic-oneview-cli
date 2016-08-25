@@ -16,11 +16,8 @@
 
 import sys
 
-from builtins import input
-
 from ironic_oneview_cli import common
 from ironic_oneview_cli import facade
-from ironic_oneview_cli.openstack.common import cliutils
 
 
 class NodeCreator(object):
@@ -91,6 +88,17 @@ class NodeCreator(object):
 
         return spt_list
 
+    def get_server_hardware_list(self, server_profile_template):
+        selected_sht_uri = server_profile_template.server_hardware_type_uri
+        selected_eg_uri = server_profile_template.enclosure_group_uri
+
+        server_hardware_list = self.filter_server_hardware_not_enrolled(
+            server_hardware_type_uri=selected_sht_uri,
+            enclosure_group_uri=selected_eg_uri
+        )
+
+        return server_hardware_list
+
     def create_node(self, args, server_hardware, server_profile_template):
         # Here comes the infamous HACK of local_gb and cpu_arch
         server_hardware.local_gb = 120
@@ -125,93 +133,108 @@ class NodeCreator(object):
             }
         }
 
-        node = None
         try:
-            node = self.facade.create_ironic_node(**attrs)
+            self.facade.create_ironic_node(**attrs)
         except Exception as e:
-            print(e.message)
-
-        return node
+            raise e
 
 
-def print_prompt(object_list, header_list, input_message=None,
-                 field_labels=None):
-    cliutils.print_list(
-        object_list,
-        header_list,
-        mixed_case_fields=[],
-        field_labels=field_labels
-    )
-    if input_message is not None:
-        input_value = input(input_message)
-        return input_value
-
-
-def assign_elements_with_new_id(element_list):
-    counter = 1
-    for element in element_list:
-        element.id = counter
-        counter += 1
-
-
-def get_element_by_id(element_list, element_id):
-    try:
-        for element in element_list:
-            if element.id == int(element_id):
-                return element
-    except Exception:
-        return None
-
-
-def is_entry_invalid(entries, objects_list):
-    for entry in entries:
-        element = get_element_by_id(objects_list, entry)
-        if element is None:
-            return True
-    return False
-
-
-@cliutils.arg(
-    '-m', '--multiple',
-    action='store_true',
-    help='Creates n nodes based on a given '
-         'HP OneView Server Profile Template.')
-@cliutils.arg(
+@common.arg(
     '-n', '--number',
     metavar='<number>',
     type=int,
-    help='Create multiple ironic nodes without interation')
+    help='Create n nodes based on a given HP OneView Server Profile Template.')
+@common.arg(
+    '-spt', '--server-profile-template-name',
+    metavar='<spt_name>',
+    default=None,
+    help='Name of the HP OneView Server Profile Template.')
 def do_node_create(args):
     """Creates nodes based on available HP OneView Objects."""
 
     node_creator = NodeCreator(facade.Facade(args))
 
+    available_hardware = node_creator.list_server_hardware_not_enrolled()
+    spt_list = node_creator.filter_templates_compatible_with(
+        available_hardware
+    )
+    common.assign_elements_with_new_id(spt_list)
+
+    template_selected = common.get_element_by_name(
+        spt_list, args.server_profile_template_name
+    )
+
+    while template_selected is None:
+        input_id = common.print_prompt(
+            spt_list,
+            [
+                'id',
+                'name',
+                'enclosure_group_name',
+                'server_hardware_type_name'
+            ],
+            "Enter the id of the Server Profile Template you want to "
+            "use (Press 'q' to quit)> ",
+            [
+                'Id',
+                'Name',
+                'Enclosure Group Name',
+                'Server Hardware Type Name'
+            ]
+        )
+        if input_id == 'q':
+            sys.exit()
+
+        template_selected = common.get_element_by_id(
+            spt_list, input_id
+        )
+
+    print("\nYou choose the following Server Profile Template: ")
+    common.print_prompt(
+        [template_selected],
+        [
+            'name',
+            'enclosure_group_name',
+            'server_hardware_type_name'
+        ],
+        field_labels=[
+            'Name',
+            'Enclosure Group Name',
+            'Server Hardware Type Name'
+        ]
+    )
+
+    s_hardware_list = node_creator.get_server_hardware_list(
+        template_selected
+    )
+
+    common.assign_elements_with_new_id(s_hardware_list)
+
     if args.number:
-        available_hardware = node_creator.list_server_hardware_not_enrolled()
-
-        spt_list = node_creator.filter_templates_compatible_with(
-            available_hardware
+        print(("Creating %(number_of_nodes)s nodes with the specific "
+              "Server Hardware") % {'number_of_nodes': args.number})
+        common.print_prompt(
+            [s_hardware_list[0]],
+            [
+                'cpus',
+                'memory_mb',
+                'local_gb',
+                'enclosure_group_name',
+                'server_hardware_type_name'
+            ],
+            field_labels=[
+                'CPUs',
+                'Memory MB',
+                'Disk GB',
+                'Enclosure Group Name',
+                'Server Hardware Type Name'
+            ]
         )
-
-        assign_elements_with_new_id(spt_list)
-
-        template_selected = get_element_by_id(
-            spt_list, '1'
-        )
-
-        selected_sht_uri = template_selected.server_hardware_type_uri
-        selected_eg_uri = template_selected.enclosure_group_uri
-        s_hardware_list = node_creator.filter_server_hardware_not_enrolled(
-            server_hardware_type_uri=selected_sht_uri,
-            enclosure_group_uri=selected_eg_uri
-        )
-
-        assign_elements_with_new_id(s_hardware_list)
 
         for node_index in range(args.number):
-            node = get_element_by_id(
+            node = common.get_element_by_id(
                 s_hardware_list,
-                node_index + 1
+                str(node_index + 1)
             )
             if (node is None):
                 print(("Only %(node_index)s nodes created") %
@@ -221,204 +244,75 @@ def do_node_create(args):
                 node_creator.create_node(
                     args, node, template_selected
                 )
-        print('Nodes created!\n')
+
+        print('\nNodes created!')
+
     else:
-        create_another_node_flag = True
-        while create_another_node_flag:
-            create_another_node_flag = False
+        print('\nListing compatible Server Hardware objects...')
 
-            print("Retrieving Server Profile Templates from OneView...")
-            available_hardware = (
-                node_creator.list_server_hardware_not_enrolled()
-            )
-
-            spt_list = node_creator.filter_templates_compatible_with(
-                available_hardware
-            )
-
-            assign_elements_with_new_id(spt_list)
-
-            template_selected = None
-            while template_selected is None:
-                input_id = print_prompt(
-                    spt_list,
-                    [
-                        'id',
-                        'name',
-                        'enclosure_group_name',
-                        'server_hardware_type_name'
-                    ],
-                    input_message="Enter the id of the Server Profile "
-                    "Template you want to use. (Press 'q' to quit)> ",
-                    field_labels=[
-                        'Id',
-                        'Name',
-                        'Enclosure Group Name',
-                        'Server Hardware Type Name'
-                    ]
-                )
-                if input_id == 'q':
-                    sys.exit()
-                template_selected = get_element_by_id(
-                    spt_list, input_id
-                )
-
-            print("\nYou choose the following Server Profile Template: ")
-            print_prompt(
-                [template_selected],
-                ['name', 'enclosure_group_name', 'server_hardware_type_name'],
+        invalid_server_hardwares = True
+        while invalid_server_hardwares:
+            input_id = common.print_prompt(
+                s_hardware_list,
+                [
+                    'id',
+                    'name',
+                    'cpus',
+                    'memory_mb',
+                    'local_gb',
+                    'enclosure_group_name',
+                    'server_hardware_type_name'
+                ],
+                "Enter a space separated list of Server Hardware "
+                "ids you want to use, e.g. 1 2 3 4. ('q' to quit)> ",
                 field_labels=[
+                    'Id',
                     'Name',
+                    'CPUs',
+                    'Memory MB',
+                    'Disk GB',
                     'Enclosure Group Name',
                     'Server Hardware Type Name'
                 ]
             )
+            if input_id == 'q':
+                sys.exit()
 
-            print('\nListing compatible Server Hardware objects...')
+            s_hardware_ids_selected = input_id.split()
+            invalid_server_hardwares = common.is_entry_invalid(
+                s_hardware_ids_selected, s_hardware_list)
 
-            selected_sht_uri = template_selected.server_hardware_type_uri
-            selected_eg_uri = template_selected.enclosure_group_uri
-            s_hardware_list = node_creator.filter_server_hardware_not_enrolled(
-                server_hardware_type_uri=selected_sht_uri,
-                enclosure_group_uri=selected_eg_uri
+        for server_hardware_id in s_hardware_ids_selected:
+            server_hardware_selected = common.get_element_by_id(
+                s_hardware_list,
+                server_hardware_id
+            )
+            print(
+                '\nCreating a node to represent the following Server'
+                ' Hardware..'
+            )
+            common.print_prompt(
+                [server_hardware_selected],
+                [
+                    'name',
+                    'cpus',
+                    'memory_mb',
+                    'local_gb',
+                    'enclosure_group_name',
+                    'server_hardware_type_name'
+                ],
+                field_labels=[
+                    'Name',
+                    'CPUs',
+                    'Memory MB',
+                    'Local GB',
+                    'Server Group Name',
+                    'Server Hardware Type Name'
+                ]
             )
 
-            assign_elements_with_new_id(s_hardware_list)
+            node_creator.create_node(
+                args, server_hardware_selected, template_selected
+            )
 
-            if args.multiple:
-                number_of_nodes = None
-                while number_of_nodes is None:
-                    selected_sht_uri = (
-                        template_selected.server_hardware_type_uri
-                    )
-                    selected_eg_uri = template_selected.enclosure_group_uri
-                    s_hardware_list = (
-                        node_creator.filter_server_hardware_not_enrolled(
-                            server_hardware_type_uri=selected_sht_uri,
-                            enclosure_group_uri=selected_eg_uri
-                        )
-                    )
-
-                    assign_elements_with_new_id(s_hardware_list)
-
-                    input_id = print_prompt(
-                        [s_hardware_list[0]],
-                        ['cpus',
-                         'memory_mb',
-                         'local_gb',
-                         'enclosure_group_name',
-                         'server_hardware_type_name'
-                         ],
-                        "Enter the number of nodes you want to create "
-                        "with the specific Server Hardware, "
-                        "e.g. 100 500. ('q' to quit)> ",
-                        field_labels=[
-                            'CPUs',
-                            'Memory MB',
-                            'Disk GB',
-                            'Enclosure Group Name',
-                            'Server Hardware Type Name'
-                        ]
-                    )
-                    if input_id == 'q':
-                        sys.exit()
-
-                    try:
-                        number_of_nodes = int(input_id)
-                    except Exception:
-                        number_of_nodes = None
-
-                for node_index in range(number_of_nodes):
-                    node = get_element_by_id(
-                        s_hardware_list,
-                        str(node_index + 1)
-                    )
-                    if (node is None):
-                        print(("Only %(node_index)s nodes created") %
-                              {'node_index': node_index})
-                        break
-                    else:
-                        node_creator.create_node(
-                            args, node, template_selected
-                        )
-
-                print('Nodes created!\n')
-            else:
-                invalid_server_hardwares = True
-                while invalid_server_hardwares:
-                    input_id = print_prompt(
-                        s_hardware_list,
-                        ['id',
-                         'name',
-                         'cpus',
-                         'memory_mb',
-                         'local_gb',
-                         'enclosure_group_name',
-                         'server_hardware_type_name'
-                         ],
-                        "Enter a space separated list of Server Hardware "
-                        "ids you want to use, e.g. 1 2 3 4. ('q' to quit)> ",
-                        field_labels=[
-                            'Id',
-                            'Name',
-                            'CPUs',
-                            'Memory MB',
-                            'Disk GB',
-                            'Enclosure Group Name',
-                            'Server Hardware Type Name'
-                        ]
-                    )
-                    if input_id == 'q':
-                        sys.exit()
-                    s_hardware_ids_selected = input_id.split()
-                    invalid_server_hardwares = is_entry_invalid(
-                        s_hardware_ids_selected, s_hardware_list)
-
-                for server_hardware_id in s_hardware_ids_selected:
-                    server_hardware_selected = get_element_by_id(
-                        s_hardware_list,
-                        server_hardware_id
-                    )
-                    print(
-                        '\nCreating a node to represent the following Server'
-                        ' Hardware..'
-                    )
-                    print_prompt(
-                        object_list=[server_hardware_selected],
-                        header_list=[
-                            'name',
-                            'cpus',
-                            'memory_mb',
-                            'local_gb',
-                            'enclosure_group_name',
-                            'server_hardware_type_name'
-                        ],
-                        field_labels=[
-                            'Name',
-                            'CPUs',
-                            'Memory MB',
-                            'Local GB',
-                            'Server Group Name',
-                            'Server Hardware Type Name'
-                        ]
-                    )
-
-                    node = node_creator.create_node(
-                        args, server_hardware_selected, template_selected
-                    )
-
-                    if node:
-                        print('Node created!\n')
-
-            while True:
-                response = input(
-                    'Would you like to create another Node(s)? [y/N] '
-                )
-                if response.lower() == 'n' or not response:
-                    create_another_node_flag = False
-                    break
-                elif response.lower() == 'y':
-                    create_another_node_flag = True
-                    break
-                else:
-                    print('Invalid option')
+            print('\nNode created!')
