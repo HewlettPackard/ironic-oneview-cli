@@ -23,7 +23,7 @@ class NodeDelete(object):
     def __init__(self, facade):
         self.facade = facade
 
-    def delete_ironic_nodes(self, number=0):
+    def delete_ironic_nodes(self, number=None):
         nodes = self.facade.get_ironic_node_list()
         try:
             if number:
@@ -42,8 +42,7 @@ class NodeDelete(object):
     help='Delete all ironic nodes'
 )
 @common.arg(
-    'number',
-    metavar='<number>',
+    '-n', '--number',
     type=int,
     help='Delete multiple ironic nodes'
 )
@@ -58,6 +57,8 @@ def do_node_delete(args):
         if response:
             node_delete.delete_ironic_nodes()
             print('\nNodes deleted!')
-    else:
+    elif args.number:
         node_delete.delete_ironic_nodes(args.number)
         print('\nNodes deleted!')
+    else:
+        print('\nNot implemented')

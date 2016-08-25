@@ -28,7 +28,6 @@ from ironic_oneview_cli.migrate_node_shell import (
     commands as migrate_node_cmd)
 from ironic_oneview_cli.tests import stubs
 
-
 POOL_OF_STUB_IRONIC_NODES = [
     stubs.StubIronicNode(
         id=1,

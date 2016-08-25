@@ -19,6 +19,8 @@ allocation model [1]_ [2]_.
    If you still want to use the deprecated pre-allocation model instead, use
    version 0.0.2 of this tool.
 
+----
+
 For more information on *HP OneView* entities, see [3]_.
 
 Installation
@@ -98,11 +100,8 @@ retrieved from HP OneView appliance.::
     +----+------------------------+----------------------+---------------------------+
 
 Once you have chosen a valid ``Server Profile Template``, the tool lists the
-available ``Server Hardware`` that match the chosen ``Server Profile
-Template``.
-
-Choose a ``Server Hardware`` to be used as base to the
-Ironic node you are creating.::
+available ``Server Hardware`` that match the chosen ``Server Profile Template``.
+Choose a ``Server Hardware`` to be used as base to the Ironic node you are creating.::
 
     Listing compatible Server Hardware objects...
     +----+-----------------+------+-----------+----------+----------------------+---------------------------+
@@ -116,11 +115,24 @@ Notice that you can create multiple Ironic nodes at once. For that, type
 multiple ``Server Hardware`` IDs separated by blank spaces. The created Ironic
 nodes will be in the *enroll* provisioning state.
 
-Alternatively, you can create multiple nodes choosing only a valid
-``Server Profile Template`` and the number of nodes you want to create.
+----
+
+Alternatively, you can set a ``Server Profile Template`` through command
+line and the tool prompt the list of ``Server Hardware`` to be used.
 For that, use the following command::
 
-    $ ironic-oneview node-create --multiple
+    $ ironic-oneview node-create --server-profile-template-name <spt_name>
+
+Or set the number of nodes you want to create and the tool will show
+the list of ``Server Profile Template`` to be chosen. For that, use
+the following command::
+
+    $ ironic-oneview node-create --number <number>
+
+.. note::
+   You can use both arguments at once.
+
+----
 
 To list all nodes in Ironic, use the command::
 
@@ -150,6 +162,8 @@ to available Ironic nodes.::
 
 After choosing a valid configuration ID, you'll be prompted to name the new
 flavor. If you leave the field blank, a default name will be used.
+
+----
 
 To list all flavors in Nova, use the command::
 
@@ -185,6 +199,8 @@ node to dynamic allocation model. Notice that you can migrate multiple nodes at
 once. For that, type multiple nodes ``Id`` separated by blank spaces or type
 ``all`` to migrate all nodes shown at once.
 
+----
+
 To migrate one or more specific pre-allocation node(s), without showing the
 table of pre-allocation nodes available, use the command::
 
@@ -194,6 +210,18 @@ To migrate all available pre-allocation nodes at once, without showing the
 table of pre-allocation nodes available, use the command::
 
     $ ironic-oneview migrate-to-dynamic --all
+
+Node delete
+^^^^^^^^^^^
+
+The tool also offers the option to delete a specific number of Ironic nodes.
+For that use the following command::
+
+    $ ironic-oneview node-delete --number <number>
+
+To delete all Ironic nodes, use the command::
+
+    $ ironic-oneview node-delete --all
 
 References
 ==========
