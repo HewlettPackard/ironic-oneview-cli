@@ -20,6 +20,7 @@ import re
 
 from builtins import input
 
+from ironic_oneview_cli import common
 from ironic_oneview_cli.create_flavor_shell import objects
 from ironic_oneview_cli import facade
 from ironic_oneview_cli.openstack.common import cliutils
@@ -29,6 +30,10 @@ class FlavorCreator(object):
 
     def __init__(self, facade):
         self.facade = facade
+
+    def get_oneview_node_list(self):
+        return filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
+                      self.facade.get_ironic_node_list())
 
     def get_flavor_name(self, flavor):
         FLAVOR_NAME_TEMPLATE = "%sMB-RAM_%s_%s_%s"
@@ -123,14 +128,13 @@ def do_flavor_create(args):
     """
 
     cli_facade = facade.Facade(args)
-    nodes = len(cli_facade.get_ironic_node_list())
+    flavor_creator = FlavorCreator(cli_facade)
+    nodes = flavor_creator.get_oneview_node_list()
 
     if not nodes:
         print("No Ironic nodes were found. Please, create a node to be used" +
               " as base for the Flavor.")
         return
-
-    flavor_creator = FlavorCreator(cli_facade)
 
     print("Retrieving possible configurations for Flavor creation...")
 
