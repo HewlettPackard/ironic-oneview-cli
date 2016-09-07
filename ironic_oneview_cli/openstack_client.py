@@ -17,95 +17,48 @@
 #    under the License.
 
 from ironicclient import client as ironic_client
-from keystoneclient.v2_0 import client as ksclient
+from keystoneauth1 import loading
+from keystoneauth1 import session
 from novaclient import client as nova_client
 
-from ironic_oneview_cli import service_logging as logging
-
-
-LOG = logging.getLogger(__name__)
-
-IRONIC_API_VERSION = '1.11'
-
-
-# DEPRECATED: Waiting fix on bug
-# https://bugs.launchpad.net/python-ironicclient/+bug/1513481
-def get_keystone_client(**kwargs):
-    """Get an endpoint and auth token from Keystone.
-
-    :param kwargs: keyword args containing credentials:
-            * username: name of user
-            * password: user's password
-            * auth_url: endpoint to authenticate against
-            * insecure: allow insecure SSL (no cert verification)
-            * tenant_{name|id}: name or ID of tenant
-    """
-    return ksclient.Client(username=kwargs.get('username'),
-                           password=kwargs.get('password'),
-                           tenant_id=kwargs.get('tenant_id'),
-                           tenant_name=kwargs.get('tenant_name'),
-                           auth_url=kwargs.get('auth_url'),
-                           insecure=kwargs.get('insecure'),
-                           cacert=kwargs.get('ca_cert'))
-
-
-def get_endpoint(client, **kwargs):
-    """Get an endpoint using the provided keystone client."""
-    attr = None
-    filter_value = None
-    if kwargs.get('region_name'):
-        attr = 'region'
-        filter_value = kwargs.get('region_name')
-    return client.service_catalog.url_for(
-        service_type=kwargs.get('service_type') or 'baremetal',
-        attr=attr,
-        filter_value=filter_value,
-        endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
-
-
-def _is_string_equals_true(string):
-    return string.lower() == 'true'
+IRONIC_API_VERSION = 1
+NOVA_API_VERSION = 2
 
 
 def get_ironic_client(args):
-    endpoint_type = 'publicURL'
-    service_type = 'baremetal'
-
-    ks_kwargs = {
-        'username': args.os_username,
-        'password': args.os_password,
-        'tenant_name': args.os_tenant_name or args.os_project_name,
-        'auth_url': args.os_auth_url,
-        'service_type': service_type,
-        'endpoint_type': endpoint_type,
-        'insecure': args.insecure,
-        'ca_cert': args.os_cacert,
-    }
-
-    ksclient = get_keystone_client(**ks_kwargs)
-    token = ksclient.auth_token
-    endpoint = get_endpoint(ksclient, **ks_kwargs)
-    auth_ref = ksclient.auth_ref
-
     cli_kwargs = {
-        'token': token,
-        'auth_ref': auth_ref,
+        'ironic_url': args.ironic_url,
+        'os_username': args.os_username,
+        'os_password': args.os_password,
+        'os_auth_url': args.os_auth_url,
+        'os_project_name': args.os_project_name,
+        'os_tenant_name': args.os_tenant_name,
+        'os_region_name': args.os_region_name,
+        'os_user_domain_id': (
+            args.os_user_domain_id or args.os_user_domain_name),
+        'os_project_domain_id': (
+            args.os_project_domain_id or args.os_project_domain_name),
+        'os_service_type': args.os_service_type,
+        'os_endpoint_type': args.os_endpoint_type,
+        'insecure': args.insecure,
+        'os_cacert': args.os_cacert,
+        'os_ironic_api_version': args.ironic_api_version
     }
 
-    cli_kwargs['insecure'] = args.insecure
-    cli_kwargs['ca_cert'] = args.os_cacert
-    cli_kwargs['os_ironic_api_version'] = IRONIC_API_VERSION
-
-    return ironic_client.Client(1, endpoint, **cli_kwargs)
+    return ironic_client.get_client(IRONIC_API_VERSION, **cli_kwargs)
 
 
 def get_nova_client(args):
-    nova = nova_client.Client(2,
-                              username=args.os_username,
-                              api_key=args.os_password,
-                              project_id=(args.os_project_name or
-                                          args.os_tenant_name),
-                              auth_url=args.os_auth_url,
-                              insecure=args.insecure,
-                              cacert=args.os_cacert)
+    loader = loading.get_plugin_loader('password')
+    auth = loader.load_from_options(
+        auth_url=args.os_auth_url,
+        username=args.os_username,
+        password=args.os_password,
+        user_domain_id=args.os_user_domain_id,
+        project_name=args.os_project_name or args.os_tenant_name,
+        project_domain_name=args.os_project_domain_id
+    )
+    sess = session.Session(auth=auth)
+    nova = nova_client.Client(NOVA_API_VERSION, session=sess)
+
     return nova

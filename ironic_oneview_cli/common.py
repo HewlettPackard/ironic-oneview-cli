@@ -28,9 +28,7 @@ SUPPORTED_DRIVERS = [
 ]
 
 
-def get_oneview_client(manager_url, username, password,
-                       allow_insecure_connections=False, tls_cacert_file='',
-                       polling_timeout=20):
+def get_oneview_client(args):
     """Generates an instance of the OneView client.
 
     Generates an instance of the OneView client using the imported
@@ -40,11 +38,11 @@ def get_oneview_client(manager_url, username, password,
     """
 
     oneview_client = client.ClientV2(
-        manager_url=manager_url,
-        username=username,
-        password=password,
-        allow_insecure_connections=allow_insecure_connections,
-        tls_cacert_file=tls_cacert_file,
-        max_polling_attempts=polling_timeout
+        manager_url=args.ov_auth_url,
+        username=args.ov_username,
+        password=args.ov_password,
+        allow_insecure_connections=args.insecure,
+        tls_cacert_file=args.ov_cacert,
+        max_polling_attempts=20
     )
     return oneview_client

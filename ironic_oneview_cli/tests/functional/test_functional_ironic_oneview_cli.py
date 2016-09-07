@@ -356,6 +356,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             os_username='my_name',
             os_password='secret',
             os_project_name='my_tenant',
+            os_user_domain_id='default',
+            os_project_domain_id='default',
             os_tenant_name='my_tenant',
             insecure=True,
             os_cacert='',

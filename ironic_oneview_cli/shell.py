@@ -121,6 +121,78 @@ class IronicOneView(object):
         parser.add_argument('--os_project_name',
                             help=argparse.SUPPRESS)
 
+        parser.add_argument('--ironic-url',
+                            default=cliutils.env('IRONIC_URL'),
+                            help='Ironic endpoint url'
+                                 'Defaults to env[IRONIC_URL]')
+
+        parser.add_argument('--ironic_url',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-region-name',
+                            default=cliutils.env('OS_REGION_NAME'),
+                            help='OpenStack region name. '
+                                 'Defaults to env[OS_REGION_NAME]')
+
+        parser.add_argument('--os_region_name',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ironic-api-version',
+                            default=cliutils.env(
+                                'IRONIC_API_VERSION', default='1.11'),
+                            help='Accepts 1.x (where "x" is microversion) '
+                                 'or "latest", Defaults to '
+                                 'env[IRONIC_API_VERSION] or 1')
+
+        parser.add_argument('--ironic_api_version',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-service-type',
+                            default=cliutils.env('OS_SERVICE_TYPE'),
+                            help='Defaults to env[OS_SERVICE_TYPE] or '
+                                 '"baremetal"')
+
+        parser.add_argument('--os_service_type',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-endpoint-type',
+                            default=cliutils.env('OS_ENDPOINT_TYPE'),
+                            help='Defaults to env[OS_ENDPOINT_TYPE] or '
+                                 '"publicURL"')
+
+        parser.add_argument('--os_endpoint_type',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-user-domain-id',
+                            default=cliutils.env('OS_USER_DOMAIN_ID'),
+                            help='OpenStack user domain id. '
+                                 'Defaults to env[OS_USER_DOMAIN_ID]')
+
+        parser.add_argument('--os_user_domain_id',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-user-domain-name',
+                            default=cliutils.env('OS_USER_DOMAIN_NAME'),
+                            help='Defaults to env[OS_USER_DOMAIN_NAME].')
+
+        parser.add_argument('--os_user_domain_name',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-project-domain-id',
+                            default=cliutils.env('OS_PROJECT_DOMAIN_ID'),
+                            help='OpenStack project domain id. '
+                                 'Defaults to env[OS_PROJECT_DOMAIN_ID]')
+
+        parser.add_argument('--os_project_domain_id',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-project-domain-name',
+                            default=cliutils.env('OS_PROJECT_DOMAIN_NAME'),
+                            help=_('Defaults to env[OS_PROJECT_DOMAIN_NAME].'))
+
+        parser.add_argument('--os_project_domain_name',
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('--os-auth-url',
                             default=cliutils.env('OS_AUTH_URL'),
                             help='OpenStack authentication URL. '
@@ -235,37 +307,35 @@ class IronicOneView(object):
             genrc_commands.do_genrc(args)
             return 0
 
-        if not args.os_username:
-            raise exceptions.CommandError(_("You must provide a username via "
-                                            "either --os-username or via "
-                                            "env[OS_USERNAME]"))
+        if not (args.ironic_url or args.os_auth_url):
+            if not args.os_username:
+                raise exceptions.CommandError(
+                    _("You must provide a username via either "
+                      "--os-username or via env[OS_USERNAME]"))
+            if not args.os_password:
+                if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
+                    try:
+                        args.os_password = getpass.getpass(
+                            'OpenStack Password: '
+                        )
+                    except EOFError:
+                        pass
+            if not args.os_password:
+                raise exceptions.CommandError(
+                    _("You must provide a password via either "
+                      "--os-password, env[OS_PASSWORD], or prompted response"))
 
-        if not (args.os_tenant_name or args.os_project_name):
-            raise exceptions.CommandError(
-                _("You must provide a tenant name or "
-                  "project name via --os-tenant-name or --os-project-name, "
-                  "env[OS_TENANT_NAME] or env[OS_PROJECT_NAME]. You may "
-                  "use os-tenant and os-project interchangeably."))
+            if not (args.os_tenant_name or args.os_project_name):
+                raise exceptions.CommandError(
+                    _("You must provide a tenant name or project name via "
+                      "--os-tenant-name or --os-project-name, "
+                      "env[OS_TENANT_NAME] or env[OS_PROJECT_NAME]. You may "
+                      "use os-tenant and os-project interchangeably."))
 
-        if not args.os_auth_url:
-            raise exceptions.CommandError(_("You must provide an auth url via "
-                                            "either --os-auth-url or via "
-                                            "env[OS_AUTH_URL]"))
-
-        if not args.os_password:
-            if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
-
-                try:
-                    args.os_password = getpass.getpass('OpenStack Password: ')
-
-                except EOFError:
-                    pass
-
-        if not args.os_password:
-            raise exceptions.CommandError(_("You must provide a password via "
-                                            "either --os-password, "
-                                            "env[OS_PASSWORD], "
-                                            "or prompted response"))
+            if not args.os_auth_url:
+                raise exceptions.CommandError(
+                    _("You must provide an auth url via either "
+                      "--os-auth-url or via env[OS_AUTH_URL]"))
 
         if not args.ov_username:
             raise exceptions.CommandError(_("You must provide a username via "
@@ -318,7 +388,11 @@ class IronicOneView(object):
             'os_username', 'os_password', 'os_tenant_name', 'os_project_name',
             'os_cacert', 'os_auth_url', 'ov_username', 'ov_password',
             'ov_auth_url', 'ov_cacert', 'insecure', 'os_ironic_node_driver',
-            'os_ironic_deploy_kernel_uuid', 'os_ironic_deploy_ramdisk_uuid'
+            'os_ironic_deploy_kernel_uuid', 'os_ironic_deploy_ramdisk_uuid',
+            'ironic_url', 'os_region_name', 'ironic_api_version',
+            'os_service_type', 'os_endpoint_type', 'os_user_domain_id',
+            'os_user_domain_name', 'os_project_domain_id',
+            'os_project_domain_name'
         )
 
         kwargs = {}
