@@ -107,8 +107,8 @@ def do_flavor_create(args):
     nodes = cli_facade.get_ironic_node_list()
 
     if not nodes:
-        print("No Ironic nodes were found. Please, create a node to be used"
-              " as base for the Flavor.")
+        print("No Ironic nodes running OneView drivers were found. "
+              "Please, create a node to be used as base for the Flavor.")
         return
 
     print("Retrieving possible configurations for Flavor creation...")
@@ -193,7 +193,7 @@ def do_flavor_create(args):
 
         print('Flavor created!\n')
 
-        message = 'Would you like to create another Node(s)? [y/N] '
+        message = 'Would you like to create another Flavor(s)? [y/N] '
         response = common.approve_command_prompt(message)
         if not response:
             break

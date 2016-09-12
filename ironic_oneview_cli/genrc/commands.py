@@ -66,8 +66,8 @@ def do_genrc(args):
                    "(only for secure connections): ")
     audit_enabled = input("Enable OneView Audit (y/N): ") or 'N'
     if audit_enabled.lower() == 'y':
-        audit_map_file = input("OneView Audit input file path: ")
-        audit_output_file = input("OneView Audit output file path: ")
+        audit_map_file = input("OneView Audit input file absolute path: ")
+        audit_output_file = input("OneView Audit output file absolute path: ")
 
     # OpenStack
 

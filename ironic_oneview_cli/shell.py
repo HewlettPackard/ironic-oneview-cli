@@ -38,7 +38,7 @@ from ironic_oneview_cli.migrate_node_shell import (
     commands as node_migrate_commands)
 from ironic_oneview_cli.openstack.common._i18n import _
 
-VERSION = '0.0.3'
+VERSION = '0.4.0'
 
 COMMAND_MODULES = [
     node_create_commands,
