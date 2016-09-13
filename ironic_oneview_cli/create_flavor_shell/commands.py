@@ -88,8 +88,7 @@ class FlavorCreator(object):
 
         return objects.Flavor(id=flavor_id, info=flavor)
 
-    def get_flavor_list(self):
-        nodes = self.facade.get_ironic_node_list()
+    def get_flavor_list(self, nodes):
         flavors = []
 
         id_counter = 1
@@ -138,7 +137,7 @@ def do_flavor_create(args):
 
     print("Retrieving possible configurations for Flavor creation...")
 
-    flavor_list = flavor_creator.get_flavor_list()
+    flavor_list = flavor_creator.get_flavor_list(nodes)
     flavor_list = list(flavor_list)
     for j in range(1, len(flavor_list)):
         key = flavor_list[j]
