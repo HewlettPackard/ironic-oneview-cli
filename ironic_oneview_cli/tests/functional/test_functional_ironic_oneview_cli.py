@@ -352,6 +352,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             ov_username='ov-user',
             ov_password='secret',
             ov_cacert='',
+            ov_max_polling_attempts=12,
             os_auth_url='http://something',
             os_username='my_name',
             os_password='secret',

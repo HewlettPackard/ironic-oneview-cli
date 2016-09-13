@@ -31,7 +31,7 @@ class FlavorCreator(object):
     def __init__(self, facade):
         self.facade = facade
 
-    def get_oneview_node_list(self):
+    def get_nodes_using_oneview_drivers(self):
         return filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
                       self.facade.get_ironic_node_list())
 
@@ -129,7 +129,7 @@ def do_flavor_create(args):
 
     cli_facade = facade.Facade(args)
     flavor_creator = FlavorCreator(cli_facade)
-    nodes = flavor_creator.get_oneview_node_list()
+    nodes = flavor_creator.get_nodes_using_oneview_drivers()
 
     if not nodes:
         print("No Ironic nodes were found. Please, create a node to be used" +

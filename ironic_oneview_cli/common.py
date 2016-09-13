@@ -43,6 +43,7 @@ def get_oneview_client(args):
         password=args.ov_password,
         allow_insecure_connections=args.insecure,
         tls_cacert_file=args.ov_cacert,
-        max_polling_attempts=20
+        max_polling_attempts=args.ov_max_polling_attempts
     )
+
     return oneview_client

@@ -235,6 +235,15 @@ class IronicOneView(object):
         parser.add_argument('--ov_cacert',
                             help=argparse.SUPPRESS)
 
+        parser.add_argument('--ov-max-polling-attempts', type=int,
+                            default=cliutils.env(
+                                'OV_MAX_POLLING_ATTEMPTS', default=12),
+                            help='Max connection retries on OneView. '
+                                 'Defaults to env[OV_MAX_POLLING_ATTEMPTS]')
+
+        parser.add_argument('--ov_max_polling_attempts',
+                            help=argparse.SUPPRESS)
+
         # OpenStack Images arguments
         parser.add_argument('--os-ironic-node-driver',
                             default=cliutils.env('OS_IRONIC_NODE_DRIVER'),
@@ -387,11 +396,11 @@ class IronicOneView(object):
         client_args = (
             'os_username', 'os_password', 'os_tenant_name', 'os_project_name',
             'os_cacert', 'os_auth_url', 'ov_username', 'ov_password',
-            'ov_auth_url', 'ov_cacert', 'insecure', 'os_ironic_node_driver',
-            'os_ironic_deploy_kernel_uuid', 'os_ironic_deploy_ramdisk_uuid',
-            'ironic_url', 'os_region_name', 'ironic_api_version',
-            'os_service_type', 'os_endpoint_type', 'os_user_domain_id',
-            'os_user_domain_name', 'os_project_domain_id',
+            'ov_auth_url', 'ov_cacert', 'ov_max_polling_attempts', 'insecure',
+            'os_ironic_node_driver', 'os_ironic_deploy_kernel_uuid',
+            'os_ironic_deploy_ramdisk_uuid', 'ironic_url', 'os_region_name',
+            'ironic_api_version', 'os_service_type', 'os_endpoint_type',
+            'os_user_domain_id', 'os_user_domain_name', 'os_project_domain_id',
             'os_project_domain_name'
         )
 
