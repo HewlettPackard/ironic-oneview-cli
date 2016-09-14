@@ -25,13 +25,7 @@ class Facade(object):
     def __init__(self, args):
         self.ironicclient = openstack_client.get_ironic_client(args)
         self.novaclient = openstack_client.get_nova_client(args)
-        self.oneview_client = common.get_oneview_client(
-            manager_url=args.ov_auth_url,
-            username=args.ov_username,
-            password=args.ov_password,
-            allow_insecure_connections=args.insecure,
-            tls_cacert_file=args.ov_cacert
-        )
+        self.oneview_client = common.get_oneview_client(args)
 
     # =========================================================================
     # Ironic actions

@@ -61,6 +61,8 @@ def do_genrc(args):
     username = input("HP OneView username: ")
     cacert = input("HP OneView cacert file path "
                    "(only for secure connections): ")
+    polling_attempts = input("Max connection retries to check "
+                             "changes on OneView [Default=12]: ")
 
     # OpenStack
 
@@ -83,6 +85,7 @@ def do_genrc(args):
     ironic_oneviewrc['OV_AUTH_URL'] = auth_url
     ironic_oneviewrc['OV_USERNAME'] = username
     ironic_oneviewrc['OV_CACERT'] = cacert
+    ironic_oneviewrc['OV_MAX_POLLING_ATTEMPTS'] = polling_attempts
     ironic_oneviewrc['OS_IRONIC_DEPLOY_KERNEL_UUID'] = ironic_deploy_kernel
     ironic_oneviewrc['OS_IRONIC_DEPLOY_RAMDISK_UUID'] = ironic_deploy_ramdisk
     ironic_oneviewrc['OS_IRONIC_NODE_DRIVER'] = ironic_driver

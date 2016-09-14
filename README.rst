@@ -18,6 +18,8 @@ allocation model [1]_ [2]_.
 .. note::
    If you still want to use the deprecated pre-allocation model instead, use
    version 0.0.2 of this tool.
+.. note::
+   This tool works with OpenStack Identity API v2.0 and v3.
 
 For more information on *HP OneView* entities, see [3]_.
 
