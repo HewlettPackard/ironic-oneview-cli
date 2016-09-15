@@ -23,16 +23,7 @@ class Facade(object):
     def __init__(self, args):
         self.ironicclient = openstack_client.get_ironic_client(args)
         self.novaclient = openstack_client.get_nova_client(args)
-        self.oneview_client = common.get_oneview_client(
-            manager_url=args.ov_auth_url,
-            username=args.ov_username,
-            password=args.ov_password,
-            allow_insecure_connections=args.insecure,
-            tls_cacert_file=args.ov_cacert,
-            audit_enabled=args.ov_audit,
-            audit_map_file=args.ov_audit_input,
-            audit_output_file=args.ov_audit_output
-        )
+        self.oneview_client = common.get_oneview_client(args)
 
     # =========================================================================
     # Ironic actions
@@ -87,6 +78,8 @@ class Facade(object):
         return self.oneview_client.server_profile_template.get(uuid)
 
     def get_enclosure_group(self, uri):
+        if uri is None:
+            return None
         uuid = common.oneview_utils.get_uuid_from_uri(uri)
         return self.oneview_client.enclosure_group.get(uuid)
 

@@ -26,6 +26,10 @@ class FlavorCreator(object):
     def __init__(self, facade):
         self.facade = facade
 
+    def get_nodes_using_oneview_drivers(self):
+        return filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
+                      self.facade.get_ironic_node_list())
+
     def get_flavor_from_ironic_node(self, flavor_id, node):
         flavor = {}
 
@@ -66,8 +70,7 @@ class FlavorCreator(object):
 
         return objects.Flavor(id=flavor_id, info=flavor)
 
-    def get_flavor_list(self):
-        nodes = self.facade.get_ironic_node_list()
+    def get_flavor_list(self, nodes):
         flavors = []
 
         id_counter = 1
@@ -104,7 +107,7 @@ def do_flavor_create(args):
 
     cli_facade = facade.Facade(args)
     flavor_creator = FlavorCreator(cli_facade)
-    nodes = cli_facade.get_ironic_node_list()
+    nodes = flavor_creator.get_nodes_using_oneview_drivers()
 
     if not nodes:
         print("No Ironic nodes running OneView drivers were found. "
@@ -113,7 +116,7 @@ def do_flavor_create(args):
 
     print("Retrieving possible configurations for Flavor creation...")
 
-    flavor_list = flavor_creator.get_flavor_list()
+    flavor_list = flavor_creator.get_flavor_list(nodes)
     flavor_list = list(flavor_list)
     for j in range(1, len(flavor_list)):
         key = flavor_list[j]

@@ -62,10 +62,14 @@ def do_genrc(args):
 
     auth_url = input("HP OneView URL: ")
     username = input("HP OneView username: ")
-    cacert = input("HP OneView cacert file path "
-                   "(only for secure connections): ")
-    audit_enabled = input("Enable OneView Audit (y/N): ") or 'N'
-    if audit_enabled.lower() == 'y':
+    cacert = input(
+        "HP OneView cacert file path (only for secure connections): ")
+    polling_attempts = input(
+        "Max connection retries to check changes on OneView [Default=12]: ")
+    audit_enabled = input("Enable OneView Audit (y/N): ")
+    audit_enabled = True if audit_enabled.lower() == 'y' else False
+
+    if audit_enabled:
         audit_map_file = input("OneView Audit input file absolute path: ")
         audit_output_file = input("OneView Audit output file absolute path: ")
 
@@ -90,11 +94,13 @@ def do_genrc(args):
     ironic_oneviewrc['OV_AUTH_URL'] = auth_url
     ironic_oneviewrc['OV_USERNAME'] = username
     ironic_oneviewrc['OV_CACERT'] = cacert
+    ironic_oneviewrc['OV_MAX_POLLING_ATTEMPTS'] = polling_attempts
     ironic_oneviewrc['OS_IRONIC_DEPLOY_KERNEL_UUID'] = ironic_deploy_kernel
     ironic_oneviewrc['OS_IRONIC_DEPLOY_RAMDISK_UUID'] = ironic_deploy_ramdisk
     ironic_oneviewrc['OS_IRONIC_NODE_DRIVER'] = ironic_driver
     ironic_oneviewrc['OV_AUDIT'] = audit_enabled
-    if audit_enabled.lower() == 'y':
+
+    if audit_enabled:
         ironic_oneviewrc['OV_AUDIT_INPUT'] = audit_map_file
         ironic_oneviewrc['OV_AUDIT_OUTPUT'] = audit_output_file
 
