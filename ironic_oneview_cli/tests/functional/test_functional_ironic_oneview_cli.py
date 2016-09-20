@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-#
 # Copyright 2015 Hewlett-Packard Development Company, L.P.
 # Copyright 2015 Universidade Federal de Campina Grande
 # All Rights Reserved.
@@ -20,14 +18,15 @@ import argparse
 import mock
 import unittest
 
-from ironic_oneview_cli.create_flavor_shell import \
-    commands as create_flavor_cmd
-from ironic_oneview_cli.create_node_shell import \
-    commands as create_node_cmd
-from ironic_oneview_cli.migrate_node_shell import \
-    commands as migrate_node_cmd
+from ironic_oneview_cli.create_flavor_shell import (
+    commands as create_flavor_cmd)
+from ironic_oneview_cli.create_node_shell import (
+    commands as create_node_cmd)
+from ironic_oneview_cli.delete_node_shell import (
+    commands as delete_node_cmd)
+from ironic_oneview_cli.migrate_node_shell import (
+    commands as migrate_node_cmd)
 from ironic_oneview_cli.tests import stubs
-
 
 POOL_OF_STUB_IRONIC_NODES = [
     stubs.StubIronicNode(
@@ -353,6 +352,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             ov_password='secret',
             ov_cacert='',
             ov_max_polling_attempts=12,
+            ov_audit=False,
+            ov_audit_input='',
+            ov_audit_output='',
             os_auth_url='http://something',
             os_username='my_name',
             os_password='secret',
@@ -370,12 +372,15 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                 STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid
             ),
             all=False,
+            server_profile_template_name=None,
+            number=None,
             nodes=None
         )
 
-    @mock.patch('ironic_oneview_cli.create_node_shell.commands.input')
-    def test_node_creation(self, mock_input,
-                           mock_oneview_client, mock_ironic_client):
+    @mock.patch('ironic_oneview_cli.common.input')
+    def test_node_creation_no_args(
+        self, mock_input, mock_oneview_client, mock_ironic_client
+    ):
         oneview_client = mock_oneview_client.return_value
         oneview_client.server_hardware.list.return_value = (
             POOL_OF_STUB_SERVER_HARDWARE
@@ -387,8 +392,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         sh_index = 0
         mock_input.side_effect = [
             str(spt_index + 1),
-            str(sh_index + 1),
-            'n'
+            str(sh_index + 1)
         ]
 
         create_node_cmd.do_node_create(self.args)
@@ -426,7 +430,149 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.create_flavor_shell.commands.input')
+    @mock.patch('ironic_oneview_cli.common.input')
+    def test_node_creation_number_argument(
+        self, mock_input, mock_oneview_client, mock_ironic_client
+    ):
+        self.args.number = 2
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.list.return_value = (
+            POOL_OF_STUB_SERVER_HARDWARE
+        )
+        oneview_client.server_profile_template.list.return_value = (
+            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        )
+
+        spt_index = 0
+        mock_input.side_effect = [
+            str(spt_index + 1),
+        ]
+
+        create_node_cmd.do_node_create(self.args)
+
+        ironic_client = mock_ironic_client.return_value
+        self.assertEqual(
+            self.args.number, ironic_client.node.create.call_count
+        )
+
+    @mock.patch('ironic_oneview_cli.common.input')
+    def test_node_creation_spt_argument(
+        self, mock_input, mock_oneview_client, mock_ironic_client
+    ):
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.list.return_value = (
+            POOL_OF_STUB_SERVER_HARDWARE
+        )
+        oneview_client.server_profile_template.list.return_value = (
+            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        )
+
+        self.args.server_profile_template_name = (
+            'TEMPLATETEMPLATETEMPLATE'
+        )
+
+        sh_index = 0
+        spt_index = 0
+        mock_input.side_effect = [
+            str(sh_index + 1),
+        ]
+
+        create_node_cmd.do_node_create(self.args)
+
+        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+
+        attrs = {
+            'driver': STUB_PARAMETERS.os_ironic_node_driver,
+            'driver_info': {
+                'dynamic_allocation': True,
+                'deploy_kernel': STUB_PARAMETERS.os_ironic_deploy_kernel_uuid,
+                'deploy_ramdisk':
+                    STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid,
+                'server_hardware_uri':
+                    selected_sh.uri,
+            },
+            'properties': {
+                'cpus': selected_sh.cpus,
+                'memory_mb': selected_sh.memory_mb,
+                'local_gb': selected_sh.local_gb,
+                'cpu_arch': selected_sh.cpu_arch,
+                'capabilities':
+                    'server_hardware_type_uri:%s,'
+                    'enclosure_group_uri:%s,'
+                    'server_profile_template_uri:%s' % (
+                        selected_sh.server_hardware_type_uri,
+                        selected_sh.enclosure_group_uri,
+                        selected_spt.uri
+                    )
+            }
+        }
+
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.create.assert_called_with(
+            **attrs
+        )
+
+    def test_node_creation_spt_and_number_arguments(
+        self, mock_oneview_client, mock_ironic_client
+    ):
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.list.return_value = (
+            POOL_OF_STUB_SERVER_HARDWARE
+        )
+        oneview_client.server_profile_template.list.return_value = (
+            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        )
+
+        self.args.server_profile_template_name = (
+            'TEMPLATETEMPLATETEMPLATE'
+        )
+        self.args.number = 3
+
+        create_node_cmd.do_node_create(self.args)
+
+        sh_index = 0
+        spt_index = 0
+        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+
+        attrs = {
+            'driver': STUB_PARAMETERS.os_ironic_node_driver,
+            'driver_info': {
+                'dynamic_allocation': True,
+                'deploy_kernel': STUB_PARAMETERS.os_ironic_deploy_kernel_uuid,
+                'deploy_ramdisk':
+                    STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid,
+                'server_hardware_uri':
+                    selected_sh.uri,
+            },
+            'properties': {
+                'cpus': selected_sh.cpus,
+                'memory_mb': selected_sh.memory_mb,
+                'local_gb': selected_sh.local_gb,
+                'cpu_arch': selected_sh.cpu_arch,
+                'capabilities':
+                    'server_hardware_type_uri:%s,'
+                    'enclosure_group_uri:%s,'
+                    'server_profile_template_uri:%s' % (
+                        selected_sh.server_hardware_type_uri,
+                        selected_sh.enclosure_group_uri,
+                        selected_spt.uri
+                    )
+            }
+        }
+
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.create.assert_any_call(
+            **attrs
+        )
+        self.assertEqual(
+            self.args.number, ironic_client.node.create.call_count
+        )
+
+    @mock.patch('ironic_oneview_cli.common.input')
     @mock.patch('ironic_oneview_cli.openstack_client.get_nova_client')
     def test_flavor_creation(self, mock_nova_client, mock_input,
                              mock_oneview_client, mock_ironic_client):
@@ -453,7 +599,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.migrate_node_shell.commands.input')
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_node_migration(self, mock_input,
                             mock_oneview_client,
                             mock_ironic_client):
@@ -625,6 +771,19 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             POOL_OF_STUB_IRONIC_NODES[6].uuid,
             update_patch_test
         )
+
+    @mock.patch('ironic_oneview_cli.common.input')
+    def test_delete_node(self, mock_input,
+                         mock_oneview_client, mock_ironic_client):
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.list.return_value = POOL_OF_STUB_IRONIC_NODES
+
+        self.args.all = True
+        mock_input.side_effect = ['y']
+
+        delete_node_cmd.do_node_delete(self.args)
+
+        self.assertEqual(7, ironic_client.node.delete.call_count)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-#
 # Copyright 2015 Hewlett-Packard Development Company, L.P.
 # Copyright 2015 Universidade Federal de Campina Grande
 # All Rights Reserved.
@@ -44,6 +42,11 @@ class Facade(object):
     def node_update(self, node_uuid, patch):
         return self.ironicclient.node.update(
             node_uuid, patch
+        )
+
+    def node_delete(self, node_uuid):
+        return self.ironicclient.node.delete(
+            node_uuid
         )
 
     def create_ironic_node(self, **attrs):

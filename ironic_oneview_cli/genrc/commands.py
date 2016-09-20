@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-#
 # Copyright 2015 Hewlett-Packard Development Company, L.P.
 # Copyright 2015 Universidade Federal de Campina Grande
 # All Rights Reserved.
@@ -40,15 +38,20 @@ def _generate(**data):
 def _save(path, filename='ironic-oneviewrc.sh', **data):
     if filename in path:
         path = path.replace(filename, '')
+
     canonical = os.path.realpath(os.path.expanduser(path))
     directory = os.path.dirname(canonical)
+
     if not os.path.exists(directory):
         os.makedirs(directory)
+
     full_path = os.path.join(canonical, filename)
     bash = _generate(**data)
+
     with open(full_path, 'w') as ironic_oneviewrc:
         for line in bash:
             ironic_oneviewrc.write(line)
+
     return full_path
 
 
@@ -59,10 +62,16 @@ def do_genrc(args):
 
     auth_url = input("HP OneView URL: ")
     username = input("HP OneView username: ")
-    cacert = input("HP OneView cacert file path "
-                   "(only for secure connections): ")
-    polling_attempts = input("Max connection retries to check "
-                             "changes on OneView [Default=12]: ")
+    cacert = input(
+        "HP OneView cacert file path (only for secure connections): ")
+    polling_attempts = input(
+        "Max connection retries to check changes on OneView [Default=12]: ")
+    audit_enabled = input("Enable OneView Audit (y/N): ")
+    audit_enabled = True if audit_enabled.lower() == 'y' else False
+
+    if audit_enabled:
+        audit_map_file = input("OneView Audit input file absolute path: ")
+        audit_output_file = input("OneView Audit output file absolute path: ")
 
     # OpenStack
 
@@ -89,6 +98,11 @@ def do_genrc(args):
     ironic_oneviewrc['OS_IRONIC_DEPLOY_KERNEL_UUID'] = ironic_deploy_kernel
     ironic_oneviewrc['OS_IRONIC_DEPLOY_RAMDISK_UUID'] = ironic_deploy_ramdisk
     ironic_oneviewrc['OS_IRONIC_NODE_DRIVER'] = ironic_driver
+    ironic_oneviewrc['OV_AUDIT'] = audit_enabled
+
+    if audit_enabled:
+        ironic_oneviewrc['OV_AUDIT_INPUT'] = audit_map_file
+        ironic_oneviewrc['OV_AUDIT_OUTPUT'] = audit_output_file
 
     # Create ironic-oneviewrc.sh
 

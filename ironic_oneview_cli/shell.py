@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-#
 # Copyright 2015 Hewlett-Packard Development Company, L.P.
 # Copyright 2015 Universidade Federal de Campina Grande
 # All Rights Reserved.
@@ -27,24 +25,26 @@ import sys
 
 from oslo_utils import encodeutils
 
-from ironic_oneview_cli.create_flavor_shell import commands \
-    as flavor_create_commands
-from ironic_oneview_cli.create_node_shell import commands \
-    as node_create_commands
+from ironic_oneview_cli import common
+from ironic_oneview_cli.create_flavor_shell import (
+    commands as flavor_create_commands)
+from ironic_oneview_cli.create_node_shell import (
+    commands as node_create_commands)
+from ironic_oneview_cli.delete_node_shell import (
+    commands as node_delete_commands)
 from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
-from ironic_oneview_cli.migrate_node_shell import commands \
-    as node_migrate_commands
+from ironic_oneview_cli.migrate_node_shell import (
+    commands as node_migrate_commands)
 from ironic_oneview_cli.openstack.common._i18n import _
-from ironic_oneview_cli.openstack.common import cliutils
 
-
-VERSION = '0.0.3'
+VERSION = '0.4.0'
 
 COMMAND_MODULES = [
     node_create_commands,
     flavor_create_commands,
     node_migrate_commands,
+    node_delete_commands,
     genrc_commands
 ]
 
@@ -73,7 +73,7 @@ class IronicOneView(object):
 
         parser.add_argument('--os-cacert',
                             metavar='<os-ca-bundle-file>',
-                            default=cliutils.env('OS_CACERT'),
+                            default=common.env('OS_CACERT'),
                             help='Path to OpenStack CA certificate bundle '
                                  'file. Defaults to env[OS_CACERT]')
 
@@ -90,7 +90,7 @@ class IronicOneView(object):
                             version=VERSION)
 
         parser.add_argument('--os-username',
-                            default=cliutils.env('OS_USERNAME'),
+                            default=common.env('OS_USERNAME'),
                             help='OpenStack username. '
                                  'Defaults to env[OS_USERNAME]')
 
@@ -98,7 +98,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-password',
-                            default=cliutils.env('OS_PASSWORD'),
+                            default=common.env('OS_PASSWORD'),
                             help='OpenStack password. '
                                  'Defaults to env[OS_PASSWORD]')
 
@@ -106,7 +106,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-tenant-name',
-                            default=cliutils.env('OS_TENANT_NAME'),
+                            default=common.env('OS_TENANT_NAME'),
                             help='OpenStack tenant name. '
                                  'Defaults to env[OS_TENANT_NAME]')
 
@@ -114,7 +114,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-project-name',
-                            default=cliutils.env('OS_PROJECT_NAME'),
+                            default=common.env('OS_PROJECT_NAME'),
                             help='OpenStack project name. '
                                  'Defaults to env[OS_PROJECT_NAME]')
 
@@ -122,7 +122,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ironic-url',
-                            default=cliutils.env('IRONIC_URL'),
+                            default=common.env('IRONIC_URL'),
                             help='Ironic endpoint url'
                                  'Defaults to env[IRONIC_URL]')
 
@@ -130,7 +130,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-region-name',
-                            default=cliutils.env('OS_REGION_NAME'),
+                            default=common.env('OS_REGION_NAME'),
                             help='OpenStack region name. '
                                  'Defaults to env[OS_REGION_NAME]')
 
@@ -138,7 +138,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ironic-api-version',
-                            default=cliutils.env(
+                            default=common.env(
                                 'IRONIC_API_VERSION', default='1.11'),
                             help='Accepts 1.x (where "x" is microversion) '
                                  'or "latest", Defaults to '
@@ -148,7 +148,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-service-type',
-                            default=cliutils.env('OS_SERVICE_TYPE'),
+                            default=common.env('OS_SERVICE_TYPE'),
                             help='Defaults to env[OS_SERVICE_TYPE] or '
                                  '"baremetal"')
 
@@ -156,7 +156,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-endpoint-type',
-                            default=cliutils.env('OS_ENDPOINT_TYPE'),
+                            default=common.env('OS_ENDPOINT_TYPE'),
                             help='Defaults to env[OS_ENDPOINT_TYPE] or '
                                  '"publicURL"')
 
@@ -164,7 +164,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-user-domain-id',
-                            default=cliutils.env('OS_USER_DOMAIN_ID'),
+                            default=common.env('OS_USER_DOMAIN_ID'),
                             help='OpenStack user domain id. '
                                  'Defaults to env[OS_USER_DOMAIN_ID]')
 
@@ -172,14 +172,14 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-user-domain-name',
-                            default=cliutils.env('OS_USER_DOMAIN_NAME'),
+                            default=common.env('OS_USER_DOMAIN_NAME'),
                             help='Defaults to env[OS_USER_DOMAIN_NAME].')
 
         parser.add_argument('--os_user_domain_name',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-project-domain-id',
-                            default=cliutils.env('OS_PROJECT_DOMAIN_ID'),
+                            default=common.env('OS_PROJECT_DOMAIN_ID'),
                             help='OpenStack project domain id. '
                                  'Defaults to env[OS_PROJECT_DOMAIN_ID]')
 
@@ -187,14 +187,14 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-project-domain-name',
-                            default=cliutils.env('OS_PROJECT_DOMAIN_NAME'),
+                            default=common.env('OS_PROJECT_DOMAIN_NAME'),
                             help=_('Defaults to env[OS_PROJECT_DOMAIN_NAME].'))
 
         parser.add_argument('--os_project_domain_name',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-auth-url',
-                            default=cliutils.env('OS_AUTH_URL'),
+                            default=common.env('OS_AUTH_URL'),
                             help='OpenStack authentication URL. '
                                  'Defaults to env[OS_AUTH_URL]')
 
@@ -203,7 +203,7 @@ class IronicOneView(object):
 
         # OneView Global arguments
         parser.add_argument('--ov-username',
-                            default=cliutils.env('OV_USERNAME'),
+                            default=common.env('OV_USERNAME'),
                             help='OneView username. '
                                  'Defaults to env[OV_USERNAME]')
 
@@ -211,7 +211,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ov-password',
-                            default=cliutils.env('OV_PASSWORD'),
+                            default=common.env('OV_PASSWORD'),
                             help='OneView password. '
                                  'Defaults to env[OV_PASSWORD]')
 
@@ -219,7 +219,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ov-auth-url',
-                            default=cliutils.env('OV_AUTH_URL'),
+                            default=common.env('OV_AUTH_URL'),
                             help='OneView authentication URL. '
                                  'Defaults to env[OV_AUTH_URL]')
 
@@ -228,7 +228,7 @@ class IronicOneView(object):
 
         parser.add_argument('--ov-cacert',
                             metavar='<ov-ca-bundle-file>',
-                            default=cliutils.env('OV_CACERT'),
+                            default=common.env('OV_CACERT'),
                             help='Path to OneView CA certificate bundle file. '
                                  'Defaults to env[OV_CACERT]')
 
@@ -236,7 +236,7 @@ class IronicOneView(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ov-max-polling-attempts', type=int,
-                            default=cliutils.env(
+                            default=common.env(
                                 'OV_MAX_POLLING_ATTEMPTS', default=12),
                             help='Max connection retries on OneView. '
                                  'Defaults to env[OV_MAX_POLLING_ATTEMPTS]')
@@ -244,9 +244,35 @@ class IronicOneView(object):
         parser.add_argument('--ov_max_polling_attempts',
                             help=argparse.SUPPRESS)
 
+        parser.add_argument('--ov-audit', type=bool,
+                            default=common.env('OV_AUDIT', default=False),
+                            help='Enable OneView audit. '
+                                 'Defaults to env[OV_AUDIT]')
+
+        parser.add_argument('--ov_audit',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-audit-input',
+                            metavar='<ov-audit-input-file>',
+                            default=common.env('OV_AUDIT_INPUT'),
+                            help='Path to OneView audit input file. '
+                                 'Defaults to env[OV_AUDIT_INPUT]')
+
+        parser.add_argument('--ov_audit_input',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-audit-output',
+                            metavar='<ov-audit-output-file>',
+                            default=common.env('OV_AUDIT_OUTPUT'),
+                            help='Path to OneView audit output file. '
+                                 'Defaults to env[OV_AUDIT_OUTPUT]')
+
+        parser.add_argument('--ov_audit_output',
+                            help=argparse.SUPPRESS)
+
         # OpenStack Images arguments
         parser.add_argument('--os-ironic-node-driver',
-                            default=cliutils.env('OS_IRONIC_NODE_DRIVER'),
+                            default=common.env('OS_IRONIC_NODE_DRIVER'),
                             help='Ironic driver for node creation. '
                                  'Defaults to env[OS_IRONIC_NODE_DRIVER]')
 
@@ -255,7 +281,7 @@ class IronicOneView(object):
 
         parser.add_argument(
             '--os-ironic-deploy-kernel-uuid',
-            default=cliutils.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
+            default=common.env('OS_IRONIC_DEPLOY_KERNEL_UUID'),
             help='Ironic deploy kernel image UUID. '
                  'Defaults to env[OS_IRONIC_DEPLOY_KERNEL_UUID]'
         )
@@ -265,7 +291,7 @@ class IronicOneView(object):
 
         parser.add_argument(
             '--os-ironic-deploy-ramdisk-uuid',
-            default=cliutils.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
+            default=common.env('OS_IRONIC_DEPLOY_RAMDISK_UUID'),
             help='Ironic deploy ramdisk image UUID. '
                  'Defaults to env[OS_IRONIC_DEPLOY_RAMDISK_UUID]'
         )
@@ -283,8 +309,11 @@ class IronicOneView(object):
         define_commands_from_module(subparsers, self, self.subcommands)
         return parser
 
-    @cliutils.arg('command', metavar='<subcommand>', nargs='?',
-                  help='Display help for <subcommand>')
+    @common.arg(
+        'command',
+        metavar='<subcommand>',
+        nargs='?',
+        help='Display help for <subcommand>')
     def do_help(self, args):
         """Displays help about this program or one of its subcommands."""
         if getattr(args, 'command', None):
