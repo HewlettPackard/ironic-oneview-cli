@@ -243,7 +243,7 @@ class IronicOneView(object):
         parser.add_argument('--ov_max_polling_attempts',
                             help=argparse.SUPPRESS)
 
-        parser.add_argument('--ov-audit', type=bool,
+        parser.add_argument('--ov-audit',
                             default=common.env('OV_AUDIT', default=False),
                             help='Enable OneView audit. '
                                  'Defaults to env[OV_AUDIT]')

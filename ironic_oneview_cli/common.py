@@ -38,6 +38,7 @@ def get_oneview_client(args):
     :returns: an instance of the OneView client
     """
 
+    args.ov_audit = True if args.ov_audit == 'True' else False
     oneview_client = client.ClientV2(
         manager_url=args.ov_auth_url,
         username=args.ov_username,
