@@ -36,7 +36,6 @@ from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.migrate_node_shell import (
     commands as node_migrate_commands)
-from ironic_oneview_cli.openstack.common._i18n import _
 
 VERSION = '0.4.0'
 
@@ -188,7 +187,7 @@ class IronicOneView(object):
 
         parser.add_argument('--os-project-domain-name',
                             default=common.env('OS_PROJECT_DOMAIN_NAME'),
-                            help=_('Defaults to env[OS_PROJECT_DOMAIN_NAME].'))
+                            help='Defaults to env[OS_PROJECT_DOMAIN_NAME].')
 
         parser.add_argument('--os_project_domain_name',
                             help=argparse.SUPPRESS)
@@ -320,7 +319,7 @@ class IronicOneView(object):
             if args.command in self.subcommands:
                 self.subcommands[args.command].print_help()
             else:
-                raise Exception(_("'%s' is not a valid subcommand") %
+                raise Exception("'%s' is not a valid subcommand" %
                                 args.command)
         else:
             self.parser.print_help()
@@ -348,8 +347,8 @@ class IronicOneView(object):
         if not (args.ironic_url or args.os_auth_url):
             if not args.os_username:
                 raise exceptions.CommandError(
-                    _("You must provide a username via either "
-                      "--os-username or via env[OS_USERNAME]"))
+                    "You must provide a username via either "
+                    "--os-username or via env[OS_USERNAME]")
             if not args.os_password:
                 if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
                     try:
@@ -360,52 +359,50 @@ class IronicOneView(object):
                         pass
             if not args.os_password:
                 raise exceptions.CommandError(
-                    _("You must provide a password via either "
-                      "--os-password, env[OS_PASSWORD], or prompted response"))
+                    "You must provide a password via either "
+                    "--os-password, env[OS_PASSWORD], or prompted response")
 
             if not (args.os_tenant_name or args.os_project_name):
                 raise exceptions.CommandError(
-                    _("You must provide a tenant name or project name via "
-                      "--os-tenant-name or --os-project-name, "
-                      "env[OS_TENANT_NAME] or env[OS_PROJECT_NAME]. You may "
-                      "use os-tenant and os-project interchangeably."))
+                    "You must provide a tenant name or project name via "
+                    "--os-tenant-name or --os-project-name, "
+                    "env[OS_TENANT_NAME] or env[OS_PROJECT_NAME]. You may "
+                    "use os-tenant and os-project interchangeably.")
 
             if not args.os_auth_url:
                 raise exceptions.CommandError(
-                    _("You must provide an auth url via either "
-                      "--os-auth-url or via env[OS_AUTH_URL]"))
+                    "You must provide an auth url via either "
+                    "--os-auth-url or via env[OS_AUTH_URL]")
 
         if not args.ov_username:
-            raise exceptions.CommandError(_("You must provide a username via "
-                                            "either --ov-username or via "
-                                            "env[OV_USERNAME]"))
+            raise exceptions.CommandError("You must provide a username via "
+                                          "either --ov-username or via "
+                                          "env[OV_USERNAME]")
 
         if not args.ov_auth_url:
-            raise exceptions.CommandError(_("You must provide an auth url via "
-                                            "either --ov-auth-url or via "
-                                            "env[OV_AUTH_URL]"))
+            raise exceptions.CommandError("You must provide an auth url via "
+                                          "either --ov-auth-url or via "
+                                          "env[OV_AUTH_URL]")
 
         if not args.os_ironic_node_driver:
-            raise exceptions.CommandError(_("You must provide an node driver "
-                                            "via either "
-                                            "--os-ironic-node-driver or via "
-                                            "env[OS_IRONIC_NODE_DRIVER]"))
+            raise exceptions.CommandError("You must provide an node driver "
+                                          "via either "
+                                          "--os-ironic-node-driver or via "
+                                          "env[OS_IRONIC_NODE_DRIVER]")
 
         if not args.os_ironic_deploy_kernel_uuid:
             raise exceptions.CommandError(
-                _("You must provide a deploy "
-                  "kernel uuid via either "
-                  "--os-ironic-deploy-kernel-uuid "
-                  "or via "
-                  "env[OS_IRONIC_DEPLOY_KERNEL_UUID]")
-            )
+                "You must provide a deploy "
+                "kernel uuid via either "
+                "--os-ironic-deploy-kernel-uuid "
+                "or via "
+                "env[OS_IRONIC_DEPLOY_KERNEL_UUID]")
 
         if not args.os_ironic_deploy_ramdisk_uuid:
             raise exceptions.CommandError(
-                _("You must provide a deploy ramdisk uuid via either "
-                  "--os-ironic-deploy-ramdisk-uuid or via "
-                  "env[OS_IRONIC_DEPLOY_RAMDISK_UUID]")
-            )
+                "You must provide a deploy ramdisk uuid via either "
+                "--os-ironic-deploy-ramdisk-uuid or via "
+                "env[OS_IRONIC_DEPLOY_RAMDISK_UUID]")
 
         if not args.ov_password:
             if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
@@ -417,10 +414,10 @@ class IronicOneView(object):
                     pass
 
         if not args.ov_password:
-            raise exceptions.CommandError(_("You must provide a password via "
-                                            "either --ov-password, "
-                                            "env[OV_PASSWORD], "
-                                            "or prompted response"))
+            raise exceptions.CommandError("You must provide a password via "
+                                          "either --ov-password, "
+                                          "env[OV_PASSWORD], "
+                                          "or prompted response")
 
         client_args = (
             'os_username', 'os_password', 'os_tenant_name', 'os_project_name',
@@ -441,8 +438,7 @@ class IronicOneView(object):
             args.func(args)
         except exceptions.Unauthorized:
             raise exceptions.CommandError(
-                _("Invalid OpenStack Identity credentials")
-            )
+                "Invalid OpenStack Identity credentials")
         except exceptions.CommandError as e:
             subcommand_parser = self.subcommands[args.subparser_name]
             subcommand_parser.error(e)
