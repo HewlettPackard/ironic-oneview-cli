@@ -97,7 +97,7 @@ class NodeCreator(object):
             enclosure_group_uri=selected_eg_uri
         )
 
-        return server_hardware_list
+        return sorted(server_hardware_list, key=lambda x: x.name)
 
     def create_node(self, args, server_hardware, server_profile_template):
         # Here comes the infamous HACK of local_gb and cpu_arch
