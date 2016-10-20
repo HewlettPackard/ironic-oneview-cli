@@ -60,7 +60,20 @@ def get_nova_client(args):
         project_domain_id=args.os_project_domain_id,
         project_domain_name=args.os_project_domain_name
     )
-    sess = session.Session(auth=auth)
+
+    verify = True
+
+    if args.insecure:
+        verify = False
+
+    elif args.os_cacert:
+        verify = args.os_cacert
+
+    # To-do: Add the parameter "cert" in the session
+    # passing the certificate file path.
+    # Example: cert=args.os_cert
+
+    sess = session.Session(auth=auth, verify=verify)
     nova = nova_client.Client(NOVA_API_VERSION, session=sess)
 
     return nova
