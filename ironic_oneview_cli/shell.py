@@ -79,6 +79,14 @@ class IronicOneView(object):
         parser.add_argument('--os_cacert',
                             help=argparse.SUPPRESS)
 
+        parser.add_argument('--os-cert',
+                            default=common.env('OS_CERT'),
+                            help='Path to OpenStack certificate '
+                                 'file. Defaults to env[OS_CERT]')
+
+        parser.add_argument('--os_cert',
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('-h', '--help',
                             action='store_true',
                             help=argparse.SUPPRESS,
@@ -437,13 +445,13 @@ class IronicOneView(object):
 
         client_args = (
             'os_username', 'os_password', 'os_tenant_id', 'os_tenant_name',
-            'os_project_id', 'os_project_name', 'os_cacert', 'os_auth_url',
-            'ov_username', 'ov_password', 'ov_auth_url', 'ov_cacert',
-            'insecure', 'ov_max_polling_attempts', 'os_ironic_node_driver',
-            'os_ironic_deploy_kernel_uuid', 'os_ironic_deploy_ramdisk_uuid',
-            'ironic_url', 'os_region_name', 'ironic_api_version',
-            'os_service_type', 'os_endpoint_type', 'os_user_domain_id',
-            'os_user_domain_name', 'os_project_domain_id',
+            'os_project_id', 'os_project_name', 'os_cert', 'os_cacert',
+            'os_auth_url', 'ov_username', 'ov_password', 'ov_auth_url',
+            'ov_cacert', 'insecure', 'ov_max_polling_attempts',
+            'os_ironic_node_driver', 'os_ironic_deploy_kernel_uuid',
+            'os_ironic_deploy_ramdisk_uuid', 'ironic_url', 'os_region_name',
+            'ironic_api_version', 'os_service_type', 'os_endpoint_type',
+            'os_user_domain_id', 'os_user_domain_name', 'os_project_domain_id',
             'os_project_domain_name'
         )
 
