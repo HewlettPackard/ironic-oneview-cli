@@ -29,18 +29,19 @@ def get_ironic_client(args):
         'os_username': args.os_username,
         'os_password': args.os_password,
         'os_auth_url': args.os_auth_url,
+        'os_project_id': args.os_project_id,
         'os_project_name': args.os_project_name,
         'os_tenant_name': args.os_tenant_name,
         'os_region_name': args.os_region_name,
-        'os_user_domain_id': (
-            args.os_user_domain_id or args.os_user_domain_name),
-        'os_project_domain_id': (
-            args.os_project_domain_id or args.os_project_domain_name),
         'os_service_type': args.os_service_type,
         'os_endpoint_type': args.os_endpoint_type,
         'insecure': args.insecure,
         'os_cacert': args.os_cacert,
-        'os_ironic_api_version': args.ironic_api_version
+        'os_ironic_api_version': args.ironic_api_version,
+        'os_project_domain_id': args.os_project_domain_id,
+        'os_project_domain_name': args.os_project_domain_name,
+        'os_user_domain_id': args.os_user_domain_id,
+        'os_user_domain_name': args.os_user_domain_name
     }
 
     return ironic_client.get_client(IRONIC_API_VERSION, **cli_kwargs)
@@ -53,8 +54,11 @@ def get_nova_client(args):
         username=args.os_username,
         password=args.os_password,
         user_domain_id=args.os_user_domain_id,
+        user_domain_name=args.os_user_domain_name,
+        project_id=args.os_project_id or args.os_tenant_id,
         project_name=args.os_project_name or args.os_tenant_name,
-        project_domain_name=args.os_project_domain_id
+        project_domain_id=args.os_project_domain_id,
+        project_domain_name=args.os_project_domain_name
     )
     sess = session.Session(auth=auth)
     nova = nova_client.Client(NOVA_API_VERSION, session=sess)

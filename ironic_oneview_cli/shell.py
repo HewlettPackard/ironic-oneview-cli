@@ -104,12 +104,28 @@ class IronicOneView(object):
         parser.add_argument('--os_password',
                             help=argparse.SUPPRESS)
 
+        parser.add_argument('--os-tenant-id',
+                            default=common.env('OS_TENANT_ID'),
+                            help='OpenStack tenant id. '
+                                 'Defaults to env[OS_TENANT_ID]')
+
+        parser.add_argument('--os_tenant_id',
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('--os-tenant-name',
                             default=common.env('OS_TENANT_NAME'),
                             help='OpenStack tenant name. '
                                  'Defaults to env[OS_TENANT_NAME]')
 
         parser.add_argument('--os_tenant_name',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-project-id',
+                            default=common.env('OS_PROJECT_ID'),
+                            help='OpenStack project id. '
+                                 'Defaults to env[OS_PROJECT_ID]')
+
+        parser.add_argument('--os_project_id',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-project-name',
@@ -420,13 +436,14 @@ class IronicOneView(object):
                                           "or prompted response")
 
         client_args = (
-            'os_username', 'os_password', 'os_tenant_name', 'os_project_name',
-            'os_cacert', 'os_auth_url', 'ov_username', 'ov_password',
-            'ov_auth_url', 'ov_cacert', 'ov_max_polling_attempts', 'insecure',
-            'os_ironic_node_driver', 'os_ironic_deploy_kernel_uuid',
-            'os_ironic_deploy_ramdisk_uuid', 'ironic_url', 'os_region_name',
-            'ironic_api_version', 'os_service_type', 'os_endpoint_type',
-            'os_user_domain_id', 'os_user_domain_name', 'os_project_domain_id',
+            'os_username', 'os_password', 'os_tenant_id', 'os_tenant_name',
+            'os_project_id', 'os_project_name', 'os_cacert', 'os_auth_url',
+            'ov_username', 'ov_password', 'ov_auth_url', 'ov_cacert',
+            'insecure', 'ov_max_polling_attempts', 'os_ironic_node_driver',
+            'os_ironic_deploy_kernel_uuid', 'os_ironic_deploy_ramdisk_uuid',
+            'ironic_url', 'os_region_name', 'ironic_api_version',
+            'os_service_type', 'os_endpoint_type', 'os_user_domain_id',
+            'os_user_domain_name', 'os_project_domain_id',
             'os_project_domain_name'
         )
 
