@@ -117,6 +117,11 @@ Notice that you can create multiple Ironic nodes at once. For that, type
 multiple ``Server Hardware`` IDs separated by blank spaces. The created Ironic
 nodes will be in the *enroll* provisioning state.
 
+.. note::
+The ironic-oneview can be run in debugging mode with the following command ::
+
+    $ ironic-oneview --debug
+
 ----
 
 Alternatively, you can set a ``Server Profile Template`` through command

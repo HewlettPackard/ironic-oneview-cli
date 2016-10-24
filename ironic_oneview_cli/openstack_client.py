@@ -13,7 +13,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-import os
 
 from ironicclient import client as ironic_client
 from keystoneauth1 import loading
@@ -61,26 +60,7 @@ def get_nova_client(args):
         project_domain_id=args.os_project_domain_id,
         project_domain_name=args.os_project_domain_name
     )
-
-    verify = True
-    cert = None
-
-    if args.insecure:
-        verify = False
-
-    elif args.os_cacert:
-        if not os.path.exists(args.os_cacert):
-            raise Exception("Path to CA certificate file invalid.")
-
-        verify = args.os_cacert
-
-    elif args.os_cert:
-        if not os.path.exists(args.os_cert):
-            raise Exception("Path to certificate file invalid.")
-
-        cert = args.os_cert
-
-    sess = session.Session(auth=auth, verify=verify, cert=cert)
+    sess = session.Session(auth=auth)
     nova = nova_client.Client(NOVA_API_VERSION, session=sess)
 
     return nova
