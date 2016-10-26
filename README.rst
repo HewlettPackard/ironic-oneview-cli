@@ -78,6 +78,11 @@ In the current version of Ironic-OneView CLI, the available subcommands are:
 |        help        | Displays help about this program or one of its subcommands.  |
 +--------------------+--------------------------------------------------------------+
 
+.. note::
+The ironic-oneview-cli can be run in debugging mode with the --debug parameter, as in::
+
+    $ ironic-oneview --debug
+
 
 Features
 ========
@@ -116,11 +121,6 @@ Choose a ``Server Hardware`` to be used as base to the Ironic node you are creat
 Notice that you can create multiple Ironic nodes at once. For that, type
 multiple ``Server Hardware`` IDs separated by blank spaces. The created Ironic
 nodes will be in the *enroll* provisioning state.
-
-.. note::
-The ironic-oneview can be run in debugging mode with the following command ::
-
-    $ ironic-oneview --debug
 
 ----
 

@@ -64,7 +64,7 @@ class IronicOneView(object):
         # OpenStack Global arguments
         parser.add_argument('--debug',
                             action="store_true",
-                            help='The mode of debugging.')
+                            help='Turn on debugging output.')
 
         parser.add_argument('--insecure',
                             default=False,
