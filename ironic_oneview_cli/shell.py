@@ -36,6 +36,7 @@ from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli.migrate_node_shell import (
     commands as node_migrate_commands)
+from ironic_oneview_cli import service_logging as logging
 
 VERSION = '0.4.0'
 
@@ -61,6 +62,10 @@ class IronicOneView(object):
         )
 
         # OpenStack Global arguments
+        parser.add_argument('--debug',
+                            action="store_true",
+                            help='Turn on debugging output.')
+
         parser.add_argument('--insecure',
                             default=False,
                             action="store_true",
@@ -346,6 +351,9 @@ class IronicOneView(object):
         subcommand_parser = self.get_subcommand_parser(1)
         self.parser = subcommand_parser
 
+        if options.debug:
+            logging.debug_activate_handlers(options.debug)
+
         if options.help or not argv:
             self.do_help(options)
             return 0
@@ -437,13 +445,13 @@ class IronicOneView(object):
 
         client_args = (
             'os_username', 'os_password', 'os_tenant_id', 'os_tenant_name',
-            'os_project_id', 'os_project_name', 'os_cacert', 'os_auth_url',
-            'ov_username', 'ov_password', 'ov_auth_url', 'ov_cacert',
-            'insecure', 'ov_max_polling_attempts', 'os_ironic_node_driver',
-            'os_ironic_deploy_kernel_uuid', 'os_ironic_deploy_ramdisk_uuid',
-            'ironic_url', 'os_region_name', 'ironic_api_version',
-            'os_service_type', 'os_endpoint_type', 'os_user_domain_id',
-            'os_user_domain_name', 'os_project_domain_id',
+            'os_project_id', 'os_project_name', 'os_cert', 'os_cacert',
+            'os_auth_url', 'ov_username', 'ov_password', 'ov_auth_url',
+            'ov_cacert', 'insecure', 'debug', 'ov_max_polling_attempts',
+            'os_ironic_node_driver', 'os_ironic_deploy_kernel_uuid',
+            'os_ironic_deploy_ramdisk_uuid', 'ironic_url', 'os_region_name',
+            'ironic_api_version', 'os_service_type', 'os_endpoint_type',
+            'os_user_domain_id', 'os_user_domain_name', 'os_project_domain_id',
             'os_project_domain_name'
         )
 

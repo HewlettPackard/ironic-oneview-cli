@@ -19,6 +19,9 @@ import re
 from ironic_oneview_cli import common
 from ironic_oneview_cli.create_flavor_shell import objects
 from ironic_oneview_cli import facade
+from ironic_oneview_cli import service_logging as logging
+
+LOG = logging.getLogger(__name__)
 
 
 class FlavorCreator(object):
@@ -116,6 +119,8 @@ def do_flavor_create(args):
 
     print("Retrieving possible configurations for Flavor creation...")
 
+    LOG.info("Flavor creation...")
+
     flavor_list = flavor_creator.get_flavor_list(nodes)
     flavor_list = list(flavor_list)
     for j in range(1, len(flavor_list)):
@@ -186,7 +191,7 @@ def do_flavor_create(args):
 
         flavor_name = common.set_flavor_name(flavor)
 
-        flavor = flavor_creator.create_flavor(
+        flavor_creator.create_flavor(
             flavor_name,
             flavor.ram_mb,
             flavor.cpus,

@@ -15,29 +15,42 @@
 #    under the License.
 
 import logging
-import os
 
 _formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 _loggers = {}
 
 
-def _getHandler(filename, formatter):
-    handler = logging.FileHandler(filename)
+def _getHandler(formatter):
+    handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(formatter)
 
     return handler
 
 
-def getLogger(name, servicename='ironic-oneview-cli'):
-    filename = os.path.expanduser('~/' + servicename + '.log')
-
+def getLogger(name):
     if name not in _loggers:
-        logger = logging.getLogger(name)
-        logger.setLevel(logging.DEBUG)
-
-        logger.addHandler(_getHandler(filename=filename,
-                                      formatter=_formatter))
-        _loggers[name] = logger
+        set_logger(name)
     return _loggers[name]
+
+
+def debug_activate_handlers(debug_activate):
+    for logger_name, logger in _loggers.iteritems():
+        logger.handlers = []
+        set_logger(logger_name, debug_activate)
+
+
+def set_logger(name, debug_activate=False):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    if not debug_activate:
+        logger.disabled = True
+        logger.propagate = False
+    else:
+        logger.disabled = False
+        logger.propagate = True
+
+    logger.addHandler(_getHandler(formatter=_formatter))
+    _loggers[name] = logger

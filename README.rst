@@ -78,6 +78,11 @@ In the current version of Ironic-OneView CLI, the available subcommands are:
 |        help        | Displays help about this program or one of its subcommands.  |
 +--------------------+--------------------------------------------------------------+
 
+.. note::
+The ironic-oneview-cli can be run in debugging mode with the --debug parameter, as in::
+
+    $ ironic-oneview --debug
+
 
 Features
 ========
