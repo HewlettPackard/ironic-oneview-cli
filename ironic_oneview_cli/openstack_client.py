@@ -37,6 +37,7 @@ def get_ironic_client(args):
         'os_endpoint_type': args.os_endpoint_type,
         'insecure': args.insecure,
         'os_cacert': args.os_cacert,
+        'os_cert': args.os_cert,
         'os_ironic_api_version': args.ironic_api_version,
         'os_project_domain_id': args.os_project_domain_id,
         'os_project_domain_name': args.os_project_domain_name,
@@ -69,11 +70,7 @@ def get_nova_client(args):
     elif args.os_cacert:
         verify = args.os_cacert
 
-    # To-do: Add the parameter "cert" in the session
-    # passing the certificate file path.
-    # Example: cert=args.os_cert
-
-    sess = session.Session(auth=auth, verify=verify)
+    sess = session.Session(auth=auth, verify=verify, cert=args.os_cert)
     nova = nova_client.Client(NOVA_API_VERSION, session=sess)
 
     return nova

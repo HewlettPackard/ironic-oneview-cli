@@ -75,6 +75,14 @@ class IronicOneView(object):
                             "against any certificate authorities. This "
                             "option should be used with caution.")
 
+        parser.add_argument('--os-cert',
+                            default=common.env('OS_CERT'),
+                            help='Path to OpenStack certificate file. Defaults'
+                                 'to env[OS_CERT]')
+
+        parser.add_argument('--os_cert',
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('--os-cacert',
                             metavar='<os-ca-bundle-file>',
                             default=common.env('OS_CACERT'),
