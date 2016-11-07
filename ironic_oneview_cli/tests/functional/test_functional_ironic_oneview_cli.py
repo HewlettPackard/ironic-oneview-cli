@@ -367,6 +367,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             os_tenant_name='my_tenant',
             insecure=True,
             os_cacert='',
+            os_cert='',
             os_ironic_node_driver=STUB_PARAMETERS.os_ironic_node_driver,
             os_ironic_deploy_kernel_uuid=(
                 STUB_PARAMETERS.os_ironic_deploy_kernel_uuid
