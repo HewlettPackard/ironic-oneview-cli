@@ -205,9 +205,9 @@ POOL_OF_STUB_NOVA_FLAVORS = [
 class UnitTestIronicOneviewCli(unittest.TestCase):
 
     @mock.patch.object(facade.Facade, 'get_ironic_node_list')
-    def test_list_server_hardware_not_enrolled(self,
-                                               mock_ironic_node_list,
-                                               mock_facade):
+    def test_list_server_hardware(self,
+                                  mock_ironic_node_list,
+                                  mock_facade):
         node_creator = create_node_cmd.NodeCreator(mock_facade)
         ironic_nodes = POOL_OF_STUB_IRONIC_NODES
         mock_ironic_node_list.return_value = ironic_nodes
@@ -216,9 +216,9 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
             POOL_OF_STUB_SERVER_HARDWARE
         )
 
-        not_enrolled = node_creator.list_server_hardware_not_enrolled()
+        server_hardware_objects = node_creator.list_server_hardware()
 
-        self.assertEqual(1, len(not_enrolled))
+        self.assertEqual(2, len(server_hardware_objects))
 
     @mock.patch.object(facade.Facade, 'get_ironic_node_list')
     def test_list_pre_allocation_nodes(self,

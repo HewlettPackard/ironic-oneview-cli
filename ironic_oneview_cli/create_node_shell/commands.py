@@ -21,7 +21,6 @@ from ironic_oneview_cli import facade
 
 
 class NodeCreator(object):
-
     def __init__(self, facade):
         self.facade = facade
 
@@ -41,12 +40,8 @@ class NodeCreator(object):
                 server_hardware_objects_not_created.append(server_hardware)
         return server_hardware_objects_not_created
 
-    def list_server_hardware_not_enrolled(self):
-        server_hardware_objects = self.facade.list_server_hardware_available()
-        sh_not_enrolled = self.filter_not_enrolled_on_ironic(
-            server_hardware_objects
-        )
-        return sh_not_enrolled
+    def list_server_hardware(self):
+        return self.facade.list_server_hardware_available()
 
     def filter_server_hardware_not_enrolled(self, **kwargs):
         server_hardware_objects = self.facade.filter_server_hardware_available(
@@ -70,9 +65,9 @@ class NodeCreator(object):
 
         return sh_not_enrolled
 
-    def filter_templates_compatible_with(self, available_hardware):
+    def get_templates_compatible_with(self, server_hardware_objects):
         spt_list = self.facade.list_templates_compatible_with(
-            available_hardware
+            server_hardware_objects
         )
         for spt in spt_list:
             enclosure_group = self.facade.get_enclosure_group(
@@ -154,9 +149,8 @@ def do_node_create(args):
 
     node_creator = NodeCreator(facade.Facade(args))
 
-    available_hardware = node_creator.list_server_hardware_not_enrolled()
-    spt_list = node_creator.filter_templates_compatible_with(
-        available_hardware
+    spt_list = node_creator.get_templates_compatible_with(
+        node_creator.list_server_hardware()
     )
     common.assign_elements_with_new_id(spt_list)
 
