@@ -39,12 +39,12 @@ Configuration
 Ironic-Oneview CLI uses credentials loaded into environment variables by
 the OpenStack RC and by the Ironic-OneView CLI RC files. You can download
 the OpenStack RC file from your cloud controller. The Ironic-OneView CLI RC
-file can be generated using the ``genrc`` subcommand::
+sample file can be generated using the ``genrc`` subcommand::
 
-    $ ironic-oneview genrc
+    $ ironic-oneview genrc > ironic-oneviewrc.sh
 
-Since you have the ``ironic-oneviewrc.sh`` file, load its environment
-variables by running::
+Since you have the ``ironic-oneviewrc.sh`` sample file, you can set the OneView
+credentials using your editor and load its environment variables by running::
 
     $ source ironic-oneviewrc.sh
 
@@ -78,7 +78,6 @@ In the current version of Ironic-OneView CLI, the available subcommands are:
 |        help        | Displays help about this program or one of its subcommands.  |
 +--------------------+--------------------------------------------------------------+
 
-.. note::
 The ironic-oneview-cli can be run in debugging mode with the --debug parameter, as in::
 
     $ ironic-oneview --debug
