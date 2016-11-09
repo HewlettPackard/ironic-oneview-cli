@@ -75,6 +75,17 @@ class IronicOneView(object):
                             "against any certificate authorities. This "
                             "option should be used with caution.")
 
+        parser.add_argument('--os-inspection-enabled',
+                            default=common.env(
+                                'OS_INSPECTION_ENABLED', default=False),
+                            help="Enable Ironic OneView driver inspection to "
+                                 "discovering hardware properties "
+                                 "(disk, memory, cpu). "
+                                 "Defaults to env[OS_INSPECTION_ENABLED]")
+
+        parser.add_argument('--os_inspection_enabled',
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('--os-cert',
                             default=common.env('OS_CERT'),
                             help='Path to OpenStack certificate file. Defaults'
@@ -460,7 +471,7 @@ class IronicOneView(object):
             'os_ironic_deploy_ramdisk_uuid', 'ironic_url', 'os_region_name',
             'ironic_api_version', 'os_service_type', 'os_endpoint_type',
             'os_user_domain_id', 'os_user_domain_name', 'os_project_domain_id',
-            'os_project_domain_name'
+            'os_project_domain_name', 'os_inspection_enabled'
         )
 
         kwargs = {}

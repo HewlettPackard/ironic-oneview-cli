@@ -75,6 +75,10 @@ def do_genrc(args):
 
     # OpenStack
 
+    ironic_inspection_enabled = input(
+        "Enable Ironic OneView driver inspection (y/N): ")
+    ironic_inspection_enabled = (
+        True if ironic_inspection_enabled.lower() == 'y' else False)
     ironic_deploy_kernel = input("Ironic deploy kernel image uuid: ")
     ironic_deploy_ramdisk = input("Ironic deploy ramdisk image uuid: ")
     ironic_driver = input(
@@ -95,10 +99,11 @@ def do_genrc(args):
     ironic_oneviewrc['OV_USERNAME'] = username
     ironic_oneviewrc['OV_CACERT'] = cacert
     ironic_oneviewrc['OV_MAX_POLLING_ATTEMPTS'] = polling_attempts
+    ironic_oneviewrc['OV_AUDIT'] = audit_enabled
+    ironic_oneviewrc['OS_INSPECTION_ENABLED'] = ironic_inspection_enabled
     ironic_oneviewrc['OS_IRONIC_DEPLOY_KERNEL_UUID'] = ironic_deploy_kernel
     ironic_oneviewrc['OS_IRONIC_DEPLOY_RAMDISK_UUID'] = ironic_deploy_ramdisk
     ironic_oneviewrc['OS_IRONIC_NODE_DRIVER'] = ironic_driver
-    ironic_oneviewrc['OV_AUDIT'] = audit_enabled
 
     if audit_enabled:
         ironic_oneviewrc['OV_AUDIT_INPUT'] = audit_map_file
