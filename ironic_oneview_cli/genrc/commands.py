@@ -55,6 +55,9 @@ def do_genrc(args):
 
     # OpenStack
 
+    print("\n# Enable Ironic OneView driver inspection.")
+    print("#export OS_INSPECTION_ENABLED=False")
+
     print("\n# Ironic deploy kernel image uuid.")
     print("#export OS_IRONIC_DEPLOY_KERNEL_UUID=")
 
