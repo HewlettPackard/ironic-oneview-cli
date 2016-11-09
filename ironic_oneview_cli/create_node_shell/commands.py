@@ -52,23 +52,29 @@ class NodeCreator(object):
         server_hardware_objects = self.facade.filter_server_hardware_available(
             **kwargs
         )
-        sh_not_enrolled = self.filter_not_enrolled_on_ironic(
+        server_hardware_not_enrolled = self.filter_not_enrolled_on_ironic(
             server_hardware_objects
         )
 
-        for sh in sh_not_enrolled:
+        for server_hardware in server_hardware_not_enrolled:
+            # Here comes the infamous HACK of local_gb and cpu_arch
+            server_hardware.local_gb = 120
+            server_hardware.cpu_arch = 'x86_64'
+
             enclosure_group = self.facade.get_enclosure_group(
-                sh.enclosure_group_uri
+                server_hardware.enclosure_group_uri
             )
             if enclosure_group:
-                sh.enclosure_group_name = enclosure_group.name
+                server_hardware.enclosure_group_name = enclosure_group.name
             server_hardware_type = self.facade.get_server_hardware_type(
-                sh.server_hardware_type_uri
+                server_hardware.server_hardware_type_uri
             )
             if server_hardware_type:
-                sh.server_hardware_type_name = server_hardware_type.name
+                server_hardware.server_hardware_type_name = (
+                    server_hardware_type.name
+                )
 
-        return sh_not_enrolled
+        return server_hardware_not_enrolled
 
     def filter_templates_compatible_with(self, available_hardware):
         spt_list = self.facade.list_templates_compatible_with(
@@ -86,7 +92,7 @@ class NodeCreator(object):
             if server_hardware_type:
                 spt.server_hardware_type_name = server_hardware_type.name
 
-        return spt_list
+        return sorted(spt_list, key=lambda x: x.name.lower())
 
     def get_server_hardware_list(self, server_profile_template):
         selected_sht_uri = server_profile_template.server_hardware_type_uri
@@ -97,13 +103,9 @@ class NodeCreator(object):
             enclosure_group_uri=selected_eg_uri
         )
 
-        return sorted(server_hardware_list, key=lambda x: x.name)
+        return sorted(server_hardware_list, key=lambda x: x.name.lower())
 
     def create_node(self, args, server_hardware, server_profile_template):
-        # Here comes the infamous HACK of local_gb and cpu_arch
-        server_hardware.local_gb = 120
-        server_hardware.cpu_arch = 'x86_64'
-
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
@@ -153,6 +155,8 @@ def do_node_create(args):
     """Creates nodes based on available HP OneView Objects."""
 
     node_creator = NodeCreator(facade.Facade(args))
+
+    print("\n\n\n\n", args.os_inspection_enabled, "\n\n\n\n")
 
     available_hardware = node_creator.list_server_hardware_not_enrolled()
     spt_list = node_creator.filter_templates_compatible_with(
@@ -219,6 +223,7 @@ def do_node_create(args):
                 'cpus',
                 'memory_mb',
                 'local_gb',
+                'cpu_arch',
                 'enclosure_group_name',
                 'server_hardware_type_name'
             ],
@@ -226,6 +231,7 @@ def do_node_create(args):
                 'CPUs',
                 'Memory MB',
                 'Disk GB',
+                'CPU Arch',
                 'Enclosure Group Name',
                 'Server Hardware Type Name'
             ]
@@ -260,6 +266,7 @@ def do_node_create(args):
                     'cpus',
                     'memory_mb',
                     'local_gb',
+                    'cpu_arch',
                     'enclosure_group_name',
                     'server_hardware_type_name'
                 ],
@@ -271,6 +278,7 @@ def do_node_create(args):
                     'CPUs',
                     'Memory MB',
                     'Disk GB',
+                    'CPU Arch',
                     'Enclosure Group Name',
                     'Server Hardware Type Name'
                 ]
