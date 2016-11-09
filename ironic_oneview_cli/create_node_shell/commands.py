@@ -24,34 +24,29 @@ class NodeCreator(object):
     def __init__(self, facade):
         self.facade = facade
 
-    def filter_not_enrolled_on_ironic(self, server_hardware_objects):
-        nodes_server_hardware_uris = []
+    def is_server_profile_applied(self, server_hardware):
+        return server_hardware.server_profile_uri not in (None, '')
+
+    def is_enrolled_on_ironic(self, server_hardware):
         nodes = filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
                        self.facade.get_ironic_node_list())
         for node in nodes:
-            node_server_hardware_uri = node.driver_info.get(
+            sh_uri = node.driver_info.get(
                 'server_hardware_uri'
             )
-            if node_server_hardware_uri is not None:
-                nodes_server_hardware_uris.append(node_server_hardware_uri)
-        server_hardware_objects_not_created = []
-        for server_hardware in server_hardware_objects:
-            if server_hardware.uri not in nodes_server_hardware_uris:
-                server_hardware_objects_not_created.append(server_hardware)
-        return server_hardware_objects_not_created
+            if sh_uri not in(None, '') and sh_uri == server_hardware.uri:
+                return True
+        return False
 
     def list_server_hardware(self):
         return self.facade.list_server_hardware_available()
 
-    def filter_server_hardware_not_enrolled(self, **kwargs):
+    def filter_server_hardware(self, **kwargs):
         server_hardware_objects = self.facade.filter_server_hardware_available(
             **kwargs
         )
-        sh_not_enrolled = self.filter_not_enrolled_on_ironic(
-            server_hardware_objects
-        )
 
-        for sh in sh_not_enrolled:
+        for sh in server_hardware_objects:
             enclosure_group = self.facade.get_enclosure_group(
                 sh.enclosure_group_uri
             )
@@ -62,8 +57,10 @@ class NodeCreator(object):
             )
             if server_hardware_type:
                 sh.server_hardware_type_name = server_hardware_type.name
+            is_enrolled = self.is_enrolled_on_ironic(sh)
+            setattr(sh, "enrolled", is_enrolled)
 
-        return sh_not_enrolled
+        return server_hardware_objects
 
     def get_templates_compatible_with(self, server_hardware_objects):
         spt_list = self.facade.list_templates_compatible_with(
@@ -87,7 +84,7 @@ class NodeCreator(object):
         selected_sht_uri = server_profile_template.server_hardware_type_uri
         selected_eg_uri = server_profile_template.enclosure_group_uri
 
-        server_hardware_list = self.filter_server_hardware_not_enrolled(
+        server_hardware_list = self.filter_server_hardware(
             server_hardware_type_uri=selected_sht_uri,
             enclosure_group_uri=selected_eg_uri
         )
@@ -206,7 +203,7 @@ def do_node_create(args):
 
     if args.number:
         print(("Creating %(number_of_nodes)s nodes with the specific "
-              "Server Hardware") % {'number_of_nodes': args.number})
+               "Server Hardware") % {'number_of_nodes': args.number})
         common.print_prompt(
             [s_hardware_list[0]],
             [
@@ -255,7 +252,8 @@ def do_node_create(args):
                     'memory_mb',
                     'local_gb',
                     'enclosure_group_name',
-                    'server_hardware_type_name'
+                    'server_hardware_type_name',
+                    'enrolled'
                 ],
                 "Enter a space separated list of Server Hardware "
                 "ids you want to use, e.g. 1 2 3 4. ('q' to quit)> ",
@@ -266,7 +264,8 @@ def do_node_create(args):
                     'Memory MB',
                     'Disk GB',
                     'Enclosure Group Name',
-                    'Server Hardware Type Name'
+                    'Server Hardware Type Name',
+                    'Enrolled'
                 ]
             )
             if input_id == 'q':
@@ -281,32 +280,42 @@ def do_node_create(args):
                 s_hardware_list,
                 server_hardware_id
             )
-            print(
-                '\nCreating a node to represent the following Server'
-                ' Hardware..'
-            )
-            common.print_prompt(
-                [server_hardware_selected],
-                [
-                    'name',
-                    'cpus',
-                    'memory_mb',
-                    'local_gb',
-                    'enclosure_group_name',
-                    'server_hardware_type_name'
-                ],
-                field_labels=[
-                    'Name',
-                    'CPUs',
-                    'Memory MB',
-                    'Local GB',
-                    'Server Group Name',
-                    'Server Hardware Type Name'
-                ]
-            )
+            print('\n')
+            if not node_creator.is_enrolled_on_ironic(
+                    server_hardware_selected):
+                print(
+                    'Creating a node to represent the following Server'
+                    'Hardware..'
+                )
+                common.print_prompt(
+                    [server_hardware_selected],
+                    [
+                        'name',
+                        'cpus',
+                        'memory_mb',
+                        'local_gb',
+                        'enclosure_group_name',
+                        'server_hardware_type_name'
+                    ],
+                    field_labels=[
+                        'Name',
+                        'CPUs',
+                        'Memory MB',
+                        'Local GB',
+                        'Server Group Name',
+                        'Server Hardware Type Name'
+                    ]
+                )
+                if node_creator.is_server_profile_applied(
+                        server_hardware_selected):
+                    print('Warning: This Server Hardware'
+                          'is in use by OneView.')
 
-            node_creator.create_node(
-                args, server_hardware_selected, template_selected
-            )
+                node_creator.create_node(
+                    args, server_hardware_selected, template_selected
+                )
 
-            print('\nNode created!')
+                print('Node created!')
+            else:
+                print('ERROR: It was not possible create the node, this Server'
+                      ' Hardware is enrolled on Ironic.')
