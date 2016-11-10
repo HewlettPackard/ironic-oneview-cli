@@ -121,10 +121,6 @@ class NodeCreator(object):
                 'dynamic_allocation': True,
             },
             'properties': {
-                'cpus': server_hardware.cpus,
-                'memory_mb': server_hardware.memory_mb,
-                'local_gb': server_hardware.local_gb,
-                'cpu_arch': server_hardware.cpu_arch,
                 'capabilities': 'server_hardware_type_uri:%s,'
                                 'enclosure_group_uri:%s,'
                                 'server_profile_template_uri:%s' % (
@@ -134,6 +130,16 @@ class NodeCreator(object):
                                 )
             }
         }
+
+        if args.os_inspection_enabled in ('False', False):
+            hardware_properties = {
+                'cpus': server_hardware.cpus,
+                'memory_mb': server_hardware.memory_mb,
+                'local_gb': server_hardware.local_gb,
+                'cpu_arch': server_hardware.cpu_arch
+            }
+
+            attrs['properties'].update(hardware_properties)
 
         try:
             self.facade.create_ironic_node(**attrs)
@@ -155,8 +161,6 @@ def do_node_create(args):
     """Creates nodes based on available HP OneView Objects."""
 
     node_creator = NodeCreator(facade.Facade(args))
-
-    print("\n\n\n\n", args.os_inspection_enabled, "\n\n\n\n")
 
     available_hardware = node_creator.list_server_hardware_not_enrolled()
     spt_list = node_creator.filter_templates_compatible_with(
