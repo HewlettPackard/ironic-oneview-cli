@@ -368,6 +368,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             insecure=True,
             os_cacert='',
             os_cert='',
+            os_inspection_enabled=False,
             os_ironic_node_driver=STUB_PARAMETERS.os_ironic_node_driver,
             os_ironic_deploy_kernel_uuid=(
                 STUB_PARAMETERS.os_ironic_deploy_kernel_uuid
@@ -418,6 +419,57 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                 'memory_mb': selected_sh.memory_mb,
                 'local_gb': selected_sh.local_gb,
                 'cpu_arch': selected_sh.cpu_arch,
+                'capabilities':
+                    'server_hardware_type_uri:%s,'
+                    'enclosure_group_uri:%s,'
+                    'server_profile_template_uri:%s' % (
+                        selected_sh.server_hardware_type_uri,
+                        selected_sh.enclosure_group_uri,
+                        selected_spt.uri
+                    )
+            }
+        }
+
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.create.assert_called_with(
+            **attrs
+        )
+
+    @mock.patch('ironic_oneview_cli.common.input')
+    def test_node_creation_inspection_enabled(
+        self, mock_input, mock_oneview_client, mock_ironic_client
+    ):
+        self.args.os_inspection_enabled = True
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.list.return_value = (
+            POOL_OF_STUB_SERVER_HARDWARE
+        )
+        oneview_client.server_profile_template.list.return_value = (
+            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        )
+        spt_index = 0
+        sh_index = 0
+        mock_input.side_effect = [
+            str(spt_index + 1),
+            str(sh_index + 1)
+        ]
+
+        create_node_cmd.do_node_create(self.args)
+
+        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+        attrs = {
+            'driver': STUB_PARAMETERS.os_ironic_node_driver,
+            'driver_info': {
+                'dynamic_allocation': True,
+                'deploy_kernel': STUB_PARAMETERS.os_ironic_deploy_kernel_uuid,
+                'deploy_ramdisk':
+                    STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid,
+                'server_hardware_uri':
+                    selected_sh.uri,
+            },
+            'properties': {
                 'capabilities':
                     'server_hardware_type_uri:%s,'
                     'enclosure_group_uri:%s,'
