@@ -122,6 +122,11 @@ Notice that you can create multiple Ironic nodes at once. For that, type
 multiple ``Server Hardware`` IDs separated by blank spaces. The created Ironic
 nodes will be in the *enroll* provisioning state.
 
+.. note::
+   If you have the parameter os_inspection_enabled = True, the created node
+   will not have the hardware properties (cpus, memory, disk) set in the node
+   properties. This will be discovered in the Ironic Hardware Inspection.
+
 ----
 
 Alternatively, you can set a ``Server Profile Template`` through command
