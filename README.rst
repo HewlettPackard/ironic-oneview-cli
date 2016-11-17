@@ -23,7 +23,7 @@ allocation model [1]_ [2]_.
 
 ----
 
-For more information on *HP OneView* entities, see [3]_.
+For more information on *HPE OneView* entities, see [3]_.
 
 Installation
 ============
@@ -37,14 +37,14 @@ Configuration
 =============
 
 Ironic-Oneview CLI uses credentials loaded into environment variables by
-the OpenStack RC and by the Ironic-OneView CLI RC files. You can download
-the OpenStack RC file from your cloud controller. The Ironic-OneView CLI RC
-file can be generated using the ``genrc`` subcommand::
+the OpenStack RC **and** by the Ironic-OneView CLI RC files. You can download
+the OpenStack RC file from your cloud controller. An Ironic-OneView CLI RC
+sample file can be generated using the ``genrc`` subcommand::
 
-    $ ironic-oneview genrc
+    $ ironic-oneview genrc > ironic-oneviewrc.sh
 
-Since you have the ``ironic-oneviewrc.sh`` file, load its environment
-variables by running::
+Since you have the ``ironic-oneviewrc.sh`` sample file, you can set the OneView
+credentials using your editor and load its environment variables by running::
 
     $ source ironic-oneviewrc.sh
 
@@ -62,26 +62,23 @@ Usage
 Once the necessary environment variables and command line parameters are
 set, Ironic-OneView CLI is ready to be used.
 
-Synopsis:
-
 In the current version of Ironic-OneView CLI, the available subcommands are:
 
-+--------------------+--------------------------------------------------------------+
-|     node-create    | Creates nodes based on available HP OneView Server Hardware. |
-+--------------------+--------------------------------------------------------------+
-|    flavor-create   | Creates flavors based on available Ironic nodes.             |
-+--------------------+--------------------------------------------------------------+
-| migrate-to-dynamic | Migrate Ironic nodes to dynamic allocation model.            |
-+--------------------+--------------------------------------------------------------+
-|        genrc       | Generates the Ironic-OneView CLI RC file.                    |
-+--------------------+--------------------------------------------------------------+
-|        help        | Displays help about this program or one of its subcommands.  |
-+--------------------+--------------------------------------------------------------+
++--------------------+---------------------------------------------------------------+
+|     node-create    | Creates nodes based on available HPE OneView Server Hardware. |
++--------------------+---------------------------------------------------------------+
+|    flavor-create   | Creates flavors based on available Ironic nodes.              |
++--------------------+---------------------------------------------------------------+
+| migrate-to-dynamic | Migrate Ironic nodes to dynamic allocation model.             |
++--------------------+---------------------------------------------------------------+
+|        genrc       | Generates a sample Ironic-OneView CLI RC file.                |
++--------------------+---------------------------------------------------------------+
+|        help        | Displays help about this program or one of its subcommands.   |
++--------------------+---------------------------------------------------------------+
 
-.. note::
 The ironic-oneview-cli can be run in debugging mode with the --debug parameter, as in::
 
-    $ ironic-oneview --debug
+    $ ironic-oneview --debug node-create
 
 
 Features
@@ -90,13 +87,13 @@ Features
 Node creation
 ^^^^^^^^^^^^^
 
-To create Ironic nodes based on available HP OneView ``Server Hardware`` objects,
+To create Ironic nodes based on available HPE OneView ``Server Hardware`` objects,
 use the following command::
 
     $ ironic-oneview node-create
 
 The tool will ask you to choose a valid ``Server Profile Template`` from those
-retrieved from HP OneView appliance.::
+retrieved from HPE OneView appliance.::
 
     Retrieving Server Profile Templates from OneView...
     +----+------------------------+----------------------+---------------------------+
@@ -234,5 +231,5 @@ References
 ==========
 .. [1] Dynamic allocation spec - https://review.openstack.org/#/c/275726/
 .. [2] Driver documentation - http://docs.openstack.org/developer/ironic/drivers/oneview.html
-.. [3] HP OneView - http://www8.hp.com/us/en/business-solutions/converged-systems/oneview.html
+.. [3] HPE OneView - https://www.hpe.com/us/en/integrated-systems/software.html
 .. [4] OpenStack RC - http://docs.openstack.org/user-guide/common/cli_set_environment_variables_using_openstack_rc.html
