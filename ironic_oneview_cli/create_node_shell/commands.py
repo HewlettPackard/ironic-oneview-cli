@@ -58,6 +58,7 @@ class NodeCreator(object):
 
         for server_hardware in server_hardware_not_enrolled:
             # Here comes the infamous HACK of local_gb and cpu_arch
+            # NOTE(nicodemos): Used only if os_inspection_enabled = False
             server_hardware.local_gb = 120
             server_hardware.cpu_arch = 'x86_64'
 
