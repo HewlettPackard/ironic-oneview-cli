@@ -75,12 +75,15 @@ class IronicOneView(object):
                             "against any certificate authorities. This "
                             "option should be used with caution.")
 
+        inspection_enabled = common.env(
+            'OS_INSPECTION_ENABLED', default='False').lower() == 'true'
+
         parser.add_argument('--os-inspection-enabled',
-                            default=common.env(
-                                'OS_INSPECTION_ENABLED', default=False),
-                            help="Enable Ironic OneView driver inspection to "
-                                 "discovering hardware properties "
-                                 "(disk, memory, cpu). "
+                            default=inspection_enabled,
+                            action="store_true",
+                            help="Assume inspection is used for OneView nodes "
+                                 "in Ironic. As a consequence, the CLI will "
+                                 "enroll nodes without hardware properties. "
                                  "Defaults to env[OS_INSPECTION_ENABLED]")
 
         parser.add_argument('--os_inspection_enabled',

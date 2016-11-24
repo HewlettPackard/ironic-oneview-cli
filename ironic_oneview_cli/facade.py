@@ -93,8 +93,7 @@ class Facade(object):
 
     # Next generation
     def list_server_hardware_available(self):
-        server_hardware_list = self.filter_server_hardware_available()
-        return [sh for sh in server_hardware_list if not sh.server_profile_uri]
+        return self.filter_server_hardware_available()
 
     def list_templates_compatible_with(self, server_hardware_list):
         compatible_server_profile_list = []

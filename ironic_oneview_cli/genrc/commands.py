@@ -55,7 +55,9 @@ def do_genrc(args):
 
     # OpenStack
 
-    print("\n# Enable Ironic OneView driver inspection.")
+    print("\n# Assume inspection is used for OneView nodes in Ironic.\n"
+          "As a consequence, the CLI will enroll nodes without\n"
+          "hardware properties..")
     print("#export OS_INSPECTION_ENABLED=False")
 
     print("\n# Ironic deploy kernel image uuid.")
