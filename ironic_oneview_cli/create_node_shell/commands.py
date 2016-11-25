@@ -24,61 +24,54 @@ class NodeCreator(object):
     def __init__(self, facade):
         self.facade = facade
 
+    def get_oneview_nodes(self):
+        return filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
+                      self.facade.get_ironic_node_list())
+
     def is_server_profile_applied(self, server_hardware):
-        return server_hardware.server_profile_uri not in (None, '')
+        return bool(server_hardware.server_profile_uri)
 
     def is_enrolled_on_ironic(self, server_hardware):
-        nodes = filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
-                       self.facade.get_ironic_node_list())
-        for node in nodes:
-            sh_uri = node.driver_info.get(
-                'server_hardware_uri'
-            )
-            if sh_uri not in(None, '') and sh_uri == server_hardware.uri:
-                return True
-        return False
+        nodes = self.get_oneview_nodes()
+        return any(node.driver_info.get(
+            'server_hardware_uri') == server_hardware.uri for node in nodes)
 
     def list_server_hardware(self):
         return self.facade.list_server_hardware_available()
 
+    def set_attributes_to_object(self, oneview_object_list):
+
+        for oneview_object in oneview_object_list:
+            enclosure_group = self.facade.get_enclosure_group(
+                oneview_object.enclosure_group_uri
+            )
+            server_hardware_type = self.facade.get_server_hardware_type(
+                oneview_object.server_hardware_type_uri
+            )
+
+            # Here comes the infamous HACK of local_gb and cpu_arch
+            oneview_object.local_gb = 120
+            oneview_object.cpu_arch = 'x86_64'
+
+            oneview_object.enclosure_group_name = getattr(
+                enclosure_group, 'name', ''
+            )
+            oneview_object.server_hardware_type_name = getattr(
+                server_hardware_type, 'name', ''
+            )
+            oneview_object.enrolled = self.is_enrolled_on_ironic(
+                oneview_object
+            )
+
     def filter_server_hardware(self, **kwargs):
-        server_hardware_objects = self.facade.filter_server_hardware_available(
+        return self.facade.filter_server_hardware_available(
             **kwargs
         )
 
-        for sh in server_hardware_objects:
-            enclosure_group = self.facade.get_enclosure_group(
-                sh.enclosure_group_uri
-            )
-            if enclosure_group:
-                sh.enclosure_group_name = enclosure_group.name
-            server_hardware_type = self.facade.get_server_hardware_type(
-                sh.server_hardware_type_uri
-            )
-            if server_hardware_type:
-                sh.server_hardware_type_name = server_hardware_type.name
-            is_enrolled = self.is_enrolled_on_ironic(sh)
-            setattr(sh, "enrolled", is_enrolled)
-
-        return server_hardware_objects
-
     def get_templates_compatible_with(self, server_hardware_objects):
-        spt_list = self.facade.list_templates_compatible_with(
+        return self.facade.list_templates_compatible_with(
             server_hardware_objects
         )
-        for spt in spt_list:
-            enclosure_group = self.facade.get_enclosure_group(
-                spt.enclosure_group_uri
-            )
-            if enclosure_group:
-                spt.enclosure_group_name = enclosure_group.name
-            server_hardware_type = self.facade.get_server_hardware_type(
-                spt.server_hardware_type_uri
-            )
-            if server_hardware_type:
-                spt.server_hardware_type_name = server_hardware_type.name
-
-        return spt_list
 
     def get_server_hardware_list(self, server_profile_template):
         selected_sht_uri = server_profile_template.server_hardware_type_uri
@@ -92,9 +85,6 @@ class NodeCreator(object):
         return sorted(server_hardware_list, key=lambda x: x.name)
 
     def create_node(self, args, server_hardware, server_profile_template):
-        # Here comes the infamous HACK of local_gb and cpu_arch
-        server_hardware.local_gb = 120
-        server_hardware.cpu_arch = 'x86_64'
 
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
@@ -149,6 +139,7 @@ def do_node_create(args):
     spt_list = node_creator.get_templates_compatible_with(
         node_creator.list_server_hardware()
     )
+    node_creator.set_attributes_to_object(spt_list)
     common.assign_elements_with_new_id(spt_list)
 
     template_selected = common.get_element_by_name(
@@ -180,7 +171,7 @@ def do_node_create(args):
             spt_list, input_id
         )
 
-    print("\nYou choose the following Server Profile Template: ")
+    print("You choose the following Server Profile Template: ")
     common.print_prompt(
         [template_selected],
         [
@@ -198,7 +189,7 @@ def do_node_create(args):
     s_hardware_list = node_creator.get_server_hardware_list(
         template_selected
     )
-
+    node_creator.set_attributes_to_object(s_hardware_list)
     common.assign_elements_with_new_id(s_hardware_list)
 
     if args.number:
@@ -222,24 +213,28 @@ def do_node_create(args):
             ]
         )
 
+        nodes_created = 0
         for node_index in range(args.number):
-            node = common.get_element_by_id(
-                s_hardware_list,
-                str(node_index + 1)
-            )
-            if (node is None):
-                print(("Only %(node_index)s nodes created") %
-                      {'node_index': node_index})
-                break
-            else:
-                node_creator.create_node(
-                    args, node, template_selected
-                )
+            node = common.get_element_by_id(s_hardware_list, node_index + 1)
 
-        print('\nNodes created!')
+            if node is None:
+                print("{} nodes created.".format(nodes_created))
+                break
+            elif node_creator.is_enrolled_on_ironic(node):
+                print(('Server Hardware %(server_hardware)s is already '
+                       'enrolled on Ironic.') % {'server_hardware': node.uuid})
+            else:
+                if node_creator.is_server_profile_applied(node):
+                    print(('Server Hardware %(server_hardware)s is in use by '
+                           'OneView.') % {'server_hardware': node.uuid})
+
+                node_creator.create_node(args, node, template_selected)
+                nodes_created += 1
+
+        print('Node Creation Finished.')
 
     else:
-        print('\nListing compatible Server Hardware objects...')
+        print('Listing compatible Server Hardware objects...')
 
         invalid_server_hardwares = True
         while invalid_server_hardwares:
@@ -277,16 +272,14 @@ def do_node_create(args):
 
         for server_hardware_id in s_hardware_ids_selected:
             server_hardware_selected = common.get_element_by_id(
-                s_hardware_list,
-                server_hardware_id
+                s_hardware_list, server_hardware_id
             )
-            print('\n')
-            if not node_creator.is_enrolled_on_ironic(
-                    server_hardware_selected):
-                print(
-                    'Creating a node to represent the following Server'
-                    'Hardware..'
-                )
+            if node_creator.is_enrolled_on_ironic(server_hardware_selected):
+                print(('It was not possible create the node, this '
+                       'Server Hardware is enrolled on Ironic.'))
+            else:
+                print('Creating a node to represent the following Server '
+                      'Hardware.')
                 common.print_prompt(
                     [server_hardware_selected],
                     [
@@ -308,14 +301,10 @@ def do_node_create(args):
                 )
                 if node_creator.is_server_profile_applied(
                         server_hardware_selected):
-                    print('Warning: This Server Hardware'
-                          'is in use by OneView.')
+                    print('This Server Hardware is in use by OneView.')
 
                 node_creator.create_node(
                     args, server_hardware_selected, template_selected
                 )
 
                 print('Node created!')
-            else:
-                print('ERROR: It was not possible create the node, this Server'
-                      ' Hardware is enrolled on Ironic.')
