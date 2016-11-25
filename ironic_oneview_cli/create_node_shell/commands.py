@@ -319,8 +319,9 @@ def do_node_create(args):
                     ]
                 )
                 if node_creator.is_server_profile_applied(
-                        server_hardware_selected):
-                    print('Warning: This Server Hardware'
+                    server_hardware_selected
+                ):
+                    print('Warning: This Server Hardware '
                           'is in use by OneView.')
 
                 node_creator.create_node(
