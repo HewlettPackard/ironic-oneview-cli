@@ -34,27 +34,16 @@ class FlavorCreator(object):
                       self.facade.get_ironic_node_list())
 
     def get_flavor_from_ironic_node(self, flavor_id, node):
-        flavor = {}
-
-        flavor['ram_mb'] = node.properties.get("memory_mb")
-        flavor['cpus'] = node.properties.get("cpus")
-        flavor['disk'] = node.properties.get("local_gb")
-        flavor['cpu_arch'] = 'x86_64'
-
         server_hardware_uri = node.driver_info.get("server_hardware_uri")
         server_hardware = self.facade.get_server_hardware(server_hardware_uri)
 
         server_hardware_type = self.facade.get_server_hardware_type(
             server_hardware.server_hardware_type_uri
         )
-        flavor['server_hardware_type_name'] = server_hardware_type.name
-        flavor['server_hardware_type_uri'] = server_hardware_type.uri
 
         enclosure_group = self.facade.get_enclosure_group(
             server_hardware.enclosure_group_uri
         )
-        flavor['enclosure_group_name'] = enclosure_group.name
-        flavor['enclosure_group_uri'] = enclosure_group.uri
 
         capabilities = node.properties.get("capabilities")
         match = re.search(
@@ -62,28 +51,54 @@ class FlavorCreator(object):
             capabilities
         )
         server_profile_template_uri = match.group('uri')
-        if server_profile_template_uri:
-            server_profile_template = self.facade.get_server_profile_template(
-                server_profile_template_uri
-            )
-            flavor['server_profile_template_name'] = (
-                server_profile_template.name
-            )
-            flavor['server_profile_template_uri'] = server_profile_template.uri
+        server_profile_template = self.facade.get_server_profile_template(
+            server_profile_template_uri
+        )
+
+        flavor = self.set_flavor_properties(
+            node, server_hardware_type,
+            enclosure_group, server_profile_template
+        )
 
         return objects.Flavor(id=flavor_id, info=flavor)
+
+    def set_flavor_properties(self, node, server_hardware_type,
+                              enclosure_group, server_profile_template):
+        flavor = {}
+
+        flavor['ram_mb'] = node.properties.get('memory_mb')
+        flavor['cpus'] = node.properties.get('cpus')
+        flavor['disk'] = node.properties.get('local_gb')
+        flavor['cpu_arch'] = node.properties.get('cpu_arch')
+
+        flavor['server_hardware_type_name'] = getattr(
+            server_hardware_type, 'name', '')
+        flavor['server_hardware_type_uri'] = getattr(
+            server_hardware_type, 'uri', '')
+
+        flavor['enclosure_group_name'] = getattr(enclosure_group, 'name', '')
+        flavor['enclosure_group_uri'] = getattr(enclosure_group, 'uri', '')
+
+        flavor['server_profile_template_name'] = getattr(
+            server_profile_template, 'name', ''
+        )
+        flavor['server_profile_template_uri'] = getattr(
+            server_profile_template, 'uri', ''
+        )
+
+        return flavor
 
     def get_flavor_list(self, nodes):
         flavors = []
 
         id_counter = 1
         for node in nodes:
-            if node.properties.get('memory_mb') is not None:
+            if node.properties.get('memory_mb'):
                 flavors.append(
                     self.get_flavor_from_ironic_node(id_counter, node)
                 )
                 id_counter += 1
-        return set(flavors)
+        return sorted(set(flavors), key=lambda x: x.cpus)
 
     def create_flavor(self, name, ram, vcpus, disk, extra_specs={}):
         attrs = {
@@ -101,13 +116,12 @@ class FlavorCreator(object):
 
 
 def do_flavor_create(args):
-    """Creates flavors based on available Ironic nodes.
+    """Create flavors based on available Ironic nodes.
 
     Shows a list with suggested Flavors to be created based on OneView's Server
     Profile Templates. The user can then select a Flavor to create based on
     it's ID.
     """
-
     cli_facade = facade.Facade(args)
     flavor_creator = FlavorCreator(cli_facade)
     nodes = flavor_creator.get_nodes_using_oneview_drivers()
@@ -122,18 +136,7 @@ def do_flavor_create(args):
     LOG.info("Flavor creation...")
 
     flavor_list = flavor_creator.get_flavor_list(nodes)
-    flavor_list = list(flavor_list)
-    for j in range(1, len(flavor_list)):
-        key = flavor_list[j]
-        i = j - 1
-        while i >= 0 and int(flavor_list[i].cpus) > int(key.cpus):
-            flavor_list[i + 1] = flavor_list[i]
-            i -= 1
-        flavor_list[i + 1] = key
-    for i in range(0, len(flavor_list)):
-        flavor_list[i].__setitem__(i + 1)
-
-    flavor_list = set(flavor_list)
+    common.assign_elements_with_new_id(flavor_list)
 
     while True:
         input_id = common.print_prompt(
