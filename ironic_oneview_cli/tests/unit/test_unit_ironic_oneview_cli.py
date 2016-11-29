@@ -80,7 +80,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         provision_state='enroll',
         ports=[{}],
         driver='fake_oneview',
-        driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
+        driver_info={'server_hardware_uri': "/rest/server-hardware/33333",
                      'user': 'foo',
                      'dynamic_allocation': False,
                      'password': 'bar'},
@@ -205,9 +205,52 @@ POOL_OF_STUB_NOVA_FLAVORS = [
 class UnitTestIronicOneviewCli(unittest.TestCase):
 
     @mock.patch.object(facade.Facade, 'get_ironic_node_list')
-    def test_list_server_hardware(self,
-                                  mock_ironic_node_list,
-                                  mock_facade):
+    def test_get_oneview_nodes(self, mock_ironic_node_list, mock_facade):
+        node_creator = create_node_cmd.NodeCreator(mock_facade)
+        ironic_nodes = POOL_OF_STUB_IRONIC_NODES
+        mock_ironic_node_list.return_value = ironic_nodes
+        mock_facade.get_ironic_node_list = mock_ironic_node_list
+        oneview_nodes = node_creator.get_oneview_nodes()
+
+        self.assertEqual(4, len(ironic_nodes))
+        self.assertEqual(3, len(list(oneview_nodes)))
+
+    @mock.patch.object(facade.Facade, 'get_ironic_node_list')
+    def test_is_enrolled_on_ironic(self, mock_ironic_node_list, mock_facade):
+        node_creator = create_node_cmd.NodeCreator(mock_facade)
+        ironic_nodes = POOL_OF_STUB_IRONIC_NODES
+        mock_ironic_node_list.return_value = ironic_nodes
+        mock_facade.get_ironic_node_list = mock_ironic_node_list
+        server_hardware = POOL_OF_STUB_SERVER_HARDWARE[1]
+
+        self.assertTrue(node_creator.is_enrolled_on_ironic(server_hardware))
+
+    @mock.patch.object(facade.Facade, 'get_ironic_node_list')
+    def test_is_enrolled_on_ironic_false(
+        self, mock_ironic_node_list, mock_facade
+    ):
+        node_creator = create_node_cmd.NodeCreator(mock_facade)
+        ironic_nodes = POOL_OF_STUB_IRONIC_NODES
+        mock_ironic_node_list.return_value = ironic_nodes
+        mock_facade.get_ironic_node_list = mock_ironic_node_list
+        server_hardware = POOL_OF_STUB_SERVER_HARDWARE[0]
+
+        self.assertFalse(node_creator.is_enrolled_on_ironic(server_hardware))
+
+    def test_is_server_profile_applied(self, mock_facade):
+        node_creator = create_node_cmd.NodeCreator(mock_facade)
+
+        self.assertTrue(node_creator.is_server_profile_applied(
+            POOL_OF_STUB_SERVER_HARDWARE[0]))
+
+    def test_is_server_profile_applied_false(self, mock_facade):
+        node_creator = create_node_cmd.NodeCreator(mock_facade)
+
+        self.assertFalse(node_creator.is_server_profile_applied(
+            POOL_OF_STUB_SERVER_HARDWARE[1]))
+
+    @mock.patch.object(facade.Facade, 'get_ironic_node_list')
+    def test_list_server_hardware(self, mock_ironic_node_list, mock_facade):
         node_creator = create_node_cmd.NodeCreator(mock_facade)
         ironic_nodes = POOL_OF_STUB_IRONIC_NODES
         mock_ironic_node_list.return_value = ironic_nodes
@@ -221,9 +264,9 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         self.assertEqual(2, len(server_hardware_objects))
 
     @mock.patch.object(facade.Facade, 'get_ironic_node_list')
-    def test_list_pre_allocation_nodes(self,
-                                       mock_facade,
-                                       mock_ironic_node_list):
+    def test_list_pre_allocation_nodes(
+        self, mock_facade, mock_ironic_node_list
+    ):
         node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
         ironic_nodes = POOL_OF_STUB_IRONIC_NODES
         mock_ironic_node_list.return_value = ironic_nodes
@@ -236,12 +279,10 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
     @mock.patch.object(facade.Facade, 'node_update')
     @mock.patch.object(facade.Facade, 'node_set_maintenance')
     @mock.patch.object(facade.Facade, 'delete_server_profile')
-    def test_migrate_idle_node(self,
-                               mock_delete_server_profile,
-                               mock_set_maintenance,
-                               mock_node_update,
-                               mock_facade):
-
+    def test_migrate_idle_node(
+        self, mock_delete_server_profile, mock_set_maintenance,
+        mock_node_update, mock_facade
+    ):
         node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
 
         mock_facade.node_set_maintenance = mock_set_maintenance
@@ -266,9 +307,7 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         self.assertEqual(2, mock_set_maintenance.call_count)
 
     @mock.patch.object(facade.Facade, 'node_update')
-    def test_migrate_node_with_instance(self,
-                                        mock_node_update,
-                                        mock_facade):
+    def test_migrate_node_with_instance(self, mock_node_update, mock_facade):
         node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
         mock_facade.node_update = mock_node_update
 

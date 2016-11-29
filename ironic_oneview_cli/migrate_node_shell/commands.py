@@ -47,7 +47,7 @@ class NodeMigrator(object):
             else:
                 message = ("The following node is not in a state available"
                            "to migrate: %s" % (node.uuid))
-                LOG.warn(message)
+                LOG.warning(message)
 
         return pre_allocation_nodes_allow_to_migrate
 
@@ -107,7 +107,7 @@ class NodeMigrator(object):
 
             message = ("The following node is already in the "
                        "dynamic allocation model: %s" % (node.uuid))
-            LOG.warn(message)
+            LOG.warning(message)
 
             return True
 
