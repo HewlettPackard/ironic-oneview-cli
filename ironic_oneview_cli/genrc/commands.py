@@ -16,8 +16,7 @@
 
 
 def do_genrc(args):
-    """Generates the Ironic OneView CLI sample file."""
-
+    """Generate the Ironic OneView CLI sample file."""
     print("#!/usr/bin/env bash")
     print("\n# Ironic OneView CLI")
 
@@ -56,8 +55,8 @@ def do_genrc(args):
     # OpenStack
 
     print("\n# Assume inspection is used for OneView nodes in Ironic.\n"
-          "As a consequence, the CLI will enroll nodes without\n"
-          "hardware properties..")
+          "# As a consequence, the CLI will enroll nodes without\n"
+          "# hardware properties.")
     print("#export OS_INSPECTION_ENABLED=False")
 
     print("\n# Ironic deploy kernel image uuid.")
