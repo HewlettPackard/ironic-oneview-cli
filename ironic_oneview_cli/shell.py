@@ -38,7 +38,7 @@ from ironic_oneview_cli.migrate_node_shell import (
     commands as node_migrate_commands)
 from ironic_oneview_cli import service_logging as logging
 
-VERSION = '0.4.0'
+VERSION = '0.5.0'
 
 COMMAND_MODULES = [
     node_create_commands,
