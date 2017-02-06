@@ -86,9 +86,6 @@ class NodeCreator(object):
         return sorted(server_hardware_list, key=lambda x: x.name.lower())
 
     def create_node(self, args, server_hardware, server_profile_template):
-        if server_hardware.enclosure_group_uri is None:
-            server_hardware.enclosure_group_uri = ''
-
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
@@ -105,14 +102,17 @@ class NodeCreator(object):
             },
             'properties': {
                 'capabilities': 'server_hardware_type_uri:%s,'
-                                'enclosure_group_uri:%s,'
                                 'server_profile_template_uri:%s' % (
                                     server_hardware.server_hardware_type_uri,
-                                    server_hardware.enclosure_group_uri,
-                                    server_profile_template.uri,
+                                    server_profile_template.uri
                                 )
             }
         }
+        if server_hardware.enclosure_group_uri:
+            enclosure_group_uri = (
+                ',enclosure_group_uri:%s' % server_hardware.enclosure_group_uri
+            )
+            attrs['properties']['capabilities'] += enclosure_group_uri
 
         if not args.os_inspection_enabled:
             hardware_properties = {

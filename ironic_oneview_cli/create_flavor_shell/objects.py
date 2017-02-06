@@ -42,8 +42,9 @@ class Flavor(object):
         if hasattr(self, 'server_hardware_type_uri'):
             extra_specs['capabilities:server_hardware_type_uri'] = (
                 self.server_hardware_type_uri)
-        # if hasattr(self, 'enclosure_group_uri'):
-        #     extra_specs['capabilities:enclosure_group_uri'] = enclosure_group
+        if getattr(self, 'enclosure_group_uri'):
+            extra_specs['capabilities:enclosure_group_uri'] = (
+                self.enclosure_group_uri)
         return extra_specs
 
     def __repr__(self):
