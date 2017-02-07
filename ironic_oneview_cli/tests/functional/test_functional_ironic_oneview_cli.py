@@ -396,6 +396,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             ),
             all=False,
             server_profile_template_name=None,
+            use_oneview_mech_driver=False,
             number=None,
             nodes=None
         )
@@ -819,6 +820,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             'driver': STUB_PARAMETERS.os_ironic_node_driver,
             'driver_info': {
                 'dynamic_allocation': True,
+                'use_oneview_ml2_driver': False,
                 'deploy_kernel': STUB_PARAMETERS.os_ironic_deploy_kernel_uuid,
                 'deploy_ramdisk':
                     STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid,
