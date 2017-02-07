@@ -142,6 +142,10 @@ the following command::
 .. note::
    You can use both arguments at once.
 
+If you have the Networking OneView Mechanism Driver enabled, use the following
+command::
+
+    $ ironic-oneview node-create --use-oneview-mech-driver
 ----
 
 To list all nodes in Ironic, use the command::
