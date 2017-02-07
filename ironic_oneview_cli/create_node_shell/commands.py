@@ -99,6 +99,7 @@ class NodeCreator(object):
                 # NOTE(caiobo): the flag should be removed once the
                 # support for pre-allocation is dropped.
                 'dynamic_allocation': True,
+                'enable_mech_driver': args.use_oneview_mech_driver,
             },
             'properties': {
                 'capabilities': 'server_hardware_type_uri:%s,'
@@ -140,6 +141,11 @@ class NodeCreator(object):
     metavar='<spt_name>',
     default=None,
     help='Name of the HP OneView Server Profile Template.')
+@common.arg(
+    '--use-oneview-mech-driver',
+    action='store_true',
+    default=False,
+    help='.')
 def do_node_create(args):
     """Create nodes based on available HP OneView Objects."""
     node_creator = NodeCreator(facade.Facade(args))
