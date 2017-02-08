@@ -145,7 +145,7 @@ class NodeCreator(object):
     '--use-oneview-mech-driver',
     action='store_true',
     default=False,
-    help='.')
+    help='Whether using the OneView Mechanism Driver.')
 def do_node_create(args):
     """Create nodes based on available HP OneView Objects."""
     node_creator = NodeCreator(facade.Facade(args))
