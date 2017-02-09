@@ -145,7 +145,7 @@ the following command::
 If you have the Networking OneView Mechanism Driver enabled, use the following
 command::
 
-    $ ironic-oneview node-create --use-oneview-mech-driver
+    $ ironic-oneview node-create --use-oneview-ml2-driver
 ----
 
 To list all nodes in Ironic, use the command::

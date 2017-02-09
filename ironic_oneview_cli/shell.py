@@ -181,10 +181,10 @@ class IronicOneView(object):
 
         parser.add_argument('--ironic-api-version',
                             default=common.env(
-                                'IRONIC_API_VERSION', default='1.11'),
+                                'IRONIC_API_VERSION', default='1.25'),
                             help='Accepts 1.x (where "x" is microversion) '
                                  'or "latest", Defaults to '
-                                 'env[IRONIC_API_VERSION] or 1')
+                                 'env[IRONIC_API_VERSION] or 1.25')
 
         parser.add_argument('--ironic_api_version',
                             help=argparse.SUPPRESS)

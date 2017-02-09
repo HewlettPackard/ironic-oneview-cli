@@ -396,7 +396,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             ),
             all=False,
             server_profile_template_name=None,
-            use_oneview_mech_driver=False,
+            use_oneview_ml2_driver=False,
             number=None,
             nodes=None
         )
