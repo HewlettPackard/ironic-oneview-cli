@@ -90,11 +90,7 @@ class NodeCreator(object):
             args, server_hardware, server_profile_template)
 
         self._update_attrs_for_node(attrs, args, server_hardware)
-
-        try:
-            self.facade.create_ironic_node(**attrs)
-        except Exception as e:
-            raise e
+        self.facade.create_ironic_node(**attrs)
 
     def _create_attrs_for_node(
         self, args, server_hardware, server_profile_template
