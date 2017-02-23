@@ -86,6 +86,15 @@ class NodeCreator(object):
         return sorted(server_hardware_list, key=lambda x: x.name.lower())
 
     def create_node(self, args, server_hardware, server_profile_template):
+        attrs = self._create_attrs_for_node(
+            args, server_hardware, server_profile_template)
+
+        self._update_attrs_for_node(attrs, args, server_hardware)
+        self.facade.create_ironic_node(**attrs)
+
+    def _create_attrs_for_node(
+        self, args, server_hardware, server_profile_template
+    ):
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
@@ -99,6 +108,7 @@ class NodeCreator(object):
                 # NOTE(caiobo): the flag should be removed once the
                 # support for pre-allocation is dropped.
                 'dynamic_allocation': True,
+                'use_oneview_ml2_driver': args.use_oneview_ml2_driver,
             },
             'properties': {
                 'capabilities': 'server_hardware_type_uri:%s,'
@@ -108,11 +118,18 @@ class NodeCreator(object):
                                 )
             }
         }
+
+        return attrs
+
+    def _update_attrs_for_node(self, attributes, args, server_hardware):
+        if args.use_oneview_ml2_driver:
+            attributes['network_interface'] = 'neutron'
+
         if server_hardware.enclosure_group_uri:
             enclosure_group_uri = (
                 ',enclosure_group_uri:%s' % server_hardware.enclosure_group_uri
             )
-            attrs['properties']['capabilities'] += enclosure_group_uri
+            attributes['properties']['capabilities'] += enclosure_group_uri
 
         if not args.os_inspection_enabled:
             hardware_properties = {
@@ -122,12 +139,7 @@ class NodeCreator(object):
                 'cpu_arch': server_hardware.cpu_arch
             }
 
-            attrs['properties'].update(hardware_properties)
-
-        try:
-            self.facade.create_ironic_node(**attrs)
-        except Exception as e:
-            raise e
+            attributes['properties'].update(hardware_properties)
 
 
 @common.arg(
@@ -140,6 +152,11 @@ class NodeCreator(object):
     metavar='<spt_name>',
     default=None,
     help='Name of the HP OneView Server Profile Template.')
+@common.arg(
+    '--use-oneview-ml2-driver',
+    action='store_true',
+    default=False,
+    help='Whether using the OneView Mechanism Driver.')
 def do_node_create(args):
     """Create nodes based on available HP OneView Objects."""
     node_creator = NodeCreator(facade.Facade(args))
