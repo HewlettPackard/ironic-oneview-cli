@@ -24,8 +24,6 @@ from ironic_oneview_cli.create_node_shell import (
     commands as create_node_cmd)
 from ironic_oneview_cli.delete_node_shell import (
     commands as delete_node_cmd)
-from ironic_oneview_cli.migrate_node_shell import (
-    commands as migrate_node_cmd)
 from ironic_oneview_cli.tests import stubs
 
 POOL_OF_STUB_IRONIC_NODES = [
@@ -44,8 +42,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         ],
         driver='fake_oneview',
         driver_info={'user': 'foo',
-                     'password': 'bar',
-                     'dynamic_allocation': True},
+                     'password': 'bar'},
         properties={'num_cpu': 4},
         name='fake-node-1',
         extra={}
@@ -87,8 +84,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
-                     'password': 'bar',
-                     'dynamic_allocation': False},
+                     'password': 'bar'},
         properties={'memory_mb': 32768,
                     'cpu_arch': 'x86_64',
                     'local_gb': 120,
@@ -125,7 +121,6 @@ POOL_OF_STUB_IRONIC_NODES = [
         uuid='33333333-4444-8888-9999-11111111111',
         chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
         maintenance=False,
-        maintenance_reason='Migrating to dynamic allocation',
         provision_state='enroll',
         ports=[
             {'id': 345,
@@ -137,8 +132,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
-                     'password': 'bar',
-                     'dynamic_allocation': True},
+                     'password': 'bar'},
         properties={'memory_mb': 32768,
                     'cpu_arch': 'x86_64',
                     'local_gb': 120,
@@ -172,8 +166,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
-                     'password': 'bar',
-                     'dynamic_allocation': True},
+                     'password': 'bar'},
         properties={'memory_mb': 32768,
                     'cpu_arch': 'x86_64',
                     'local_gb': 120,
@@ -207,8 +200,7 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/11111",
                      'user': 'foo',
-                     'password': 'bar',
-                     'dynamic_allocation': False},
+                     'password': 'bar'},
         properties={'memory_mb': 32768,
                     'cpu_arch': 'x86_64',
                     'local_gb': 120,
@@ -663,179 +655,6 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
 
     @mock.patch('ironic_oneview_cli.common.input')
-    def test_node_migration(self, mock_input,
-                            mock_oneview_client,
-                            mock_ironic_client):
-        ironic_client = mock_ironic_client.return_value
-        ironic_client.node.list.return_value = (
-            POOL_OF_STUB_IRONIC_NODES[1],
-            POOL_OF_STUB_IRONIC_NODES[2]
-        )
-        oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.get.return_value = \
-            POOL_OF_STUB_SERVER_HARDWARE[1]
-
-        mock_input.side_effect = ['1', 'n']
-
-        update_patch_test = [{'op': 'add',
-                              'path': '/driver_info/dynamic_allocation',
-                              'value': True}]
-
-        migrate_node_cmd.do_migrate_to_dynamic(self.args)
-
-        self.assertEqual(2, ironic_client.node.set_maintenance.call_count)
-
-        ironic_client.node.update.assert_called_with(
-            POOL_OF_STUB_IRONIC_NODES[1].uuid,
-            update_patch_test
-        )
-
-    def test_node_migration_all(self, mock_oneview_client, mock_ironic_client):
-        ironic_client = mock_ironic_client.return_value
-        ironic_client.node.list.return_value = (
-            POOL_OF_STUB_IRONIC_NODES[1],
-            POOL_OF_STUB_IRONIC_NODES[2]
-        )
-        oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.get.return_value = \
-            POOL_OF_STUB_SERVER_HARDWARE[1]
-
-        update_patch_test = [{'op': 'add',
-                              'path': '/driver_info/dynamic_allocation',
-                              'value': True}]
-
-        sp_patch_test = [{'op': 'add',
-                          'path': '/driver_info/'
-                                  'applied_server_profile_uri',
-                          'value': '/rest/server-profile/1111-2222'}]
-        self.args.all = True
-
-        migrate_node_cmd.do_migrate_to_dynamic(self.args)
-
-        self.assertEqual(2, ironic_client.node.set_maintenance.call_count)
-
-        oneview_client.server_profile.delete.assert_called_with(
-            '1111-2222'
-        )
-
-        ironic_client.node.update.assert_any_call(
-            POOL_OF_STUB_IRONIC_NODES[1].uuid,
-            update_patch_test
-        )
-
-        ironic_client.node.update.assert_any_call(
-            POOL_OF_STUB_IRONIC_NODES[2].uuid,
-            sp_patch_test + update_patch_test
-        )
-
-    def test_node_migration_specific(self,
-                                     mock_oneview_client,
-                                     mock_ironic_client):
-        ironic_client = mock_ironic_client.return_value
-        ironic_client.node.get.return_value = (
-            POOL_OF_STUB_IRONIC_NODES[2]
-        )
-        oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.get.return_value = \
-            POOL_OF_STUB_SERVER_HARDWARE[1]
-
-        update_patch_test = [{'op': 'add',
-                              'path': '/driver_info/dynamic_allocation',
-                              'value': True}]
-
-        sp_patch_test = [{'op': 'add',
-                          'path': '/driver_info/'
-                                  'applied_server_profile_uri',
-                          'value': '/rest/server-profile/1111-2222'}]
-
-        self.args.nodes = '33333333-4444-8888-9999-000000000000'
-
-        migrate_node_cmd.do_migrate_to_dynamic(self.args)
-
-        ironic_client.node.set_maintenance.assert_not_called()
-
-        ironic_client.node.update.assert_called_with(
-            POOL_OF_STUB_IRONIC_NODES[2].uuid,
-            sp_patch_test + update_patch_test
-        )
-
-    def test_migration_dyalloc_and_maintenance_reason_not_none(
-            self,
-            mock_oneview_client,
-            mock_ironic_client):
-        ironic_client = mock_ironic_client.return_value
-        ironic_client.node.get.return_value = (
-            POOL_OF_STUB_IRONIC_NODES[4]
-        )
-
-        self.args.nodes = '33333333-4444-8888-9999-11111111111'
-
-        migrate_node_cmd.do_migrate_to_dynamic(self.args)
-
-        ironic_client.node.update.assert_not_called()
-
-        ironic_client.node.set_maintenance.assert_called_with(
-            POOL_OF_STUB_IRONIC_NODES[4].uuid,
-            False,
-            maint_reason=''
-        )
-
-    def test_migration_dyalloc_and_maintenance_reason_none(
-            self,
-            mock_oneview_client,
-            mock_ironic_client):
-
-        ironic_client = mock_ironic_client.return_value
-        ironic_client.node.get.return_value = (
-            POOL_OF_STUB_IRONIC_NODES[5]
-        )
-
-        self.args.nodes = '33333333-4444-8888-9999-22222222222'
-
-        migrate_node_cmd.do_migrate_to_dynamic(self.args)
-
-        ironic_client.node.update.assert_not_called()
-
-        ironic_client.node.set_maintenance.assert_not_called()
-
-    def test_migrate_with_server_profile_deleted(
-            self,
-            mock_oneview_client,
-            mock_ironic_client):
-
-        node = POOL_OF_STUB_IRONIC_NODES[6]
-        server_profile_uri = '/rest/server-profile/1111-2222'
-        node.server_profile_uri = server_profile_uri
-        POOL_OF_STUB_IRONIC_NODES[6] = node
-
-        update_patch_test = [{'op': 'add',
-                              'path': '/driver_info/dynamic_allocation',
-                              'value': True}]
-
-        ironic_client = mock_ironic_client.return_value
-        ironic_client.node.get.return_value = (
-            POOL_OF_STUB_IRONIC_NODES[6]
-        )
-        oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.get.return_value = \
-            POOL_OF_STUB_SERVER_HARDWARE[0]
-
-        self.args.nodes = '33333333-4444-8888-9999-22222222222'
-
-        migrate_node_cmd.do_migrate_to_dynamic(self.args)
-
-        oneview_client.server_profile.delete.assert_called_with(
-            None
-        )
-
-        self.assertRaises(ValueError)
-
-        ironic_client.node.update.assert_called_with(
-            POOL_OF_STUB_IRONIC_NODES[6].uuid,
-            update_patch_test
-        )
-
-    @mock.patch('ironic_oneview_cli.common.input')
     def test_delete_node(self, mock_input,
                          mock_oneview_client, mock_ironic_client):
         ironic_client = mock_ironic_client.return_value
@@ -852,7 +671,6 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         attrs = {
             'driver': STUB_PARAMETERS.os_ironic_node_driver,
             'driver_info': {
-                'dynamic_allocation': True,
                 'use_oneview_ml2_driver': self.args.use_oneview_ml2_driver,
                 'deploy_kernel': STUB_PARAMETERS.os_ironic_deploy_kernel_uuid,
                 'deploy_ramdisk':

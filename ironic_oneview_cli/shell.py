@@ -13,9 +13,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""
-Command-line interface to the Ironic - HP OneView drivers.
-"""
+
+"""Command-line interface to the Ironic - HP OneView drivers."""
 
 from __future__ import print_function
 import argparse
@@ -34,8 +33,6 @@ from ironic_oneview_cli.delete_node_shell import (
     commands as node_delete_commands)
 from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
-from ironic_oneview_cli.migrate_node_shell import (
-    commands as node_migrate_commands)
 from ironic_oneview_cli import service_logging as logging
 
 VERSION = '0.6.0'
@@ -43,7 +40,6 @@ VERSION = '0.6.0'
 COMMAND_MODULES = [
     node_create_commands,
     flavor_create_commands,
-    node_migrate_commands,
     node_delete_commands,
     genrc_commands
 ]
@@ -357,7 +353,7 @@ class IronicOneView(object):
         nargs='?',
         help='Display help for <subcommand>')
     def do_help(self, args):
-        """Displays help about this program or one of its subcommands."""
+        """Display help about this program or one of its subcommands."""
         if getattr(args, 'command', None):
             if args.command in self.subcommands:
                 self.subcommands[args.command].print_help()
@@ -492,7 +488,7 @@ class IronicOneView(object):
 
 
 def define_command(subparsers, command, callback, cmd_mapper):
-    """Defines a command in the subparsers collection.
+    """Define a command in the subparsers collection.
 
     :param subparsers: subparsers collection where the command will go
     :param command: command name
@@ -516,8 +512,7 @@ def define_command(subparsers, command, callback, cmd_mapper):
 
 
 def define_commands_from_module(subparsers, command_module, cmd_mapper):
-    """Adds *do_* methods in a module and add as commands into a subparsers."""
-
+    """Add *do_* methods in a module and add as commands into a subparsers."""
     for method_name in (a for a in dir(command_module) if a.startswith('do_')):
         # Commands should be hypen-separated instead of underscores.
         command = method_name[3:].replace('_', '-')

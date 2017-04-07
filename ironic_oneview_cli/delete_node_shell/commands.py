@@ -47,8 +47,7 @@ class NodeDelete(object):
     help='Delete multiple ironic nodes'
 )
 def do_node_delete(args):
-    """Delete nodes in Ironic"""
-
+    """Delete nodes in Ironic."""
     node_delete = NodeDelete(facade.Facade(args))
 
     if args.all:
