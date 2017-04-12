@@ -16,12 +16,13 @@
 #    under the License.
 
 import os
-
-from builtins import input
-from oslo_utils import encodeutils
-from oslo_utils import importutils
 import prettytable
 import six
+
+from builtins import input
+
+from oslo_utils import encodeutils
+from oslo_utils import importutils
 
 client = importutils.try_import('oneview_client.client')
 oneview_utils = importutils.try_import('oneview_client.utils')
@@ -30,14 +31,13 @@ SUPPORTED_DRIVERS = ['agent_pxe_oneview', 'iscsi_pxe_oneview', 'fake_oneview']
 
 
 def get_oneview_client(args):
-    """Generates an instance of the OneView client.
+    """Generate an instance of the OneView client.
 
     Generates an instance of the OneView client using the imported
     oneview_client library.
 
     :returns: an instance of the OneView client
     """
-
     args.ov_audit = True if args.ov_audit == 'True' else False
     oneview_client = client.ClientV2(
         manager_url=args.ov_auth_url,
@@ -71,7 +71,6 @@ def arg(*args, **kwargs):
 
 def add_arg(func, *args, **kwargs):
     """Bind CLI arguments to a shell.py `do_foo` function."""
-
     if not hasattr(func, 'arguments'):
         func.arguments = []
 
@@ -84,7 +83,7 @@ def add_arg(func, *args, **kwargs):
 
 
 def env(*args, **kwargs):
-    """Returns the first environment variable set.
+    """Return the first environment variable set.
 
     If all are empty, defaults to '' or keyword arg `default`.
     """
@@ -196,8 +195,10 @@ def set_flavor_name(flavor):
                                                   flavor.cpus,
                                                   flavor.cpu_arch,
                                                   flavor.disk)
-    flavor_name = input("Insert a name for the Flavor. [%(default_name)s]> " %
-                        {'default_name': flavor_name_template})
+    flavor_name = input(
+        "Insert a name for the Flavor. [%(default_name)s]> " %
+        {'default_name': flavor_name_template}
+    )
 
     if not flavor_name:
         return flavor_name_template
