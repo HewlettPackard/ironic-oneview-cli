@@ -24,8 +24,6 @@ from ironic_oneview_cli.create_flavor_shell import (
 from ironic_oneview_cli.create_node_shell import (
     commands as create_node_cmd)
 from ironic_oneview_cli import facade
-from ironic_oneview_cli.migrate_node_shell import (
-    commands as migrate_node_cmd)
 from ironic_oneview_cli.tests import stubs
 
 POOL_OF_STUB_IRONIC_NODES = [
@@ -44,7 +42,6 @@ POOL_OF_STUB_IRONIC_NODES = [
         ],
         driver='fake_oneview',
         driver_info={'user': 'foo',
-                     'dynamic_allocation': True,
                      'password': 'bar'},
         properties={'num_cpu': 4},
         name='fake-node-1',
@@ -82,7 +79,6 @@ POOL_OF_STUB_IRONIC_NODES = [
         driver='fake_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/33333",
                      'user': 'foo',
-                     'dynamic_allocation': False,
                      'password': 'bar'},
         properties={'cpu_arch': 'x86_64',
                     'capabilities': 'server_hardware_type_uri:'
@@ -262,73 +258,6 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         server_hardware_objects = node_creator.list_server_hardware()
 
         self.assertEqual(2, len(server_hardware_objects))
-
-    @mock.patch.object(facade.Facade, 'get_ironic_node_list')
-    def test_list_pre_allocation_nodes(
-        self, mock_facade, mock_ironic_node_list
-    ):
-        node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
-        ironic_nodes = POOL_OF_STUB_IRONIC_NODES
-        mock_ironic_node_list.return_value = ironic_nodes
-        mock_facade.get_ironic_node_list = mock_ironic_node_list
-
-        pre_allocation_nodes = node_migrator.list_pre_allocation_nodes()
-
-        self.assertEqual(2, len(list(pre_allocation_nodes)))
-
-    @mock.patch.object(facade.Facade, 'node_update')
-    @mock.patch.object(facade.Facade, 'node_set_maintenance')
-    @mock.patch.object(facade.Facade, 'delete_server_profile')
-    def test_migrate_idle_node(
-        self, mock_delete_server_profile, mock_set_maintenance,
-        mock_node_update, mock_facade
-    ):
-        node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
-
-        mock_facade.node_set_maintenance = mock_set_maintenance
-        mock_facade.node_update = mock_node_update
-        mock_facade.delete_server_profile = mock_delete_server_profile
-
-        node = POOL_OF_STUB_IRONIC_NODES[0]
-        node.server_profile_uri = \
-            POOL_OF_STUB_SERVER_HARDWARE[0].server_profile_uri
-        patch_test = [{'op': 'add',
-                       'path': '/driver_info/dynamic_allocation',
-                       'value': True}]
-
-        node_migrator.migrate_idle_node(node)
-
-        mock_delete_server_profile.assert_called_with(
-            node.server_profile_uri
-        )
-        mock_node_update.assert_called_with(
-            node.uuid, patch_test
-        )
-        self.assertEqual(2, mock_set_maintenance.call_count)
-
-    @mock.patch.object(facade.Facade, 'node_update')
-    def test_migrate_node_with_instance(self, mock_node_update, mock_facade):
-        node_migrator = migrate_node_cmd.NodeMigrator(mock_facade)
-        mock_facade.node_update = mock_node_update
-
-        node = POOL_OF_STUB_IRONIC_NODES[1]
-        node.server_profile_uri = \
-            POOL_OF_STUB_SERVER_HARDWARE[0].server_profile_uri
-
-        patch_test_dynamic = [{'op': 'add',
-                               'path': '/driver_info/dynamic_allocation',
-                               'value': True}]
-        patch_test_sp_applied = [{'op': 'add',
-                                  'path': '/driver_info/'
-                                          'applied_server_profile_uri',
-                                  'value':
-                                          '1111-2222-3333'}]
-
-        node_migrator.migrate_node_with_instance(node)
-
-        mock_node_update.assert_called_with(
-            node.uuid, patch_test_sp_applied + patch_test_dynamic
-        )
 
     def test_get_flavor_from_ironic_node(self, mock_facade):
         mock_facade.get_server_hardware.return_value = (
