@@ -23,29 +23,11 @@ def do_genrc(args):
     # OneView
 
     print("\n# OneView HPE Authentication URL.")
+    print("# Only the domain, without https:// or http://.")
     print("#export OV_AUTH_URL=")
 
     print("\n# OneView HPE username.")
     print("#export OV_USERNAME=")
-
-    print("\n# Path to OneView CA certificate bundle file."
-          " (only for secure connmections)")
-    print("#export OV_CACERT=")
-
-    print("\n# Max connection retries to check change on OneView HPE.")
-    print("#export OV_MAX_POLLING_ATTEMPTS=12")
-
-    print("\n# Enable OneView Audit Logging.")
-    print("#export OV_AUDIT=False")
-
-    print("\n# Path to map file for OneView audit cases. \n"
-          "# Used only when OneView API audit is enabled. \n"
-          "# See: https://github.com/openstack/python-oneviewclient")
-    print("#export OV_AUDIT_INPUT=")
-
-    print("\n# Path to OneView audit output file. (json format) \n"
-          "# Created only when Oneview API audit is enabled.")
-    print("#export OV_AUDIT_OUTPUT=")
 
     print("\n# Pass the OneView HPE password when executed.")
     print("echo \"Please enter your HP OneView password: \"")

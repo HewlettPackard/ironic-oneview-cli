@@ -20,38 +20,30 @@ import prettytable
 import six
 
 from builtins import input
-
 from oslo_utils import encodeutils
 from oslo_utils import importutils
 
-client = importutils.try_import('oneview_client.client')
-oneview_utils = importutils.try_import('oneview_client.utils')
+hpclient = importutils.try_import('hpOneView.oneview_client')
 
 SUPPORTED_DRIVERS = ['agent_pxe_oneview', 'iscsi_pxe_oneview', 'fake_oneview']
 
 
-def get_oneview_client(args):
-    """Generate an instance of the OneView client.
+def get_hponeview_client(args):
+    """Generate an instance of the hpOneView client.
 
-    Generates an instance of the OneView client using the imported
-    oneview_client library.
+    Generates an instance of the hpOneView client using the hpOneView library.
 
     :returns: an instance of the OneView client
     """
-    args.ov_audit = True if args.ov_audit == 'True' else False
-    oneview_client = client.ClientV2(
-        manager_url=args.ov_auth_url,
-        username=args.ov_username,
-        password=args.ov_password,
-        allow_insecure_connections=args.insecure,
-        tls_cacert_file=args.ov_cacert,
-        max_polling_attempts=args.ov_max_polling_attempts,
-        audit_enabled=args.ov_audit,
-        audit_map_file=args.ov_audit_input,
-        audit_output_file=args.ov_audit_output
-    )
+    return hpclient.OneViewClient({"ip": args.ov_auth_url,
+                                   "credentials": {
+                                       "userName": args.ov_username,
+                                       "password": args.ov_password}})
 
-    return oneview_client
+
+def get_uuid_from_uri(uri):
+    if uri:
+        return uri.split("/")[-1]
 
 
 def arg(*args, **kwargs):
@@ -132,7 +124,7 @@ def _print_list(objs, fields, formatters=None, sortby_index=0,
                     field_name = field.replace(' ', '_')
                 else:
                     field_name = field.lower().replace(' ', '_')
-                data = getattr(o, field_name, '')
+                data = o.get(field_name)
                 row.append(data)
         pt.add_row(row)
 
@@ -158,26 +150,26 @@ def print_prompt(object_list, header_list, input_message=None,
 def assign_elements_with_new_id(element_list):
     counter = 1
     for element in element_list:
-        element.id = counter
+        element['id'] = counter
         counter += 1
 
 
 def get_element_by_id(element_list, element_id):
     try:
         for element in element_list:
-            if element.id == int(element_id):
+            if element['id'] == int(element_id):
                 return element
     except Exception:
-        return None
+        return
 
 
 def get_element_by_name(element_list, element_name):
     try:
         for element in element_list:
-            if element.name == element_name:
+            if element['name'] == element_name:
                 return element
     except Exception:
-        return None
+        return
 
 
 def is_entry_invalid(entries, objects_list):
@@ -191,10 +183,10 @@ def is_entry_invalid(entries, objects_list):
 
 
 def set_flavor_name(flavor):
-    flavor_name_template = "%sMB-RAM_%s_%s_%s" % (flavor.ram_mb,
-                                                  flavor.cpus,
-                                                  flavor.cpu_arch,
-                                                  flavor.disk)
+    flavor_name_template = "%sMB-RAM_%s_%s_%s" % (flavor.get('ram_mb'),
+                                                  flavor.get('cpus'),
+                                                  flavor.get('cpu_arch'),
+                                                  flavor.get('disk'))
     flavor_name = input(
         "Insert a name for the Flavor. [%(default_name)s]> " %
         {'default_name': flavor_name_template}
@@ -205,8 +197,21 @@ def set_flavor_name(flavor):
     return flavor_name
 
 
+def get_attribute_from_dict(dictionary, keyword, default_value=''):
+    """Get value from a dictionary if the dictionary exists.
+
+    :param dictionary: 'dict' with the elements
+    :param keyword: attributes that correspond to a key in the dict
+    :param default_value: The default value returned if the dictionary does not
+        exist or if the keyword does not exist.
+    :returns: The value to keyword or the default value.
+    """
+    if dictionary:
+        return dictionary.get(keyword, default_value)
+    else:
+        return default_value
+
+
 def approve_command_prompt(message):
     response = input(message)
-    if response.lower() == 'y':
-        return True
-    return False
+    return response.lower() == 'y'

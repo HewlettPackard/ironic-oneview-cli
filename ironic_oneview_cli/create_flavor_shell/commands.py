@@ -38,11 +38,11 @@ class FlavorCreator(object):
         server_hardware = self.facade.get_server_hardware(server_hardware_uri)
 
         server_hardware_type = self.facade.get_server_hardware_type(
-            server_hardware.server_hardware_type_uri
+            server_hardware.get("serverHardwareTypeUri")
         )
 
         enclosure_group = self.facade.get_enclosure_group(
-            server_hardware.enclosure_group_uri
+            server_hardware.get("serverGroupUri")
         )
 
         capabilities = node.properties.get("capabilities")
@@ -70,21 +70,18 @@ class FlavorCreator(object):
         flavor['cpus'] = node.properties.get('cpus')
         flavor['disk'] = node.properties.get('local_gb')
         flavor['cpu_arch'] = node.properties.get('cpu_arch')
-
-        flavor['server_hardware_type_name'] = getattr(
-            server_hardware_type, 'name', '')
-        flavor['server_hardware_type_uri'] = getattr(
-            server_hardware_type, 'uri', '')
-
-        flavor['enclosure_group_name'] = getattr(enclosure_group, 'name', '')
-        flavor['enclosure_group_uri'] = getattr(enclosure_group, 'uri', '')
-
-        flavor['server_profile_template_name'] = getattr(
-            server_profile_template, 'name', ''
-        )
-        flavor['server_profile_template_uri'] = getattr(
-            server_profile_template, 'uri', ''
-        )
+        flavor['server_hardware_type_name'] = (
+            common.get_attribute_from_dict(server_hardware_type, 'name'))
+        flavor['server_hardware_type_uri'] = (
+            common.get_attribute_from_dict(server_hardware_type, 'uri'))
+        flavor['enclosure_group_name'] = (
+            common.get_attribute_from_dict(enclosure_group, 'name'))
+        flavor['enclosure_group_uri'] = (
+            common.get_attribute_from_dict(enclosure_group, 'uri'))
+        flavor['server_profile_template_name'] = (
+            common.get_attribute_from_dict(server_profile_template, 'name'))
+        flavor['server_profile_template_uri'] = (
+            common.get_attribute_from_dict(server_profile_template, 'uri'))
 
         return flavor
 
@@ -136,11 +133,17 @@ def do_flavor_create(args):
     LOG.info("Flavor creation...")
 
     flavor_list = flavor_creator.get_flavor_list(nodes)
-    common.assign_elements_with_new_id(flavor_list)
+
+    flavor_dict_list = []
+    for flavor in flavor_list:
+        flavor_dict_list.append(flavor.__dict__)
+        flavor_dict_list[-1]["flavor_obj"] = flavor
+
+    common.assign_elements_with_new_id(flavor_dict_list)
 
     while True:
         input_id = common.print_prompt(
-            flavor_list,
+            flavor_dict_list,
             [
                 'id',
                 'cpus',
@@ -164,12 +167,12 @@ def do_flavor_create(args):
         if input_id == "q":
             break
 
-        invalid_entry_id = common.is_entry_invalid(input_id, flavor_list)
+        invalid_entry_id = common.is_entry_invalid(input_id, flavor_dict_list)
         if invalid_entry_id:
             print('Invalid Flavor ID. Please enter a valid ID.')
             continue
 
-        flavor = common.get_element_by_id(flavor_list, input_id)
+        flavor = common.get_element_by_id(flavor_dict_list, input_id)
 
         print("Listing chosen flavor configuration...")
         common.print_prompt(
@@ -196,10 +199,10 @@ def do_flavor_create(args):
 
         flavor_creator.create_flavor(
             flavor_name,
-            flavor.ram_mb,
-            flavor.cpus,
-            flavor.disk,
-            flavor.extra_specs()
+            flavor.get('ram_mb'),
+            flavor.get('cpus'),
+            flavor.get('disk'),
+            flavor.get("flavor_obj").extra_specs()
         )
 
         print('Flavor created!\n')
