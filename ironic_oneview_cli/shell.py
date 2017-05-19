@@ -268,50 +268,6 @@ class IronicOneView(object):
         parser.add_argument('--ov_auth_url',
                             help=argparse.SUPPRESS)
 
-        parser.add_argument('--ov-cacert',
-                            metavar='<ov-ca-bundle-file>',
-                            default=common.env('OV_CACERT'),
-                            help='Path to OneView CA certificate bundle file. '
-                                 'Defaults to env[OV_CACERT]')
-
-        parser.add_argument('--ov_cacert',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--ov-max-polling-attempts', type=int,
-                            default=common.env(
-                                'OV_MAX_POLLING_ATTEMPTS', default=12),
-                            help='Max connection retries on OneView. '
-                                 'Defaults to env[OV_MAX_POLLING_ATTEMPTS]')
-
-        parser.add_argument('--ov_max_polling_attempts',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--ov-audit',
-                            default=common.env('OV_AUDIT', default=False),
-                            help='Enable OneView audit. '
-                                 'Defaults to env[OV_AUDIT]')
-
-        parser.add_argument('--ov_audit',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--ov-audit-input',
-                            metavar='<ov-audit-input-file>',
-                            default=common.env('OV_AUDIT_INPUT'),
-                            help='Path to OneView audit input file. '
-                                 'Defaults to env[OV_AUDIT_INPUT]')
-
-        parser.add_argument('--ov_audit_input',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--ov-audit-output',
-                            metavar='<ov-audit-output-file>',
-                            default=common.env('OV_AUDIT_OUTPUT'),
-                            help='Path to OneView audit output file. '
-                                 'Defaults to env[OV_AUDIT_OUTPUT]')
-
-        parser.add_argument('--ov_audit_output',
-                            help=argparse.SUPPRESS)
-
         # OpenStack Images arguments
         parser.add_argument('--os-ironic-node-driver',
                             default=common.env('OS_IRONIC_NODE_DRIVER'),
@@ -469,12 +425,12 @@ class IronicOneView(object):
             'os_username', 'os_password', 'os_tenant_id', 'os_tenant_name',
             'os_project_id', 'os_project_name', 'os_cert', 'os_cacert',
             'os_auth_url', 'ov_username', 'ov_password', 'ov_auth_url',
-            'ov_cacert', 'insecure', 'debug', 'ov_max_polling_attempts',
+            'insecure', 'debug', 'os_inspection_enabled', 'os_endpoint_type',
             'os_ironic_node_driver', 'os_ironic_deploy_kernel_uuid',
             'os_ironic_deploy_ramdisk_uuid', 'ironic_url', 'os_region_name',
-            'ironic_api_version', 'os_service_type', 'os_endpoint_type',
+            'ironic_api_version', 'os_service_type', 'os_project_domain_id',
             'os_user_domain_id', 'os_user_domain_name', 'os_project_domain_id',
-            'os_project_domain_name', 'os_inspection_enabled'
+            'os_project_domain_name'
         )
 
         kwargs = {}

@@ -27,7 +27,8 @@ class NodeDelete(object):
         nodes = self.facade.get_ironic_node_list()
         try:
             if number:
-                for n in range(number):
+                upper_limit = min(number, len(nodes))
+                for n in range(upper_limit):
                     self.facade.node_delete(nodes[n].uuid)
             else:
                 for node in nodes:

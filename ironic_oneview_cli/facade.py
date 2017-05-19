@@ -23,7 +23,7 @@ class Facade(object):
     def __init__(self, args):
         self.ironicclient = openstack_client.get_ironic_client(args)
         self.novaclient = openstack_client.get_nova_client(args)
-        self.oneview_client = common.get_oneview_client(args)
+        self.hponeview_client = common.get_hponeview_client(args)
 
     # =========================================================================
     # Ironic actions
@@ -70,32 +70,28 @@ class Facade(object):
     # OneView actions
     # =========================================================================
     def get_server_hardware(self, uri):
-        uuid = common.oneview_utils.get_uuid_from_uri(uri)
-        return self.oneview_client.server_hardware.get(uuid)
+        uuid = common.get_uuid_from_uri(uri)
+        return self.hponeview_client.server_hardware.get(uuid)
 
     def get_server_profile_template(self, uri):
         if uri is None:
-            return None
-        uuid = common.oneview_utils.get_uuid_from_uri(uri)
-        return self.oneview_client.server_profile_template.get(uuid)
+            return
+        uuid = common.get_uuid_from_uri(uri)
+        return self.hponeview_client.server_profile_templates.get(uuid)
 
     def get_enclosure_group(self, uri):
         if uri is None:
-            return None
-        uuid = common.oneview_utils.get_uuid_from_uri(uri)
-        return self.oneview_client.enclosure_group.get(uuid)
+            return
+        uuid = common.get_uuid_from_uri(uri)
+        return self.hponeview_client.enclosure_groups.get(uuid)
 
     def get_server_hardware_type(self, uri):
-        uuid = common.oneview_utils.get_uuid_from_uri(uri)
-        return self.oneview_client.server_hardware_type.get(uuid)
+        uuid = common.get_uuid_from_uri(uri)
+        return self.hponeview_client.server_hardware_types.get(uuid)
 
-    def delete_server_profile(self, uri):
-        uuid = common.oneview_utils.get_uuid_from_uri(uri)
-        return self.oneview_client.server_profile.delete(uuid)
-
-    # Next generation
-    def list_server_hardware_available(self):
-        return self.filter_server_hardware_available()
+    def get_server_profile(self, uri):
+        uuid = common.get_uuid_from_uri(uri)
+        return self.hponeview_client.server_profiles.get(uuid)
 
     def list_templates_compatible_with(self, server_hardware_list):
         compatible_server_profile_list = []
@@ -104,16 +100,16 @@ class Facade(object):
 
         for server_hardware in server_hardware_list:
             server_hardware_type_list.append(
-                server_hardware.server_hardware_type_uri)
+                server_hardware.get('serverHardwareTypeUri'))
             server_group_list.append(
-                server_hardware.enclosure_group_uri)
+                server_hardware.get('serverGroupUri'))
 
-        spt_list = self.oneview_client.server_profile_template.list()
+        spt_list = self.hponeview_client.server_profile_templates.get_all()
         for spt in spt_list:
-            if (spt.server_hardware_type_uri in server_hardware_type_list and
-               spt.enclosure_group_uri in server_group_list):
+            if (spt.get('serverHardwareTypeUri') in server_hardware_type_list
+               and spt.get('enclosureGroupUri') in server_group_list):
                 compatible_server_profile_list.append(spt)
         return compatible_server_profile_list
 
-    def filter_server_hardware_available(self, **kwargs):
-        return self.oneview_client.server_hardware.list(**kwargs)
+    def filter_server_hardware_available(self, filters=''):
+        return self.hponeview_client.server_hardware.get_all(filter=filters)

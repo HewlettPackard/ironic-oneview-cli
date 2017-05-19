@@ -239,91 +239,96 @@ STUB_SERVER_HARDWARE_TYPE = stubs.StubServerHardwareType(
     uri='/rest/server-hardware/22222222-7777-8888-9999-AAAAAAAAAAA',
 )
 
-POOL_OF_STUB_SERVER_HARDWARE = [
-    stubs.StubServerHardware(
-        name='AAAAA',
-        uuid='11111111-7777-8888-9999-000000000000',
-        uri='/rest/server-hardware/11111',
-        power_state='Off',
-        server_profile_uri='',
-        server_hardware_type_uri='/rest/server-hardware-types/111112222233333',
-        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
-        status='OK',
-        state='Unknown',
-        state_reason='',
-        enclosure_uri='/rest/enclosures/1111112222233333',
-        processor_count=12,
-        processor_core_count=12,
-        memory_mb=16384,
-        port_map=[],
-        mp_host_info={}
-    ),
-    stubs.StubServerHardware(
-        name='BBBBB',
-        uuid='22222222-7777-8888-9999-000000000000',
-        uri='/rest/server-hardware/22222',
-        power_state='Off',
-        server_profile_uri='/rest/server-profile/1111-2222',
-        server_hardware_type_uri='/rest/server-hardware-types/111111222233333',
-        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
-        status='OK',
-        state='Unknown',
-        state_reason='',
-        enclosure_uri='/rest/enclosures/1111112222233333',
-        processor_count=12,
-        processor_core_count=12,
-        memory_mb=16384,
-        port_map=[],
-        mp_host_info={}
-    ),
-    stubs.StubServerHardware(
-        name='CCCCC',
-        uuid='33333333-7777-8888-9999-000000000000',
-        uri='/rest/server-hardware/33333',
-        power_state='Off',
-        server_profile_uri='',
-        server_hardware_type_uri='/rest/server-hardware-types/111111222223333',
-        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
-        status='OK',
-        state='Unknown',
-        state_reason='',
-        enclosure_uri='/rest/enclosures/1111112222233333',
-        processor_count=12,
-        processor_core_count=12,
-        memory_mb=16384,
-        port_map=[],
-        mp_host_info={}
-    ),
-    stubs.StubServerHardware(
-        name='RackServer',
-        uuid='33333333-7777-8888-9999-111111',
-        uri='/rest/server-hardware/44444',
-        power_state='Off',
-        server_profile_uri='',
-        server_hardware_type_uri='/rest/server-hardware-types/111111222223333',
-        enclosure_group_uri=None,
-        status='OK',
-        state='Unknown',
-        state_reason='',
-        enclosure_uri=None,
-        processor_count=12,
-        processor_core_count=12,
-        memory_mb=16384,
-        port_map=[],
-        mp_host_info={}
-    )
+POOL_OF_SERVER_HARDWARE = [
+    {
+        'name': 'AAAAA',
+        'uuid': '11111111-7777-8888-9999-000000000000',
+        'uri': '/rest/server-hardware/11111',
+        'powerState': 'Off',
+        'serverProfileUri': '',
+        'serverHardwareTypeUri':
+            '/rest/server-hardware-types/111112222233333',
+        'serverGroupUri': '/rest/enclosure-groups/1111112222233333',
+        'status': 'OK',
+        'state': 'Unknown',
+        'stateReason': '',
+        'locationUri': '/rest/enclosures/1111112222233333',
+        'processorCount': 12,
+        'processorCoreCount': 12,
+        'memoryMb': 16384,
+        'portMap': {},
+        'mpHostInfo': {}
+    },
+    {
+        'name': 'BBBBB',
+        'uuid': '22222222-7777-8888-9999-000000000000',
+        'uri': '/rest/server-hardware/22222',
+        'powerState': 'Off',
+        'serverProfileUri': '/rest/server-profile/1111-2222',
+        'serverHardwareTypeUri':
+            '/rest/server-hardware-types/111111222233333',
+        'serverGroupUri': '/rest/enclosure-groups/1111112222233333',
+        'status': 'OK',
+        'state': 'Unknown',
+        'stateReason': '',
+        'locationUri': '/rest/enclosures/1111112222233333',
+        'processorCount': 12,
+        'processorCoreCount': 12,
+        'memoryMb': 16384,
+        'portMap': {},
+        'mpHostInfo': {}
+    },
+    {
+        'name': 'CCCCC',
+        'uuid': '33333333-7777-8888-9999-000000000000',
+        'uri': '/rest/server-hardware/33333',
+        'powerState': 'Off',
+        'serverProfileUri': '',
+        'serverHardwareTypeUri':
+            '/rest/server-hardware-types/111111222223333',
+        'serverGroupUri': '/rest/enclosure-groups/1111112222233333',
+        'status': 'OK',
+        'state': 'Unknown',
+        'stateReason': '',
+        'locationUri': '/rest/enclosures/1111112222233333',
+        'processorCount': 12,
+        'processorCoreCount': 12,
+        'memoryMb': 16384,
+        'portMap': {},
+        'mpHostInfo': {}
+    },
+    {
+        'name': 'RackServer',
+        'uuid': '33333333-7777-8888-9999-111111',
+        'uri': '/rest/server-hardware/44444',
+        'powerState': 'Off',
+        'serverProfileUri': '',
+        'serverHardwareTypeUri':
+            '/rest/server-hardware-types/111111222223333',
+        'serverGroupUri': None,
+        'status': 'OK',
+        'state': 'Unknown',
+        'stateReason': '',
+        'locationUri': None,
+        'processorCount': 12,
+        'processorCoreCount': 12,
+        'memoryMb': 16384,
+        'portMap': {},
+        'mpHostInfo': {}
+    }
 ]
 
 
-POOL_OF_STUB_SERVER_PROFILE_TEMPLATE = [
-    stubs.StubServerProfileTemplate(
-        uri='/rest/server-profile-templates/1111112222233333',
-        name='TEMPLATETEMPLATETEMPLATE',
-        server_hardware_type_uri='/rest/server-hardware-types/111112222233333',
-        enclosure_group_uri='/rest/enclosure-groups/1111112222233333',
-        connections=[],
-        boot={}
-    )
+POOL_OF_SERVER_PROFILE_TEMPLATE = [
+    {
+        'uri': '/rest/server-profile-templates/1111112222233333',
+        'name': 'TEMPLATETEMPLATETEMPLATE',
+        'serverHardwareTypeUri':
+            '/rest/server-hardware-types/111111222223333',
+        'enclosureGroupUri': '/rest/enclosure-groups/1111112222233333',
+        'connections': [],
+        'boot': {}
+    }
 ]
 
 
@@ -360,7 +365,7 @@ STUB_PARAMETERS = stubs.StubParameters(
 
 
 @mock.patch('ironic_oneview_cli.openstack_client.get_ironic_client')
-@mock.patch('ironic_oneview_cli.common.client.ClientV2')
+@mock.patch('ironic_oneview_cli.common.hpclient.OneViewClient')
 class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
     def setUp(self):
@@ -368,11 +373,6 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             ov_auth_url='https://my-oneview',
             ov_username='ov-user',
             ov_password='secret',
-            ov_cacert='',
-            ov_max_polling_attempts=12,
-            ov_audit=False,
-            ov_audit_input='',
-            ov_audit_output='',
             os_auth_url='http://something',
             os_username='my_name',
             os_password='secret',
@@ -406,11 +406,11 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
         oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.list.return_value = (
-            POOL_OF_STUB_SERVER_HARDWARE
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
         )
-        oneview_client.server_profile_template.list.return_value = (
-            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
         )
         spt_index = 0
         sh_index = 0
@@ -421,8 +421,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         create_node_cmd.do_node_create(self.args)
 
-        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
-        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+        selected_sh = POOL_OF_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]
         attrs = self._create_attrs_for_node(selected_sh, selected_spt)
 
         ironic_client = mock_ironic_client.return_value
@@ -437,11 +437,11 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         self.args.use_oneview_ml2_driver = True
 
         oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.list.return_value = (
-            POOL_OF_STUB_SERVER_HARDWARE
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
         )
-        oneview_client.server_profile_template.list.return_value = (
-            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
         )
         spt_index = 0
         sh_index = 0
@@ -452,8 +452,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         create_node_cmd.do_node_create(self.args)
 
-        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
-        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+        selected_sh = POOL_OF_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]
         attrs = self._create_attrs_for_node(selected_sh, selected_spt)
 
         attrs['network_interface'] = 'neutron'
@@ -468,11 +468,11 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
         oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.list.return_value = (
-            POOL_OF_STUB_SERVER_HARDWARE
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
         )
-        oneview_client.server_profile_template.list.return_value = (
-            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
         )
         spt_index = 0
         sh_index = 3
@@ -483,15 +483,15 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         create_node_cmd.do_node_create(self.args)
 
-        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
-        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+        selected_sh = POOL_OF_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]
         attrs = self._create_attrs_for_node(selected_sh, selected_spt)
 
         attrs['properties']['capabilities'] = (
             'server_hardware_type_uri:%s,'
             'server_profile_template_uri:%s' % (
-                selected_sh.server_hardware_type_uri,
-                selected_spt.uri
+                selected_sh.get("serverHardwareTypeUri"),
+                selected_spt.get('uri')
             )
         )
 
@@ -507,11 +507,11 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         self.args.os_inspection_enabled = True
 
         oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.list.return_value = (
-            POOL_OF_STUB_SERVER_HARDWARE
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
         )
-        oneview_client.server_profile_template.list.return_value = (
-            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
         )
         spt_index = 0
         sh_index = 0
@@ -522,17 +522,17 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         create_node_cmd.do_node_create(self.args)
 
-        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
-        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+        selected_sh = POOL_OF_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]
         attrs = self._create_attrs_for_node(selected_sh, selected_spt)
 
         attrs['properties'] = {
             'capabilities': 'server_hardware_type_uri:%s,'
                             'server_profile_template_uri:%s,'
                             'enclosure_group_uri:%s' % (
-                                selected_sh.server_hardware_type_uri,
-                                selected_spt.uri,
-                                selected_sh.enclosure_group_uri
+                                selected_sh.get("serverHardwareTypeUri"),
+                                selected_spt.get("uri"),
+                                selected_sh.get("serverGroupUri")
                             )
         }
 
@@ -548,11 +548,11 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         self.args.number = 2
 
         oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.list.return_value = (
-            POOL_OF_STUB_SERVER_HARDWARE
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
         )
-        oneview_client.server_profile_template.list.return_value = (
-            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
         )
 
         spt_index = 0
@@ -573,11 +573,11 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
     ):
 
         oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.list.return_value = (
-            POOL_OF_STUB_SERVER_HARDWARE
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
         )
-        oneview_client.server_profile_template.list.return_value = (
-            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
         )
 
         self.args.server_profile_template_name = (
@@ -592,8 +592,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         create_node_cmd.do_node_create(self.args)
 
-        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
-        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+        selected_sh = POOL_OF_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]
 
         attrs = self._create_attrs_for_node(selected_sh, selected_spt)
 
@@ -606,11 +606,11 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         self, mock_oneview_client, mock_ironic_client
     ):
         oneview_client = mock_oneview_client.return_value
-        oneview_client.server_hardware.list.return_value = (
-            POOL_OF_STUB_SERVER_HARDWARE
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
         )
-        oneview_client.server_profile_template.list.return_value = (
-            POOL_OF_STUB_SERVER_PROFILE_TEMPLATE
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
         )
 
         self.args.server_profile_template_name = (
@@ -622,8 +622,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         sh_index = 0
         spt_index = 0
-        selected_sh = POOL_OF_STUB_SERVER_HARDWARE[sh_index]
-        selected_spt = POOL_OF_STUB_SERVER_PROFILE_TEMPLATE[spt_index]
+        selected_sh = POOL_OF_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]
 
         attrs = self._create_attrs_for_node(selected_sh, selected_spt)
 
@@ -849,6 +849,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         self.assertEqual(7, ironic_client.node.delete.call_count)
 
     def _create_attrs_for_node(self, server_hardware, server_profile_template):
+        cpus = (server_hardware.get("processorCount") *
+                server_hardware.get("processorCoreCount"))
         attrs = {
             'driver': STUB_PARAMETERS.os_ironic_node_driver,
             'driver_info': {
@@ -858,20 +860,20 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                 'deploy_ramdisk':
                     STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid,
                 'server_hardware_uri':
-                    server_hardware.uri,
+                    server_hardware.get("uri"),
             },
             'properties': {
-                'cpus': server_hardware.cpus,
-                'memory_mb': server_hardware.memory_mb,
-                'local_gb': server_hardware.local_gb,
-                'cpu_arch': server_hardware.cpu_arch,
+                'cpus': cpus,
+                'memory_mb': server_hardware.get("memoryMb"),
+                'local_gb': server_hardware.get("local_gb"),
+                'cpu_arch': server_hardware.get("cpu_arch"),
                 'capabilities':
                     'server_hardware_type_uri:%s,'
                     'server_profile_template_uri:%s,'
                     'enclosure_group_uri:%s' % (
-                        server_hardware.server_hardware_type_uri,
-                        server_profile_template.uri,
-                        server_hardware.enclosure_group_uri
+                        server_hardware.get("serverHardwareTypeUri"),
+                        server_profile_template.get("uri"),
+                        server_hardware.get("serverGroupUri")
                     )
             }
         }
