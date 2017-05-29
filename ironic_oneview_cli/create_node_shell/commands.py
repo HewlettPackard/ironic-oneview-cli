@@ -105,6 +105,8 @@ class NodeCreator(object):
                 'deploy_kernel': args.os_ironic_deploy_kernel_uuid,
                 'deploy_ramdisk': args.os_ironic_deploy_ramdisk_uuid,
                 'server_hardware_uri': server_hardware.get('uri'),
+                # NOTE(ricardoas): Remove once Ocata reach EOL.
+                'dynamic_allocation': True,
                 'use_oneview_ml2_driver': args.use_oneview_ml2_driver,
             },
             'properties': {
