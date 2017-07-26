@@ -92,7 +92,7 @@ class NodeCreator(object):
         attrs = self._create_attrs_for_node(
             args, server_hardware, server_profile_template)
         self._update_attrs_for_node(attrs, args, server_hardware)
-        self.facade.create_ironic_node(**attrs)
+        return self.facade.create_ironic_node(**attrs)
 
     def _create_attrs_for_node(
         self, args, server_hardware, server_profile_template
@@ -100,13 +100,10 @@ class NodeCreator(object):
         attrs = {
             # TODO(thiagop): turn 'name' into a valid server name
             # 'name': server_hardware.name,
-            'driver': args.os_ironic_node_driver,
             'driver_info': {
                 'deploy_kernel': args.os_ironic_deploy_kernel_uuid,
                 'deploy_ramdisk': args.os_ironic_deploy_ramdisk_uuid,
                 'server_hardware_uri': server_hardware.get('uri'),
-                # NOTE(ricardoas): Remove once Ocata reach EOL.
-                'dynamic_allocation': True,
                 'use_oneview_ml2_driver': args.use_oneview_ml2_driver,
             },
             'properties': {
@@ -118,6 +115,15 @@ class NodeCreator(object):
                                 )
             }
         }
+
+        if args.classic:
+            attrs['driver'] = args.os_ironic_node_driver
+        else:
+            attrs['driver'] = args.os_driver
+            attrs['power_interface'] = args.os_power_interface
+            attrs['management_interface'] = args.os_management_interface
+            attrs['inspect_interface'] = args.os_inspect_interface
+            attrs['deploy_interface'] = args.os_deploy_interface
 
         return attrs
 
@@ -160,6 +166,11 @@ class NodeCreator(object):
     action='store_true',
     default=False,
     help='Whether using the OneView Mechanism Driver.')
+@common.arg(
+    '--classic',
+    action='store_true',
+    default=False,
+    help='Whether using classic drivers.')
 def do_node_create(args):
     """Create nodes based on available HP OneView Objects."""
     facade_obj = facade.Facade(args)
@@ -339,8 +350,8 @@ def do_node_create(args):
                         server_hardware_selected):
                     print('This Server Hardware is in use by OneView.')
 
-                node_creator.create_node(
+                node = node_creator.create_node(
                     args, server_hardware_selected, template_selected
                 )
 
-                print('Node created!')
+                print('Node ' + node.uuid + ' was created!')
