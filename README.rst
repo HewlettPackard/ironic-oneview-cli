@@ -151,6 +151,26 @@ command to add this information in the node driver_info::
 
 For more information on *Networking OneView ML2 Driver*, see [5]_.
 
+With the Driver composition reform, the default behavior is create a node using
+dynamic driver. With this feature, new interfaces are added to the node, such as:
+``Openstack Driver``, ``Openstack Power Interface``,
+``Openstack Management Interface``, ``Openstack Inspect Interface``,
+``Openstack Deploy Interface``.
+
+If you want to create a node and set this new interfaces, use the following
+command:
+
+    $ ironic-oneview node-create --os-driver oneview --os-power-interface oneview
+      --os-management-interface oneview --os-inspect-interface oneview
+      -- os-deploy-interface oneview-direct
+
+If you want to create the node using classic driver, use the following
+command:
+
+    $ ironic-oneview node-create --classic
+
+For more information on *Driver composition reform*, see [6]_.
+
 ----
 
 To list all nodes in Ironic, use the command::
@@ -249,3 +269,4 @@ References
 .. [3] HPE OneView - https://www.hpe.com/us/en/integrated-systems/software.html
 .. [4] OpenStack RC - http://docs.openstack.org/user-guide/common/cli_set_environment_variables_using_openstack_rc.html
 .. [5] Networking OneView ML2 Driver - https://github.com/HewlettPackard/ironic-driver-oneview/tree/master/networking-oneview
+.. [6] Driver Composition Reform - https://specs.openstack.org/openstack/ironic-specs/specs/approved/driver-composition-reform.html
