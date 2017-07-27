@@ -144,9 +144,9 @@ command to add this information in the node driver_info::
 
 For more information on *Networking OneView ML2 Driver*, see [5]_.
 
-With the Driver composition reform, the default behavior is create a node using
-dynamic driver. With this feature, new interfaces are added to the node, such as:
-``Openstack Driver``, ``Openstack Power Interface``,
+With the Driver composition reform, the default behavior is to create a node
+using a dynamic driver. With this feature, new interfaces are added to the
+node, such as: ``Openstack Driver``, ``Openstack Power Interface``,
 ``Openstack Management Interface``, ``Openstack Inspect Interface``,
 ``Openstack Deploy Interface``.
 
@@ -157,12 +157,12 @@ command:
       --os-management-interface oneview --os-inspect-interface oneview
       -- os-deploy-interface oneview-direct
 
-If you want to create the node using classic driver, use the following
+If you want to create the node using the classic driver, use the following
 command:
 
     $ ironic-oneview node-create --classic
 
-For more information on *Driver composition reform*, see [6]_.
+For more information on the *Driver composition reform*, see [6]_.
 
 ----
 

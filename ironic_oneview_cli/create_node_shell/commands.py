@@ -25,8 +25,7 @@ class NodeCreator(object):
         self.facade = facade
 
     def get_oneview_nodes(self):
-        return filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
-                      self.facade.get_ironic_node_list())
+        return common.get_oneview_nodes(self.facade.get_ironic_node_list())
 
     def is_server_profile_applied(self, server_hardware):
         return bool(server_hardware.get('serverProfileUri'))

@@ -29,9 +29,8 @@ class FlavorCreator(object):
     def __init__(self, facade):
         self.facade = facade
 
-    def get_nodes_using_oneview_drivers(self):
-        return filter(lambda x: x.driver in common.SUPPORTED_DRIVERS,
-                      self.facade.get_ironic_node_list())
+    def get_oneview_nodes(self):
+        return common.get_oneview_nodes(self.facade.get_ironic_node_list())
 
     def get_flavor_from_ironic_node(self, flavor_id, node):
         server_hardware_uri = node.driver_info.get("server_hardware_uri")
@@ -121,7 +120,7 @@ def do_flavor_create(args):
     """
     cli_facade = facade.Facade(args)
     flavor_creator = FlavorCreator(cli_facade)
-    nodes = flavor_creator.get_nodes_using_oneview_drivers()
+    nodes = flavor_creator.get_oneview_nodes()
 
     if not nodes:
         print("No Ironic nodes running OneView drivers were found. "
