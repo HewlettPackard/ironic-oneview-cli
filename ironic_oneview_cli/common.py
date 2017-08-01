@@ -25,7 +25,9 @@ from oslo_utils import importutils
 
 hpclient = importutils.try_import('hpOneView.oneview_client')
 
+# NOTE(fellypefca): Classic Drivers will be deprecated on Openstack Queens
 SUPPORTED_DRIVERS = ['agent_pxe_oneview', 'iscsi_pxe_oneview', 'fake_oneview']
+SUPPORTED_HARDWARE_TYPES = ['oneview']
 
 
 def get_hponeview_client(args):
@@ -215,3 +217,14 @@ def get_attribute_from_dict(dictionary, keyword, default_value=''):
 def approve_command_prompt(message):
     response = input(message)
     return response.lower() == 'y'
+
+
+def get_oneview_nodes(ironic_nodes):
+    """Get the nodes which drivers are compatible with OneView.
+
+    :param ironic_nodes: A list of Ironic Nodes
+    :returns: A list of Ironic Nodes with OneView compatible Drivers and
+              Hardware types only.
+    """
+    return filter(lambda x: x.driver in SUPPORTED_DRIVERS +
+                  SUPPORTED_HARDWARE_TYPES, ironic_nodes)

@@ -35,7 +35,7 @@ from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli import service_logging as logging
 
-VERSION = '0.6.0'
+VERSION = '1.1.0'
 
 COMMAND_MODULES = [
     node_create_commands,
@@ -177,10 +177,10 @@ class IronicOneView(object):
 
         parser.add_argument('--ironic-api-version',
                             default=common.env(
-                                'IRONIC_API_VERSION', default='1.22'),
+                                'IRONIC_API_VERSION', default='1.31'),
                             help='Accepts 1.x (where "x" is microversion) '
                                  'or "latest", Defaults to '
-                                 'env[IRONIC_API_VERSION] or 1.22')
+                                 'env[IRONIC_API_VERSION] or 1.31')
 
         parser.add_argument('--ironic_api_version',
                             help=argparse.SUPPRESS)
@@ -271,6 +271,46 @@ class IronicOneView(object):
                                  'Defaults to env[OS_IRONIC_NODE_DRIVER]')
 
         parser.add_argument('--os_ironic_node_driver',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-driver',
+                            default=common.env('OS_DRIVER'),
+                            help='Hardware type for node creation. '
+                                 'Defaults to env[OS_DRIVER]')
+
+        parser.add_argument('--os_driver',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-power-interface',
+                            default=common.env('OS_POWER_INTERFACE'),
+                            help='Power interface for node creation. '
+                                 'Defaults to env[OS_POWER_INTERFACE]')
+
+        parser.add_argument('--os_power_interface',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-management-interface',
+                            default=common.env('OS_MANAGEMENT_INTERFACE'),
+                            help='Management interface for node creation. '
+                                 'Defaults to env[OS_MANAGEMENT_INTERFACE]')
+
+        parser.add_argument('--os_management_interface',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-inspect-interface',
+                            default=common.env('OS_INSPECT_INTERFACE'),
+                            help='Inspect interface for node creation. '
+                                 'Defaults to env[OS_INSPECT_INTERFACE]')
+
+        parser.add_argument('--os_inspect_interface',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--os-deploy-interface',
+                            default=common.env('OS_DEPLOY_INTERFACE'),
+                            help='Deploy interface for node creation. '
+                                 'Defaults to env[OS_DEPLOY_INTERFACE]')
+
+        parser.add_argument('--os_deploy_interface',
                             help=argparse.SUPPRESS)
 
         parser.add_argument(
@@ -382,11 +422,35 @@ class IronicOneView(object):
                                           "either --ov-auth-url or via "
                                           "env[OV_AUTH_URL]")
 
-        if not args.os_ironic_node_driver:
-            raise exceptions.CommandError("You must provide an node driver "
-                                          "via either "
-                                          "--os-ironic-node-driver or via "
-                                          "env[OS_IRONIC_NODE_DRIVER]")
+        if not (args.os_ironic_node_driver or args.os_driver):
+            print ("You must provide an node driver or hardware type "
+                   "respectively via either "
+                   "--os-ironic-node-driver or env[OS_IRONIC_NODE_DRIVER] "
+                   "--driver or env[OS_DRIVER]")
+
+        if not args.os_power_interface:
+            raise exceptions.CommandError("You must provide an node "
+                                          "power interface via either "
+                                          "--os-power-interface "
+                                          "env[OS_POWER_INTERFACE]")
+
+        if not args.os_management_interface:
+            raise exceptions.CommandError("You must provide an node "
+                                          "management interface via either "
+                                          "--os-management-interface "
+                                          "env[OS_MANAGEMENT_INTERFACE")
+
+        if not args.os_inspect_interface:
+            raise exceptions.CommandError("You must provide an node "
+                                          "inspect interface via either "
+                                          "--os-inspect-interface "
+                                          "env[OS_INSPECT_INTERFACE]")
+
+        if not args.os_deploy_interface:
+            raise exceptions.CommandError("You must provide an node "
+                                          "deploy interface via either "
+                                          "--os-deploy-interface "
+                                          "env[OS_DEPLOY_INTERFACE]")
 
         if not args.os_ironic_deploy_kernel_uuid:
             raise exceptions.CommandError(
@@ -422,7 +486,9 @@ class IronicOneView(object):
             'os_project_id', 'os_project_name', 'os_cert', 'os_cacert',
             'os_auth_url', 'ov_username', 'ov_password', 'ov_auth_url',
             'insecure', 'debug', 'os_inspection_enabled', 'os_endpoint_type',
-            'os_ironic_node_driver', 'os_ironic_deploy_kernel_uuid',
+            'os_ironic_node_driver', 'os_driver', 'os_power_interface',
+            'os_management_interface', 'os_inspect_interface',
+            'os_deploy_interface', 'os_ironic_deploy_kernel_uuid',
             'os_ironic_deploy_ramdisk_uuid', 'ironic_url', 'os_region_name',
             'ironic_api_version', 'os_service_type', 'os_project_domain_id',
             'os_user_domain_id', 'os_user_domain_name', 'os_project_domain_id',

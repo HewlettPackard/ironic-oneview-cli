@@ -351,6 +351,11 @@ POOL_OF_STUB_NOVA_FLAVORS = [
 
 STUB_PARAMETERS = stubs.StubParameters(
     os_ironic_node_driver='fake_oneview',
+    os_driver='fake_oneview',
+    os_power_interface='fake_oneview',
+    os_management_interface='fake_oneview',
+    os_inspect_interface='fake_oneview',
+    os_deploy_interface='fake_oneview',
     os_ironic_deploy_kernel_uuid='11111-22222-33333-44444-55555',
     os_ironic_deploy_ramdisk_uuid='55555-44444-33333-22222-11111'
 )
@@ -380,15 +385,22 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             os_cert='',
             os_inspection_enabled=False,
             os_ironic_node_driver=STUB_PARAMETERS.os_ironic_node_driver,
+            os_driver=STUB_PARAMETERS.os_driver,
+            os_power_interface=STUB_PARAMETERS.os_power_interface,
+            os_management_interface=STUB_PARAMETERS.os_management_interface,
+            os_inspect_interface=STUB_PARAMETERS.os_inspect_interface,
+            os_deploy_interface=STUB_PARAMETERS.os_deploy_interface,
             os_ironic_deploy_kernel_uuid=(
                 STUB_PARAMETERS.os_ironic_deploy_kernel_uuid
             ),
             os_ironic_deploy_ramdisk_uuid=(
                 STUB_PARAMETERS.os_ironic_deploy_ramdisk_uuid
             ),
+
             all=False,
             server_profile_template_name=None,
             use_oneview_ml2_driver=False,
+            classic=False,
             number=None,
             nodes=None
         )
@@ -449,6 +461,39 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         attrs = self._create_attrs_for_node(selected_sh, selected_spt)
 
         attrs['network_interface'] = 'neutron'
+
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.create.assert_called_with(
+            **attrs
+        )
+
+    @mock.patch('ironic_oneview_cli.common.input')
+    def test_node_creation_with_classic_flag(
+        self, mock_input, mock_oneview_client, mock_ironic_client
+    ):
+        self.args.classic = True
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
+        )
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        spt_index = 0
+        sh_index = 0
+        mock_input.side_effect = [
+            str(spt_index + 1),
+            str(sh_index + 1)
+        ]
+
+        create_node_cmd.do_node_create(self.args)
+
+        selected_sh = POOL_OF_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]
+        attrs = self._create_attrs_for_node(selected_sh, selected_spt)
+
+        attrs['driver'] = STUB_PARAMETERS.os_ironic_node_driver
 
         ironic_client = mock_ironic_client.return_value
         ironic_client.node.create.assert_called_with(
@@ -671,7 +716,6 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         cpus = (server_hardware.get("processorCount") *
                 server_hardware.get("processorCoreCount"))
         attrs = {
-            'driver': STUB_PARAMETERS.os_ironic_node_driver,
             'driver_info': {
                 'use_oneview_ml2_driver': self.args.use_oneview_ml2_driver,
                 'deploy_kernel': STUB_PARAMETERS.os_ironic_deploy_kernel_uuid,
@@ -695,5 +739,15 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                     )
             }
         }
+        if self.args.classic:
+            attrs['driver'] = STUB_PARAMETERS.os_ironic_node_driver
+        else:
+            attrs['driver'] = STUB_PARAMETERS.os_driver
+            attrs['power_interface'] = STUB_PARAMETERS.os_power_interface
+            attrs['management_interface'] = (
+                STUB_PARAMETERS.os_management_interface
+            )
+            attrs['inspect_interface'] = STUB_PARAMETERS.os_inspect_interface
+            attrs['deploy_interface'] = STUB_PARAMETERS.os_deploy_interface
 
         return attrs

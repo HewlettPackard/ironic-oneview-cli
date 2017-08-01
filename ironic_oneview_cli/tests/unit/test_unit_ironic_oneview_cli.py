@@ -17,6 +17,7 @@
 import mock
 import unittest
 
+from ironic_oneview_cli import common
 from ironic_oneview_cli.create_flavor_shell import (
     commands as create_flavor_cmd)
 from ironic_oneview_cli.create_flavor_shell import (
@@ -40,7 +41,7 @@ POOL_OF_STUB_IRONIC_NODES = [
              'address': 'AA:BB:CC:DD:EE:FF',
              'extra': {}}
         ],
-        driver='fake_oneview',
+        driver='agent_pxe_oneview',
         driver_info={'user': 'foo',
                      'password': 'bar'},
         properties={'num_cpu': 4},
@@ -60,7 +61,7 @@ POOL_OF_STUB_IRONIC_NODES = [
              'address': 'AA:BB:CC:DD:EE:FF',
              'extra': {}}
         ],
-        driver='fake_oneview',
+        driver='iscsi_pxe_oneview',
         driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
                      'user': 'foo',
                      'password': 'bar'},
@@ -106,6 +107,30 @@ POOL_OF_STUB_IRONIC_NODES = [
                      'password': 'bar'},
         properties={'num_cpu': 4},
         name='fake-node-4',
+        extra={}
+    ),
+    stubs.StubIronicNode(
+        id=5,
+        uuid='33333333-2222-8888-9999-000000000000',
+        chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
+        maintenance=False,
+        provision_state='enroll',
+        ports=[{}],
+        driver='oneview',
+        driver_info={'server_hardware_uri': "/rest/server-hardware/33333",
+                     'user': 'foo',
+                     'password': 'bar'},
+        properties={'cpu_arch': 'x86_64',
+                    'capabilities': 'server_hardware_type_uri:'
+                                    '/rest/server-hardware-types/'
+                                    '61720699-7D89-4E3E-BFC4-32FB9BBE2E71/'
+                                    'enclosure_group_uri:'
+                                    '/rest/enclosure-groups/'
+                                    'c02d2e96-6142-49d6-bd38-0ce9d371e94f'
+                                    'server_profile_template_uri:'
+                                    '/rest/server-profile-templates/'
+                                    '40ca74f8-65af-419a-b0cc-76af12b4f908'},
+        name='fake-node-5',
         extra={}
     )
 ]
@@ -243,14 +268,13 @@ POOL_OF_STUB_NOVA_FLAVORS = [
 class UnitTestIronicOneviewCli(unittest.TestCase):
     @mock.patch.object(facade.Facade, 'get_ironic_node_list')
     def test_get_oneview_nodes(self, mock_ironic_node_list, mock_facade):
-        node_creator = create_node_cmd.NodeCreator(mock_facade)
         ironic_nodes = POOL_OF_STUB_IRONIC_NODES
         mock_ironic_node_list.return_value = ironic_nodes
         mock_facade.get_ironic_node_list = mock_ironic_node_list
-        oneview_nodes = node_creator.get_oneview_nodes()
+        oneview_nodes = common.get_oneview_nodes(ironic_nodes)
 
-        self.assertEqual(4, len(ironic_nodes))
-        self.assertEqual(3, len(list(oneview_nodes)))
+        self.assertEqual(5, len(ironic_nodes))
+        self.assertEqual(4, len(list(oneview_nodes)))
 
     @mock.patch.object(facade.Facade, 'get_ironic_node_list')
     def test_is_enrolled_on_ironic(self, mock_ironic_node_list, mock_facade):
