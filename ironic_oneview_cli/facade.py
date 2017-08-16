@@ -1,5 +1,5 @@
-# Copyright 2015 Hewlett-Packard Development Company, L.P.
-# Copyright 2015 Universidade Federal de Campina Grande
+# Copyright (2015-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2015-2017) Universidade Federal de Campina Grande
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,8 +14,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+import redfish
+
 from ironic_oneview_cli import common
 from ironic_oneview_cli import openstack_client
+
+ILOREST_BASE_PORT = 443
 
 
 class Facade(object):
@@ -119,3 +124,28 @@ class Facade(object):
 
     def filter_server_hardware_available(self, filters=''):
         return self.hponeview_client.server_hardware.get_all(filter=filters)
+
+    def get_ilorest_client(self, server_hardware):
+        """Generate an instance of the iLORest library client.
+
+        :param: server_hardware: a dict representing the server hardware
+        :returns: an instance of the iLORest client
+        """
+        remote_console = (
+            self.hponeview_client.server_hardware.get_remote_console_url(
+                server_hardware.get('uri')))
+        host_ip, ilo_token = common.get_ilo_access(remote_console)
+        base_url = "https://%s:%s" % (host_ip, ILOREST_BASE_PORT)
+        return redfish.rest_client(base_url=base_url, sessionkey=ilo_token)
+
+    def get_server_hardware_mac_from_ilo(self, server_hardware):
+        """Get the MAC address from a server hardware using iLO
+
+        :param: server_hardware: a server hardware uuid or uri
+        :return: the MAC address
+        """
+        client = self.get_ilorest_client(server_hardware)
+        hardware = json.loads(client.get("/rest/v1/systems/1").text)
+        hardware_mac = hardware['HostCorrelation']['HostMACAddress'][0]
+
+        return hardware_mac

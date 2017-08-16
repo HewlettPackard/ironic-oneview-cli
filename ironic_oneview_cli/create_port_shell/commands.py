@@ -38,6 +38,10 @@ class PortCreator(object):
         return self.facade.create_ironic_port(**attrs)
 
     def _get_server_hardware_mac(self, server_hardware):
+        if not server_hardware.get('portMap'):
+            return self.facade.get_server_hardware_mac_from_ilo(
+                server_hardware)
+
         sh_physical_port = self._get_first_ethernet_physical_port(
             server_hardware)
         if sh_physical_port:
@@ -53,16 +57,11 @@ class PortCreator(object):
                 % server_hardware.get('uri'))
 
     def _get_first_ethernet_physical_port(self, server_hardware):
-        if server_hardware.get('portMap'):
-            for device in server_hardware.get('portMap').get(
-                    'deviceSlots'):
-                for physical_port in device.get('physicalPorts', []):
-                    if physical_port.get('type') == 'Ethernet':
-                        return physical_port
-        else:
-            raise exceptions.OneViewResourceNotFoundError(
-                "There is no portMap on the Server Hardware requested. Is "
-                "this a Rack server?")
+        for device in server_hardware.get('portMap').get(
+                'deviceSlots'):
+            for physical_port in device.get('physicalPorts', []):
+                if physical_port.get('type') == 'Ethernet':
+                    return physical_port
 
     def _create_attrs_for_port(
         self, ironic_node, mac

@@ -1,5 +1,5 @@
-# Copyright 2015 Hewlett-Packard Development Company, L.P.
-# Copyright 2015 Universidade Federal de Campina Grande
+# Copyright (2015-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2015-2017) Universidade Federal de Campina Grande
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -808,6 +808,29 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         port_create_commands.do_port_create(self.args)
 
         attrs = self._create_attrs_for_port(server_hardware, ironic_node)
+        ironic_client.port.create.assert_called_with(
+            **attrs
+        )
+
+    @mock.patch('ironic_oneview_cli.facade.Facade.'
+                'get_server_hardware_mac_from_ilo')
+    def test_port_creation_rack_server(
+        self, mock_mac_from_ilo, mock_oneview_client, mock_ironic_client
+    ):
+        server_hardware = POOL_OF_SERVER_HARDWARE[0]
+        ironic_node = POOL_OF_STUB_IRONIC_NODES[6]
+        mac = "aa:bb:cc:dd:ee:ff"
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = server_hardware
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.get.return_value = ironic_node
+        mock_mac_from_ilo.return_value = mac
+
+        self.args.node = ironic_node.uuid
+        port_create_commands.do_port_create(self.args)
+
+        attrs = self._create_attrs_for_port(server_hardware, ironic_node, mac)
         ironic_client.port.create.assert_called_with(
             **attrs
         )
