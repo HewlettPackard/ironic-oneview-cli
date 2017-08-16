@@ -34,6 +34,9 @@ class Facade(object):
     def get_ironic_node(self, node_uuid):
         return self.ironicclient.node.get(node_uuid)
 
+    def get_ironic_port_list(self):
+        return self.ironicclient.port.list(detail=True)
+
     def node_set_maintenance(self, node_uuid, maintenance_mode, maint_reason):
         return self.ironicclient.node.set_maintenance(
             node_uuid, maintenance_mode, maint_reason=maint_reason
@@ -48,6 +51,9 @@ class Facade(object):
         return self.ironicclient.node.delete(
             node_uuid
         )
+
+    def create_ironic_port(self, **attrs):
+        return self.ironicclient.port.create(**attrs)
 
     def create_ironic_node(self, **attrs):
         return self.ironicclient.node.create(**attrs)
