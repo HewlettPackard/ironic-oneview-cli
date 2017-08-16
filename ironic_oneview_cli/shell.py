@@ -29,6 +29,8 @@ from ironic_oneview_cli.create_flavor_shell import (
     commands as flavor_create_commands)
 from ironic_oneview_cli.create_node_shell import (
     commands as node_create_commands)
+from ironic_oneview_cli.create_port_shell import (
+    commands as port_create_commands)
 from ironic_oneview_cli.delete_node_shell import (
     commands as node_delete_commands)
 from ironic_oneview_cli import exceptions
@@ -40,6 +42,7 @@ VERSION = '1.1.0'
 COMMAND_MODULES = [
     node_create_commands,
     flavor_create_commands,
+    port_create_commands,
     node_delete_commands,
     genrc_commands
 ]
@@ -51,7 +54,7 @@ class IronicOneView(object):
         parser = argparse.ArgumentParser(
             prog='ironic-oneview',
             description=__doc__.strip(),
-            epilog='See "ironic-oneview --help COMMAND" '
+            epilog='See "ironic-oneview SUBCOMMAND --help" '
                    'for help on a specific command.',
             add_help=False,
             formatter_class=HelpFormatter,
@@ -368,11 +371,12 @@ class IronicOneView(object):
         if options.debug:
             logging.debug_activate_handlers(options.debug)
 
-        if options.help or not argv:
+        if options.help and not args:
             self.do_help(options)
             return 0
 
         args = subcommand_parser.parse_args(argv)
+
         # Short-circuit and deal with these commands right away.
         if args.func == self.do_help:
             self.do_help(args)
@@ -423,10 +427,10 @@ class IronicOneView(object):
                                           "env[OV_AUTH_URL]")
 
         if not (args.os_ironic_node_driver or args.os_driver):
-            print ("You must provide an node driver or hardware type "
-                   "respectively via either "
-                   "--os-ironic-node-driver or env[OS_IRONIC_NODE_DRIVER] "
-                   "--driver or env[OS_DRIVER]")
+            print("You must provide an node driver or hardware type "
+                  "respectively via either "
+                  "--os-ironic-node-driver or env[OS_IRONIC_NODE_DRIVER] "
+                  "--driver or env[OS_DRIVER]")
 
         if not args.os_power_interface:
             raise exceptions.CommandError("You must provide an node "

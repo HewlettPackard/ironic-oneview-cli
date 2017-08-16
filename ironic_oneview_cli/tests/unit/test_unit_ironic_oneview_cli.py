@@ -357,3 +357,9 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         self.assertEqual.__self__.maxDiff = None
         self.assertEqual(result_flavor,
                          flavor_objs.Flavor(id=12345, info=flavor))
+
+    def test_get_server_hardware_id_from_node(self, mock_facade):
+        ironic_node = POOL_OF_STUB_IRONIC_NODES[1]
+        sh_id = common.get_server_hardware_id_from_node(ironic_node)
+
+        self.assertEqual(sh_id, "22222")

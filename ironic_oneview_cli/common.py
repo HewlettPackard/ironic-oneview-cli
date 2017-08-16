@@ -228,3 +228,14 @@ def get_oneview_nodes(ironic_nodes):
     """
     return filter(lambda x: x.driver in SUPPORTED_DRIVERS +
                   SUPPORTED_HARDWARE_TYPES, ironic_nodes)
+
+
+def get_server_hardware_id_from_node(ironic_node):
+    """Get the Server Hardware id from a ironic_node
+
+    :param ironic_node: A Ironic Node
+    :return: The Server hardware id
+    """
+    server_hardware_uri = ironic_node.driver_info.get(
+        'server_hardware_uri')
+    return server_hardware_uri.split("/")[-1]
