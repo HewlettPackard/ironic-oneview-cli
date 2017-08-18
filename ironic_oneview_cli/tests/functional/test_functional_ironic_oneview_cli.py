@@ -23,7 +23,7 @@ from ironic_oneview_cli.create_flavor_shell import (
 from ironic_oneview_cli.create_node_shell import (
     commands as create_node_cmd)
 from ironic_oneview_cli.create_port_shell import (
-    commands as port_create_commands)
+    commands as port_create_cmd)
 from ironic_oneview_cli.delete_node_shell import (
     commands as delete_node_cmd)
 from ironic_oneview_cli.tests import stubs
@@ -457,6 +457,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         oneview_client.server_profile_templates.get_all.return_value = (
             POOL_OF_SERVER_PROFILE_TEMPLATE
         )
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[1]
+        )
         spt_index = 0
         sh_index = 0
         mock_input.side_effect = [
@@ -487,6 +490,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
         oneview_client.server_profile_templates.get_all.return_value = (
             POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[1]
         )
         spt_index = 0
         sh_index = 0
@@ -521,6 +527,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         oneview_client.server_profile_templates.get_all.return_value = (
             POOL_OF_SERVER_PROFILE_TEMPLATE
         )
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[1]
+        )
         spt_index = 0
         sh_index = 0
         mock_input.side_effect = [
@@ -551,6 +560,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
         oneview_client.server_profile_templates.get_all.return_value = (
             POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[1]
         )
         spt_index = 0
         sh_index = 3
@@ -590,6 +602,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
         oneview_client.server_profile_templates.get_all.return_value = (
             POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[1]
         )
         spt_index = 0
         sh_index = 0
@@ -632,6 +647,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         oneview_client.server_profile_templates.get_all.return_value = (
             POOL_OF_SERVER_PROFILE_TEMPLATE
         )
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[1]
+        )
 
         spt_index = 0
         mock_input.side_effect = [
@@ -656,6 +674,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
         oneview_client.server_profile_templates.get_all.return_value = (
             POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[1]
         )
 
         self.args.server_profile_template_name = (
@@ -689,6 +710,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
         oneview_client.server_profile_templates.get_all.return_value = (
             POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[1]
         )
 
         self.args.server_profile_template_name = (
@@ -765,7 +789,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         ironic_client.node.get.return_value = ironic_node
 
         self.args.node = ironic_node.uuid
-        port_create_commands.do_port_create(self.args)
+        port_create_cmd.do_port_create(self.args)
 
         attrs = self._create_attrs_for_port(server_hardware, ironic_node)
         ironic_client.port.create.assert_called_with(
@@ -785,7 +809,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         self.args.node = ironic_node.uuid
         self.args.mac = "01:23:45:67:89:ab"
-        port_create_commands.do_port_create(self.args)
+        port_create_cmd.do_port_create(self.args)
 
         attrs = self._create_attrs_for_port(server_hardware, ironic_node,
                                             self.args.mac)
@@ -805,7 +829,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         ironic_client.node.get.return_value = ironic_node
 
         self.args.node = ironic_node.uuid
-        port_create_commands.do_port_create(self.args)
+        port_create_cmd.do_port_create(self.args)
 
         attrs = self._create_attrs_for_port(server_hardware, ironic_node)
         ironic_client.port.create.assert_called_with(
@@ -828,7 +852,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         mock_mac_from_ilo.return_value = mac
 
         self.args.node = ironic_node.uuid
-        port_create_commands.do_port_create(self.args)
+        port_create_cmd.do_port_create(self.args)
 
         attrs = self._create_attrs_for_port(server_hardware, ironic_node, mac)
         ironic_client.port.create.assert_called_with(

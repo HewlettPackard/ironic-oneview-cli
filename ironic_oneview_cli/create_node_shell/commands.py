@@ -17,6 +17,7 @@
 import sys
 
 from ironic_oneview_cli import common
+from ironic_oneview_cli.create_port_shell import commands as port_cmd
 from ironic_oneview_cli import facade
 
 
@@ -91,7 +92,14 @@ class NodeCreator(object):
         attrs = self._create_attrs_for_node(
             args, server_hardware, server_profile_template)
         self._update_attrs_for_node(attrs, args, server_hardware)
-        return self.facade.create_ironic_node(**attrs)
+        node = self.facade.create_ironic_node(**attrs)
+
+        port_creator = port_cmd.PortCreator(self.facade)
+        port = port_creator.create_port(args, node)
+
+        print("Port %s was created" % port.uuid)
+
+        return node
 
     def _create_attrs_for_node(
         self, args, server_hardware, server_profile_template
@@ -170,6 +178,9 @@ class NodeCreator(object):
     action='store_true',
     default=False,
     help='Whether using classic drivers.')
+@common.arg(
+    '-m', '--mac',
+    help='MAC Address of the HPE OneView Server Hardware.')
 def do_node_create(args):
     """Create nodes based on available HP OneView Objects."""
     facade_obj = facade.Facade(args)

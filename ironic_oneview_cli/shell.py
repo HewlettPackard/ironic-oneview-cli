@@ -37,7 +37,7 @@ from ironic_oneview_cli import exceptions
 from ironic_oneview_cli.genrc import commands as genrc_commands
 from ironic_oneview_cli import service_logging as logging
 
-VERSION = '1.1.0'
+VERSION = '2.0.0'
 
 COMMAND_MODULES = [
     node_create_commands,
