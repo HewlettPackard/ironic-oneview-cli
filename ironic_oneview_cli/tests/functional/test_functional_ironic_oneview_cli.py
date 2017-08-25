@@ -1,5 +1,5 @@
-# Copyright 2015 Hewlett-Packard Development Company, L.P.
-# Copyright 2015 Universidade Federal de Campina Grande
+# Copyright (2015-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2015-2017) Universidade Federal de Campina Grande
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -22,6 +22,8 @@ from ironic_oneview_cli.create_flavor_shell import (
     commands as create_flavor_cmd)
 from ironic_oneview_cli.create_node_shell import (
     commands as create_node_cmd)
+from ironic_oneview_cli.create_port_shell import (
+    commands as port_create_commands)
 from ironic_oneview_cli.delete_node_shell import (
     commands as delete_node_cmd)
 from ironic_oneview_cli.tests import stubs
@@ -146,7 +148,7 @@ POOL_OF_STUB_IRONIC_NODES = [
                         "/rest/server-profile-templates/1111112222233333"
                     },
         instance_uuid='1111-2222-3333-4444-5555',
-        name='fake-node-3',
+        name='fake-node-5',
         extra={}
     ),
     stubs.StubIronicNode(
@@ -180,7 +182,7 @@ POOL_OF_STUB_IRONIC_NODES = [
                         "/rest/server-profile-templates/1111112222233333"
                     },
         instance_uuid='1111-2222-3333-4444-5555',
-        name='fake-node-3',
+        name='fake-node-6',
         extra={}
     ),
     stubs.StubIronicNode(
@@ -213,7 +215,35 @@ POOL_OF_STUB_IRONIC_NODES = [
                         "server_profile_template_uri:"
                         "/rest/server-profile-templates/1111112222233333"
                     },
-        name='fake-node-3',
+        name='fake-node-7',
+        extra={}
+    ),
+    stubs.StubIronicNode(
+        id=8,
+        uuid='44444444-5555-6666-7777-88888888888',
+        chassis_uuid='aaaaaaaa-1111-bbbb-2222-cccccccccccc',
+        maintenance=False,
+        maintenance_reason='',
+        provision_state='enroll',
+        ports=[],
+        driver='fake_oneview',
+        driver_info={'server_hardware_uri': "/rest/server-hardware/22222",
+                     "use_oneview_ml2_driver": True,
+                     'user': 'foo',
+                     'password': 'bar'},
+        properties={'memory_mb': 32768,
+                    'cpu_arch': 'x86_64',
+                    'local_gb': 120,
+                    'cpus': 8,
+                    'capabilities':
+                        "server_hardware_type_uri:"
+                        "/rest/server-hardware-types/1111112222233333,"
+                        "enclosure_group_uri:"
+                        "/rest/enclosure-groups/1111112222233333,"
+                        "server_profile_template_uri:"
+                        "/rest/server-profile-templates/1111112222233333"
+                    },
+        name='fake-node-8',
         extra={}
     )
 
@@ -267,7 +297,17 @@ POOL_OF_SERVER_HARDWARE = [
         'processorCount': 12,
         'processorCoreCount': 12,
         'memoryMb': 16384,
-        'portMap': {},
+        'portMap': {
+            'deviceSlots': [{
+                'physicalPorts': [{
+                    'type': 'Ethernet',
+                    'virtualPorts': [{
+                        'portFunction': 'a',
+                        'mac': 'aa:bb:cc:dd:ee:ff'
+                    }]
+                }]
+            }]
+        },
         'mpHostInfo': {}
     },
     {
@@ -402,7 +442,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             use_oneview_ml2_driver=False,
             classic=False,
             number=None,
-            nodes=None
+            nodes=None,
+            mac=None
         )
 
     @mock.patch('ironic_oneview_cli.common.input')
@@ -710,7 +751,121 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
         delete_node_cmd.do_node_delete(self.args)
 
-        self.assertEqual(7, ironic_client.node.delete.call_count)
+        self.assertEqual(8, ironic_client.node.delete.call_count)
+
+    def test_port_creation_no_args(
+        self, mock_oneview_client, mock_ironic_client
+    ):
+        server_hardware = POOL_OF_SERVER_HARDWARE[1]
+        ironic_node = POOL_OF_STUB_IRONIC_NODES[3]
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = server_hardware
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.get.return_value = ironic_node
+
+        self.args.node = ironic_node.uuid
+        port_create_commands.do_port_create(self.args)
+
+        attrs = self._create_attrs_for_port(server_hardware, ironic_node)
+        ironic_client.port.create.assert_called_with(
+            **attrs
+        )
+
+    def test_port_creation_with_mac(
+        self, mock_oneview_client, mock_ironic_client
+    ):
+        server_hardware = POOL_OF_SERVER_HARDWARE[1]
+        ironic_node = POOL_OF_STUB_IRONIC_NODES[3]
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = server_hardware
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.get.return_value = ironic_node
+
+        self.args.node = ironic_node.uuid
+        self.args.mac = "01:23:45:67:89:ab"
+        port_create_commands.do_port_create(self.args)
+
+        attrs = self._create_attrs_for_port(server_hardware, ironic_node,
+                                            self.args.mac)
+        ironic_client.port.create.assert_called_with(
+            **attrs
+        )
+
+    def test_port_creation_with_oneview_ml2_driver(
+        self, mock_oneview_client, mock_ironic_client
+    ):
+        server_hardware = POOL_OF_SERVER_HARDWARE[1]
+        ironic_node = POOL_OF_STUB_IRONIC_NODES[7]
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = server_hardware
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.get.return_value = ironic_node
+
+        self.args.node = ironic_node.uuid
+        port_create_commands.do_port_create(self.args)
+
+        attrs = self._create_attrs_for_port(server_hardware, ironic_node)
+        ironic_client.port.create.assert_called_with(
+            **attrs
+        )
+
+    @mock.patch('ironic_oneview_cli.facade.Facade.'
+                'get_server_hardware_mac_from_ilo')
+    def test_port_creation_rack_server(
+        self, mock_mac_from_ilo, mock_oneview_client, mock_ironic_client
+    ):
+        server_hardware = POOL_OF_SERVER_HARDWARE[0]
+        ironic_node = POOL_OF_STUB_IRONIC_NODES[6]
+        mac = "aa:bb:cc:dd:ee:ff"
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = server_hardware
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.get.return_value = ironic_node
+        mock_mac_from_ilo.return_value = mac
+
+        self.args.node = ironic_node.uuid
+        port_create_commands.do_port_create(self.args)
+
+        attrs = self._create_attrs_for_port(server_hardware, ironic_node, mac)
+        ironic_client.port.create.assert_called_with(
+            **attrs
+        )
+
+    def _create_attrs_for_port(self, server_hardware, ironic_node, mac=None):
+        if not mac:
+            device_slot = server_hardware.get("portMap").get("deviceSlots")[0]
+            physical_port = device_slot.get("physicalPorts")[0]
+            mac = physical_port.get("virtualPorts")[0].get("mac")
+
+        local_link_connection = {}
+        if ironic_node.driver_info.get('use_oneview_ml2_driver'):
+            server_hardware_uri = ironic_node.driver_info.get(
+                "server_hardware_uri")
+            server_hardware_id = server_hardware_uri.split("/")[-1]
+            switch_info = (
+                '{"server_hardware_id": "%(server_hardware_id)s", '
+                '"bootable": "%(bootable)s"}') % {
+                    'server_hardware_id': server_hardware_id,
+                    'bootable': True}
+            local_link_connection = {
+                "switch_id": "01:23:45:67:89:ab",
+                "port_id": "",
+                "switch_info": switch_info
+            }
+
+        attrs = {
+            'address': mac,
+            'node_uuid': ironic_node.uuid,
+            'portgroup_uuid': None,
+            "local_link_connection": local_link_connection,
+            'pxe_enabled': True
+        }
+
+        return attrs
 
     def _create_attrs_for_node(self, server_hardware, server_profile_template):
         cpus = (server_hardware.get("processorCount") *

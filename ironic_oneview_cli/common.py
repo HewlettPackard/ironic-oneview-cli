@@ -1,5 +1,5 @@
-# Copyright 2015 Hewlett-Packard Development Company, L.P.
-# Copyright 2015 Universidade Federal de Campina Grande
+# Copyright (2015-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2015-2017) Universidade Federal de Campina Grande
 # Copyright 2012 Red Hat, Inc.
 # All Rights Reserved.
 #
@@ -22,6 +22,7 @@ import six
 from builtins import input
 from oslo_utils import encodeutils
 from oslo_utils import importutils
+from six.moves.urllib import parse
 
 hpclient = importutils.try_import('hpOneView.oneview_client')
 
@@ -228,3 +229,35 @@ def get_oneview_nodes(ironic_nodes):
     """
     return filter(lambda x: x.driver in SUPPORTED_DRIVERS +
                   SUPPORTED_HARDWARE_TYPES, ironic_nodes)
+
+
+def get_server_hardware_id_from_node(ironic_node):
+    """Get the Server Hardware id from a ironic_node
+
+    :param ironic_node: A Ironic Node
+    :return: The Server hardware id
+    """
+    server_hardware_uri = ironic_node.driver_info.get(
+        'server_hardware_uri')
+    return get_uuid_from_uri(server_hardware_uri)
+
+
+def get_ilo_access(remote_console):
+    """Get the needed information to access ilo.
+
+    Get the host_ip and a token of an iLO remote console instance which can be
+    used to perform operations on that controller.
+
+    The Remote Console url has the following format:
+    hplocons://addr=1.2.3.4&sessionkey=a79659e3b3b7c8209c901ac3509a6719
+
+    :param: remote_console: OneView Remote Console object with a
+            remoteConsoleUrl
+    :returns: A tuple with the Host IP and Token to access ilo, for
+              example: ('1.2.3.4', 'a79659e3b3b7c8209c901ac3509a6719')
+    """
+    url = remote_console.get('remoteConsoleUrl')
+    url_parse = parse.urlparse(url)
+    host_ip = parse.parse_qs(url_parse.netloc).get('addr')[0]
+    token = parse.parse_qs(url_parse.netloc).get('sessionkey')[0]
+    return host_ip, token

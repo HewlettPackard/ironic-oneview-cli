@@ -1,5 +1,5 @@
-# Copyright 2016 Hewlett-Packard Development Company, L.P.
-# Copyright 2016 Universidade Federal de Campina Grande
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Universidade Federal de Campina Grande
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -357,3 +357,9 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         self.assertEqual.__self__.maxDiff = None
         self.assertEqual(result_flavor,
                          flavor_objs.Flavor(id=12345, info=flavor))
+
+    def test_get_server_hardware_id_from_node(self, mock_facade):
+        ironic_node = POOL_OF_STUB_IRONIC_NODES[1]
+        sh_id = common.get_server_hardware_id_from_node(ironic_node)
+
+        self.assertEqual(sh_id, "22222")
