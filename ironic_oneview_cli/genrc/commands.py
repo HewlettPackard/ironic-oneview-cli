@@ -51,7 +51,7 @@ def do_genrc(args):
         "\n# OneView Ironic driver for node creation. \n"
         "# Classic Drivers will be deprecated on Queens. \n"
         "# Allowed values: agent_pxe_oneview, iscsi_pxe_oneview, fake_oneview")
-    print("#export OS_IRONIC_NODE_DRIVER=agent_pxe_oneview")
+    print("#export OS_IRONIC_NODE_DRIVER=iscsi_pxe_oneview")
 
     print(
         "\n# OpenStack Ironic Driver for node creation. \n"
@@ -71,9 +71,9 @@ def do_genrc(args):
     print(
         "\n# OpenStack Ironic Inspect interface for node creation. \n"
         "# Allowed values: oneview")
-    print("#export OS_INSPECT_INTERFACE=oneview")
+    print("#export OS_INSPECT_INTERFACE=no-inspect")
 
     print(
         "\n# OpenStack Ironic Deploy interface for node creation. \n"
         "# Allowed values: oneview-direct, oneview-iscsi")
-    print("#export OS_DEPLOY_INTERFACE=oneview-direct")
+    print("#export OS_DEPLOY_INTERFACE=oneview-iscsi")
