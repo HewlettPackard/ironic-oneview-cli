@@ -401,8 +401,8 @@ STUB_PARAMETERS = stubs.StubParameters(
 )
 
 
-@mock.patch('ironic_oneview_cli.openstack_client.get_ironic_client')
-@mock.patch('ironic_oneview_cli.common.hpclient.OneViewClient')
+@mock.patch('ironic_oneview_cli.common.get_ironic_client')
+@mock.patch('ironic_oneview_cli.common.oneview_client.OneViewClient')
 class FunctionalTestIronicOneviewCli(unittest.TestCase):
 
     def setUp(self):
@@ -410,6 +410,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             ov_auth_url='https://my-oneview',
             ov_username='ov-user',
             ov_password='secret',
+            ov_insecure='False',
+            ov_cacert='ca_file',
             os_auth_url='http://something',
             os_username='my_name',
             os_password='secret',
@@ -738,7 +740,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         )
 
     @mock.patch('ironic_oneview_cli.common.builtin_input')
-    @mock.patch('ironic_oneview_cli.openstack_client.get_nova_client')
+    @mock.patch('ironic_oneview_cli.common.get_nova_client')
     def test_flavor_creation(self, mock_nova_client, mock_input,
                              mock_oneview_client, mock_ironic_client):
         ironic_client = mock_ironic_client.return_value

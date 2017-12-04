@@ -18,7 +18,6 @@ import json
 import redfish
 
 from ironic_oneview_cli import common
-from ironic_oneview_cli import openstack_client
 
 ILOREST_BASE_PORT = 443
 
@@ -26,8 +25,8 @@ ILOREST_BASE_PORT = 443
 class Facade(object):
 
     def __init__(self, args):
-        self.ironicclient = openstack_client.get_ironic_client(args)
-        self.novaclient = openstack_client.get_nova_client(args)
+        self.ironicclient = common.get_ironic_client(args)
+        self.novaclient = common.get_nova_client(args)
         self.hponeview_client = common.get_hponeview_client(args)
 
     # =========================================================================
@@ -85,14 +84,14 @@ class Facade(object):
         return self.hponeview_client.server_hardware.get(uuid)
 
     def get_server_profile_template(self, uri):
-        if uri is None:
-            return
+        if not uri:
+            return None
         uuid = common.get_uuid_from_uri(uri)
         return self.hponeview_client.server_profile_templates.get(uuid)
 
     def get_enclosure_group(self, uri):
-        if uri is None:
-            return
+        if not uri:
+            return None
         uuid = common.get_uuid_from_uri(uri)
         return self.hponeview_client.enclosure_groups.get(uuid)
 

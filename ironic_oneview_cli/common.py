@@ -25,29 +25,128 @@ from six.moves import urllib
 from oslo_utils import encodeutils
 from oslo_utils import importutils
 
-hpclient = importutils.try_import('hpOneView.oneview_client')
+from ironicclient import client as ironic_client
+from keystoneauth1 import loading
+from keystoneauth1 import session
+from novaclient import client as nova_client
+
+from ironic_oneview_cli import exceptions
+
+oneview_client = importutils.try_import('hpOneView.oneview_client')
+oneview_exceptions = importutils.try_import('hpOneView.exceptions')
 
 # NOTE(fellypefca): Classic Drivers will be deprecated on Openstack Queens
 SUPPORTED_DRIVERS = ['agent_pxe_oneview', 'iscsi_pxe_oneview', 'fake_oneview']
 SUPPORTED_HARDWARE_TYPES = ['oneview']
 
+IRONIC_API_VERSION = 1
+NOVA_API_VERSION = 2
+
+
+def get_ironic_client(args):
+    cli_kwargs = {
+        'ironic_url': args.ironic_url,
+        'os_username': args.os_username,
+        'os_password': args.os_password,
+        'os_auth_url': args.os_auth_url,
+        'os_project_id': args.os_project_id,
+        'os_project_name': args.os_project_name,
+        'os_tenant_name': args.os_tenant_name,
+        'os_region_name': args.os_region_name,
+        'os_service_type': args.os_service_type,
+        'os_endpoint_type': args.os_endpoint_type,
+        'insecure': args.insecure,
+        'os_cacert': args.os_cacert,
+        'os_cert': args.os_cert,
+        'os_ironic_api_version': args.ironic_api_version,
+        'os_project_domain_id': args.os_project_domain_id,
+        'os_project_domain_name': args.os_project_domain_name,
+        'os_user_domain_id': args.os_user_domain_id,
+        'os_user_domain_name': args.os_user_domain_name
+    }
+
+    return ironic_client.get_client(IRONIC_API_VERSION, **cli_kwargs)
+
+
+def get_nova_client(args):
+    loader = loading.get_plugin_loader('password')
+    auth = loader.load_from_options(
+        auth_url=args.os_auth_url,
+        username=args.os_username,
+        password=args.os_password,
+        user_domain_id=args.os_user_domain_id,
+        user_domain_name=args.os_user_domain_name,
+        project_id=args.os_project_id or args.os_tenant_id,
+        project_name=args.os_project_name or args.os_tenant_name,
+        project_domain_id=args.os_project_domain_id,
+        project_domain_name=args.os_project_domain_name
+    )
+
+    verify = True
+
+    if args.insecure:
+        verify = False
+
+    elif args.os_cacert:
+        verify = args.os_cacert
+
+    sess = session.Session(auth=auth, verify=verify, cert=args.os_cert)
+    nova = nova_client.Client(NOVA_API_VERSION, session=sess)
+
+    return nova
+
 
 def get_hponeview_client(args):
-    """Generate an instance of the hpOneView client.
+    """Generate an instance of the HPE OneView client.
 
-    Generates an instance of the hpOneView client using the hpOneView library.
-
-    :returns: an instance of the OneView client
+    :returns: an instance of the HPE OneView client.
+    :raises: OneViewConnectionError if try a secure connection without a CA
+             certificate file path in Ironic OneView CLI configuration file.
     """
-    return hpclient.OneViewClient({"ip": args.ov_auth_url,
-                                   "credentials": {
-                                       "userName": args.ov_username,
-                                       "password": args.ov_password}})
+    ssl_certificate = args.ov_cacert
+    insecure = True if args.ov_insecure.lower() == "true" else False
+
+    if not (insecure or ssl_certificate):
+        raise exceptions.OneViewConnectionError(
+            "Failed to start Ironic OneView CLI. Attempting to open secure "
+            "connection to OneView but CA certificate file is missing. Please "
+            "check your configuration file.")
+
+    if insecure:
+        print("Ironic OneView CLI is opening an insecure connection to "
+              "HPE OneView. We recommend you to configure secure connections "
+              "with a CA certificate file.")
+
+        if ssl_certificate:
+            print("Insecure connection to OneView, the CA certificate: %s "
+                  "will be ignored." % ssl_certificate)
+            ssl_certificate = None
+
+    config = {
+        "ip": args.ov_auth_url,
+        "credentials": {
+            "userName": args.ov_username,
+            "password": args.ov_password
+        },
+        "ssl_certificate": ssl_certificate
+    }
+
+    try:
+        client = oneview_client.OneViewClient(config)
+    except oneview_exceptions.HPOneViewException as ex:
+        print("Ironic OneView CLI could not open a connection to HPE OneView. "
+              "Check credentials and/or CA certificate file. See details on "
+              "error below:\n")
+        raise ex
+
+    return client
 
 
 def get_uuid_from_uri(uri):
     if uri:
         return uri.split("/")[-1]
+    msg = "OneView Resource URI not found."
+    raise exceptions.OneViewResourceNotFoundError(msg)
 
 
 def arg(*args, **kwargs):
@@ -104,7 +203,7 @@ def _print_list(objs, fields, sortby_index=0, field_labels=None):
     field_labels = field_labels or fields
     if len(field_labels) != len(fields):
         raise ValueError(("Field labels list %(labels)s has different number "
-                          "of elements than fields list %(fields)s"),
+                          "of elements than fields list %(fields)s") %
                          {'labels': field_labels, 'fields': fields})
 
     if sortby_index is None:
@@ -141,9 +240,10 @@ def print_prompt(object_list, header_list, input_message=None,
         header_list,
         field_labels=field_labels
     )
-    if input_message is not None:
+    if input_message:
         input_value = builtin_input(input_message)
         return input_value
+    return None
 
 
 def assign_elements_with_new_id(element_list):
@@ -158,8 +258,9 @@ def get_element_by_id(element_list, element_id):
         for element in element_list:
             if element['id'] == int(element_id):
                 return element
+        return None
     except Exception:
-        return
+        print("Failed to get element by id.")
 
 
 def get_element_by_name(element_list, element_name):
@@ -167,8 +268,9 @@ def get_element_by_name(element_list, element_name):
         for element in element_list:
             if element['name'] == element_name:
                 return element
+        return None
     except Exception:
-        return
+        print("Failed to get element by name.")
 
 
 def is_entry_invalid(entries, objects_list):
@@ -287,11 +389,19 @@ def update_attrs_for_node(attributes, args, server_hardware):
 
 
 def get_first_ethernet_physical_port(server_hardware):
-    for device in server_hardware.get('portMap').get(
-            'deviceSlots'):
-        for physical_port in device.get('physicalPorts', []):
-            if physical_port.get('type') == 'Ethernet':
-                return physical_port
+    try:
+        for device in server_hardware.get('portMap').get(
+                'deviceSlots'):
+            for physical_port in device.get('physicalPorts', []):
+                if physical_port.get('type') == 'Ethernet':
+                    return physical_port
+        print("Could not find any physical port with the type Ethernet on "
+              "the Server Hardware: %s" % server_hardware)
+        return None
+    except oneview_exceptions.HPOneViewException as ex:
+        msg = ("Could not get the physical_port of Server Hardware: %s" %
+               server_hardware)
+        raise ex(msg)
 
 
 def create_attrs_for_port(ironic_node, mac):

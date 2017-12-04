@@ -10,6 +10,6 @@ python-keystoneclient
 python-ironicclient
 python-novaclient
 python-ilorest-library>=2.1.0
-hpOneView>=3.2.1
+hpOneView>=4.4.0
 requests
 future
