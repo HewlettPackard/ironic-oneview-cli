@@ -359,3 +359,18 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         sh_id = common.get_server_hardware_id_from_node(ironic_node)
 
         self.assertEqual(sh_id, "22222")
+
+    def test_is_valid_logical_name(self, mock_facade):
+        self.assertTrue(common.is_valid_logical_name('blade1'))
+        self.assertTrue(common.is_valid_logical_name('Enclosure1_bay_2'))
+        self.assertTrue(common.is_valid_logical_name('blade-1'))
+
+        self.assertFalse(common.is_valid_logical_name(None))
+        self.assertFalse(common.is_valid_logical_name(''))
+        self.assertFalse(common.is_valid_logical_name('Enclosure1, bay 2'))
+
+    def test_normalize_logical_name(self, mock_facade):
+        self.assertEqual('Enclosure1_bay_2',
+                         common.normalize_logical_name('Enclosure1, bay 2'))
+        self.assertEqual('blade2', common.normalize_logical_name('blade2'))
+        self.assertEqual(None, common.normalize_logical_name(None))

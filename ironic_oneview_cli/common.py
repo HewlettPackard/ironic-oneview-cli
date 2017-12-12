@@ -15,21 +15,26 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from builtins import input
 import os
+import re
 
-from builtins import input as builtin_input
 import prettytable
-import six
-from six.moves import urllib
 
 from oslo_utils import encodeutils
 from oslo_utils import importutils
+
+import six
+from six.moves.urllib import parse
+
 
 hpclient = importutils.try_import('hpOneView.oneview_client')
 
 # NOTE(fellypefca): Classic Drivers will be deprecated on Openstack Queens
 SUPPORTED_DRIVERS = ['agent_pxe_oneview', 'iscsi_pxe_oneview', 'fake_oneview']
 SUPPORTED_HARDWARE_TYPES = ['oneview']
+
+_is_valid_logical_name_re = re.compile(r'^[A-Z0-9-._~]+$', re.I)
 
 
 def get_hponeview_client(args):
@@ -48,6 +53,7 @@ def get_hponeview_client(args):
 def get_uuid_from_uri(uri):
     if uri:
         return uri.split("/")[-1]
+    return None
 
 
 def arg(*args, **kwargs):
@@ -90,22 +96,26 @@ def env(*args, **kwargs):
     return kwargs.get('default', '')
 
 
-def _print_list(objs, fields, sortby_index=0, field_labels=None):
+def _print_list(objs, fields, formatters=None, sortby_index=0,
+                mixed_case_fields=None, field_labels=None):
     """Print a list or objects as a table, one row per object.
 
     :param objs: iterable of :class:`Resource`
     :param fields: attributes that correspond to columns, in order
+    :param formatters: `dict` of callables for field formatting
     :param sortby_index: index of the field for sorting table rows
+    :param mixed_case_fields: fields corresponding to object attributes that
+        have mixed case names (e.g., 'serverId')
     :param field_labels: Labels to use in the heading of the table, default to
         fields.
     """
-    formatters = {}
-    mixed_case_fields = []
+    formatters = formatters or {}
+    mixed_case_fields = mixed_case_fields or []
     field_labels = field_labels or fields
     if len(field_labels) != len(fields):
-        raise ValueError(("Field labels list %(labels)s has different number "
-                          "of elements than fields list %(fields)s"),
-                         {'labels': field_labels, 'fields': fields})
+        raise ValueError(("Field labels list %s has different number "
+                          "of elements than fields list %s")
+                         % (field_labels, fields))
 
     if sortby_index is None:
         kwargs = {}
@@ -135,15 +145,18 @@ def _print_list(objs, fields, sortby_index=0, field_labels=None):
 
 
 def print_prompt(object_list, header_list, input_message=None,
-                 field_labels=None):
+                 field_labels=None, sortby_index=None):
     _print_list(
         object_list,
         header_list,
+        sortby_index=sortby_index,
+        mixed_case_fields=[],
         field_labels=field_labels
     )
     if input_message is not None:
-        input_value = builtin_input(input_message)
+        input_value = input(input_message)
         return input_value
+    return None
 
 
 def assign_elements_with_new_id(element_list):
@@ -158,17 +171,24 @@ def get_element_by_id(element_list, element_id):
         for element in element_list:
             if element['id'] == int(element_id):
                 return element
+        return None
     except Exception:
-        return
+        return None
 
 
-def get_element_by_name(element_list, element_name):
-    try:
-        for element in element_list:
-            if element['name'] == element_name:
-                return element
-    except Exception:
-        return
+def get_element(element_list, element_uuid_name_uri):
+    def is_equal(obj, field, value):
+        if isinstance(obj, dict):
+            return obj.get(field, "") == value
+        return getattr(obj, field, "") == value
+
+    for element in element_list:
+        if (is_equal(element, 'uuid', element_uuid_name_uri) or
+                is_equal(element, 'name', element_uuid_name_uri) or
+                is_equal(element, 'uri', element_uuid_name_uri)):
+            return element
+
+    return None
 
 
 def is_entry_invalid(entries, objects_list):
@@ -181,12 +201,54 @@ def is_entry_invalid(entries, objects_list):
     return False
 
 
+def is_valid_logical_name(hostname):
+    """Determine if a logical name is valid.
+
+    The logical name may only consist of RFC3986 unreserved
+    characters, to wit:
+    ALPHA / DIGIT / "-" / "." / "_" / "~"
+    """
+    if not isinstance(hostname, six.string_types) or len(hostname) > 255:
+        return False
+
+    return _is_valid_logical_name_re.match(hostname) is not None
+
+
+def is_valid_mac_address(mac):
+    """Determine if a mac address is valid"""
+
+    return re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$",
+                    mac.lower())
+
+
+def normalize_logical_name(hostname):
+    """Normalize a hostname to be a valid logical name.
+
+    The logical name may only consist of RFC3986 unreserved
+    characters, to wit: ALPHA / DIGIT / "-" / "." / "_" / "~"
+    This will transform all letters to lowercase, replace spaces
+    by underscore and remove any character that does not comply
+    with the hostname constraint
+    """
+    if isinstance(hostname, six.string_types):
+        hostname = hostname.replace(' ', '_')
+
+        normalized_hostname = [char for char in hostname
+                               if _is_valid_logical_name_re.match(char)]
+
+        return ''.join(normalized_hostname)
+    return None
+
+
+def generate_template_flavor_name(flavor_dict):
+    return "%sMB-RAM_%s_%s_%s" % (
+        flavor_dict.get('ram_mb'), flavor_dict.get('cpus'),
+        flavor_dict.get('cpu_arch'), flavor_dict.get('disk'))
+
+
 def set_flavor_name(flavor):
-    flavor_name_template = "%sMB-RAM_%s_%s_%s" % (flavor.get('ram_mb'),
-                                                  flavor.get('cpus'),
-                                                  flavor.get('cpu_arch'),
-                                                  flavor.get('disk'))
-    flavor_name = builtin_input(
+    flavor_name_template = generate_template_flavor_name(flavor)
+    flavor_name = input(
         "Insert a name for the Flavor. [%(default_name)s]> " %
         {'default_name': flavor_name_template}
     )
@@ -211,7 +273,7 @@ def get_attribute_from_dict(dictionary, keyword, default_value=''):
 
 
 def approve_command_prompt(message):
-    response = builtin_input(message)
+    response = input(message)
     return response.lower() == 'y'
 
 
@@ -222,9 +284,8 @@ def get_oneview_nodes(ironic_nodes):
     :returns: A list of Ironic Nodes with OneView compatible Drivers and
               Hardware types only.
     """
-    oneview_nodes = [node for node in ironic_nodes if node.driver in
-                     SUPPORTED_DRIVERS + SUPPORTED_HARDWARE_TYPES]
-    return oneview_nodes
+    types = SUPPORTED_DRIVERS + SUPPORTED_HARDWARE_TYPES
+    return [i for i in ironic_nodes if i.driver in types]
 
 
 def is_server_profile_applied(server_hardware):
@@ -292,6 +353,7 @@ def get_first_ethernet_physical_port(server_hardware):
         for physical_port in device.get('physicalPorts', []):
             if physical_port.get('type') == 'Ethernet':
                 return physical_port
+    return None
 
 
 def create_attrs_for_port(ironic_node, mac):
@@ -304,30 +366,6 @@ def create_attrs_for_port(ironic_node, mac):
     }
 
     return attrs
-
-
-def set_flavor_properties(
-        node, server_hardware_type, enclosure_group, server_profile_template):
-    flavor = {}
-
-    flavor['ram_mb'] = node.properties.get('memory_mb')
-    flavor['cpus'] = node.properties.get('cpus')
-    flavor['disk'] = node.properties.get('local_gb')
-    flavor['cpu_arch'] = node.properties.get('cpu_arch')
-    flavor['server_hardware_type_name'] = (
-        get_attribute_from_dict(server_hardware_type, 'name'))
-    flavor['server_hardware_type_uri'] = (
-        get_attribute_from_dict(server_hardware_type, 'uri'))
-    flavor['enclosure_group_name'] = (
-        get_attribute_from_dict(enclosure_group, 'name'))
-    flavor['enclosure_group_uri'] = (
-        get_attribute_from_dict(enclosure_group, 'uri'))
-    flavor['server_profile_template_name'] = (
-        get_attribute_from_dict(server_profile_template, 'name'))
-    flavor['server_profile_template_uri'] = (
-        get_attribute_from_dict(server_profile_template, 'uri'))
-
-    return flavor
 
 
 def build_local_link_connection(ironic_node):
@@ -373,7 +411,39 @@ def get_ilo_access(remote_console):
               example: ('1.2.3.4', 'a79659e3b3b7c8209c901ac3509a6719')
     """
     url = remote_console.get('remoteConsoleUrl')
-    url_parse = urllib.parse.urlparse(url)
-    host_ip = urllib.parse.parse_qs(url_parse.netloc).get('addr')[0]
-    token = urllib.parse.parse_qs(url_parse.netloc).get('sessionkey')[0]
+    url_parse = parse.urlparse(url)
+    host_ip = parse.parse_qs(url_parse.netloc).get('addr')[0]
+    token = parse.parse_qs(url_parse.netloc).get('sessionkey')[0]
     return host_ip, token
+
+
+def get_server_profile_compatible(server_profile_templates, server_hardware):
+    """Get server profiles compatible with server hardware.
+
+    :param server_profile_templates: List of server profile templates
+    :param server_hardware: Server Hardware object
+    :return: List of server profiles templates compatible with server hardware
+             sorted by name
+    """
+    server_profile_list = []
+    server_hardware_type_list = []
+    server_group_list = []
+    for hardware in server_hardware:
+        server_hardware_type_list.append(
+            hardware.get('serverHardwareTypeUri'))
+        server_group_list.append(
+            hardware.get('serverGroupUri'))
+
+    for spt in server_profile_templates:
+        if (spt.get('serverHardwareTypeUri') in server_hardware_type_list and
+                spt.get('enclosureGroupUri') in server_group_list):
+            server_profile_list.append(spt)
+
+    return sorted(server_profile_list, key=lambda x: x.get('name').lower())
+
+
+def is_valid_spt(server_profile_templates, template_uri):
+    valid = get_element(server_profile_templates, template_uri)
+    if valid is None:
+        return False
+    return True

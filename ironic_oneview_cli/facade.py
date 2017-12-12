@@ -81,18 +81,20 @@ class Facade(object):
     # OneView actions
     # =========================================================================
     def get_server_hardware(self, uri):
+        if not uri:
+            return None
         uuid = common.get_uuid_from_uri(uri)
         return self.hponeview_client.server_hardware.get(uuid)
 
     def get_server_profile_template(self, uri):
-        if uri is None:
-            return
+        if not uri:
+            return None
         uuid = common.get_uuid_from_uri(uri)
         return self.hponeview_client.server_profile_templates.get(uuid)
 
     def get_enclosure_group(self, uri):
-        if uri is None:
-            return
+        if not uri:
+            return None
         uuid = common.get_uuid_from_uri(uri)
         return self.hponeview_client.enclosure_groups.get(uuid)
 
@@ -104,24 +106,15 @@ class Facade(object):
         uuid = common.get_uuid_from_uri(uri)
         return self.hponeview_client.server_profiles.get(uuid)
 
-    def list_templates_compatible_with(self, server_hardware_list):
-        compatible_server_profile_list = []
-        server_hardware_type_list = []
-        server_group_list = []
-
-        for server_hardware in server_hardware_list:
-            server_hardware_type_list.append(
-                server_hardware.get('serverHardwareTypeUri'))
-            server_group_list.append(
-                server_hardware.get('serverGroupUri'))
-
+    def list_templates_compatible(self, server_hardware_list=None):
         spt_list = self.hponeview_client.server_profile_templates.get_all()
-        for spt in spt_list:
-            if (spt.get('serverHardwareTypeUri') in
-                    server_hardware_type_list and spt.get(
-                        'enclosureGroupUri') in server_group_list):
-                compatible_server_profile_list.append(spt)
-        return compatible_server_profile_list
+        if not server_hardware_list:
+            server_hardware_list = self.filter_server_hardware_available()
+        return common.get_server_profile_compatible(spt_list,
+                                                    server_hardware_list)
+
+    def list_all_templates(self):
+        return self.hponeview_client.server_profile_templates.get_all()
 
     def filter_server_hardware_available(self, filters=''):
         return self.hponeview_client.server_hardware.get_all(filter=filters)
@@ -140,7 +133,7 @@ class Facade(object):
         return redfish.rest_client(base_url=base_url, sessionkey=ilo_token)
 
     def get_server_hardware_mac_from_ilo(self, server_hardware):
-        """Get the MAC address from a server hardware using iLO.
+        """Get the MAC address from a server hardware using iLO
 
         :param: server_hardware: a server hardware uuid or uri
         :return: the MAC address

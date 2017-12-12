@@ -52,6 +52,7 @@ class PortCreator(object):
                 # to peform a deploy.
                 if virtual_port.get('portFunction') == 'a':
                     return virtual_port.get('mac').lower()
+            return None
         else:
             raise exceptions.OneViewResourceNotFoundError(
                 "There is no Ethernet port on the Server Hardware: %s"

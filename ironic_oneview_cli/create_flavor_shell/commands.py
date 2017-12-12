@@ -26,8 +26,8 @@ LOG = logging.getLogger(__name__)
 
 class FlavorCreator(object):
 
-    def __init__(self, flavor_facade):
-        self.facade = flavor_facade
+    def __init__(self, facade_obj):
+        self.facade = facade_obj
 
     def get_oneview_nodes(self):
         return common.get_oneview_nodes(self.facade.get_ironic_node_list())
@@ -54,12 +54,36 @@ class FlavorCreator(object):
             server_profile_template_uri
         )
 
-        flavor = common.set_flavor_properties(
+        flavor = self.set_flavor_properties(
             node, server_hardware_type,
             enclosure_group, server_profile_template
         )
 
         return objects.Flavor(flavor_id=flavor_id, info=flavor)
+
+    @staticmethod
+    def set_flavor_properties(node, server_hardware_type,
+                              enclosure_group, server_profile_template):
+        flavor = {}
+
+        flavor['ram_mb'] = node.properties.get('memory_mb')
+        flavor['cpus'] = node.properties.get('cpus')
+        flavor['disk'] = node.properties.get('local_gb')
+        flavor['cpu_arch'] = node.properties.get('cpu_arch')
+        flavor['server_hardware_type_name'] = (
+            common.get_attribute_from_dict(server_hardware_type, 'name'))
+        flavor['server_hardware_type_uri'] = (
+            common.get_attribute_from_dict(server_hardware_type, 'uri'))
+        flavor['enclosure_group_name'] = (
+            common.get_attribute_from_dict(enclosure_group, 'name'))
+        flavor['enclosure_group_uri'] = (
+            common.get_attribute_from_dict(enclosure_group, 'uri'))
+        flavor['server_profile_template_name'] = (
+            common.get_attribute_from_dict(server_profile_template, 'name'))
+        flavor['server_profile_template_uri'] = (
+            common.get_attribute_from_dict(server_profile_template, 'uri'))
+
+        return flavor
 
     def get_flavor_list(self, nodes):
         flavors = []
@@ -73,14 +97,31 @@ class FlavorCreator(object):
                 id_counter += 1
         return sorted(set(flavors), key=lambda x: x.cpus)
 
-    def create_flavor(self, flavor_dict, extra_specs=None):
+    def create_flavor(self, name, ram, vcpus, disk, extra_specs={}):
+        attrs = {
+            'name': name,
+            'ram': ram,
+            'vcpus': vcpus,
+            'disk': disk
+        }
+
         try:
-            flavor = self.facade.create_nova_flavor(**flavor_dict)
+            flavor = self.facade.create_nova_flavor(**attrs)
             flavor.set_keys(extra_specs)
         except Exception as e:
             raise e
 
+        print("Flavor %s was created." % flavor.name)
 
+
+@common.arg(
+    '--node',
+    metavar='<node>',
+    help='A Ironic node to create the flavor for.')
+@common.arg(
+    '--name',
+    metavar='<name>',
+    help='The name of the flavor to be created.')
 def do_flavor_create(args):
     """Create flavors based on available Ironic nodes.
 
@@ -92,14 +133,22 @@ def do_flavor_create(args):
     flavor_creator = FlavorCreator(cli_facade)
     nodes = flavor_creator.get_oneview_nodes()
 
-    if not nodes:
+    if args.name and not args.node:
+        print(("It is mandatory to specify an Ironic Node for flavor creation."
+              " Use --node"))
+        return
+    elif not nodes:
         print("No Ironic nodes running OneView drivers were found. "
-              "Please, create a node to be used as base for the Flavor.")
+              "Please, create a node to be used as base for the flavor.")
         return
 
-    print("Retrieving possible configurations for Flavor creation...")
-
-    LOG.info("Flavor creation...")
+    LOG.info("Retrieving possible configurations for flavor creation...")
+    if args.node:
+        nodes = [common.get_element(nodes, args.node)]
+        if nodes[0] is None:
+            print(("Could not find an Ironic Node matching "
+                  "'%s'") % args.node)
+            return
 
     flavor_list = flavor_creator.get_flavor_list(nodes)
 
@@ -110,6 +159,15 @@ def do_flavor_create(args):
 
     common.assign_elements_with_new_id(flavor_dict_list)
 
+    if not args.node:
+        _interactive_flavor(flavor_creator, flavor_dict_list)
+    else:
+        flavor = flavor_dict_list[0]
+        flavor_name = args.name or common.generate_template_flavor_name(flavor)
+        _create_flavor(flavor_creator, flavor, flavor_name)
+
+
+def _interactive_flavor(flavor_creator, flavor_dict_list):
     while True:
         input_id = common.print_prompt(
             flavor_dict_list,
@@ -143,42 +201,40 @@ def do_flavor_create(args):
 
         flavor = common.get_element_by_id(flavor_dict_list, input_id)
 
-        print("Listing chosen flavor configuration...")
-        common.print_prompt(
-            [flavor],
-            [
-                'cpus',
-                'disk',
-                'ram_mb',
-                'server_profile_template_name',
-                'server_hardware_type_name',
-                'enclosure_group_name'
-            ],
-            field_labels=[
-                'CPUs',
-                'Disk GB',
-                'Memory MB',
-                'Server Profile Template',
-                'Server Hardware Type',
-                'Enclosure Group Name'
-            ]
-        )
-
-        flavor_name = common.set_flavor_name(flavor)
-        flavor_dict = {
-            'name': flavor_name,
-            'ram': flavor.get('ram_mb'),
-            'vcpus': flavor.get('cpus'),
-            'disk': flavor.get('disk')
-        }
-        flavor_creator.create_flavor(
-            flavor_dict,
-            flavor.get("flavor_obj").extra_specs()
-        )
-
-        print('Flavor created!\n')
+        _create_flavor(flavor_creator, flavor)
 
         message = 'Would you like to create another Flavor(s)? [y/N] '
         response = common.approve_command_prompt(message)
         if not response:
             break
+
+
+def _create_flavor(flavor_creator, flavor, flavor_name=None):
+    print("Listing chosen flavor configuration...")
+    common.print_prompt(
+        [flavor],
+        [
+            'cpus',
+            'disk',
+            'ram_mb',
+            'server_profile_template_name',
+            'server_hardware_type_name',
+            'enclosure_group_name'
+        ],
+        field_labels=[
+            'CPUs',
+            'Local GB',
+            'Memory MB',
+            'Server Profile Template',
+            'Server Hardware Type',
+            'Enclosure Group Name'
+        ]
+    )
+    flavor_name = flavor_name or common.set_flavor_name(flavor)
+    flavor_creator.create_flavor(
+        flavor_name,
+        flavor.get('ram_mb'),
+        flavor.get('cpus'),
+        flavor.get('disk'),
+        flavor.get("flavor_obj").extra_specs()
+    )
