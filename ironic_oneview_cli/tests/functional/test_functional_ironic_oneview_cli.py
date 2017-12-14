@@ -446,7 +446,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             mac=None
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     def test_node_creation_no_args(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -478,7 +478,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     def test_node_creation_with_oneview_ml2_driver(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -514,7 +514,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     def test_node_creation_with_classic_flag(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -550,7 +550,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     def test_node_creation_rack_servers(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -590,7 +590,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     def test_node_creation_inspection_enabled(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -634,7 +634,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     def test_node_creation_number_argument(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -663,7 +663,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             self.args.number, ironic_client.node.create.call_count
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     def test_node_creation_spt_argument(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -737,7 +737,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             self.args.number, ironic_client.node.create.call_count
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     @mock.patch('ironic_oneview_cli.openstack_client.get_nova_client')
     def test_flavor_creation(self, mock_nova_client, mock_input,
                              mock_oneview_client, mock_ironic_client):
@@ -764,7 +764,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.input')
+    @mock.patch('ironic_oneview_cli.common.builtin_input')
     def test_delete_node(self, mock_input,
                          mock_oneview_client, mock_ironic_client):
         ironic_client = mock_ironic_client.return_value
@@ -915,7 +915,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                         server_hardware.get("serverHardwareTypeUri"),
                         server_profile_template.get("uri"),
                         server_hardware.get("serverGroupUri")
-                    )
+                )
             }
         }
         if self.args.classic:

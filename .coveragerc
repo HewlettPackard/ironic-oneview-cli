@@ -1,2 +1,9 @@
 [run]
-omit = *test*
+source =
+  ironic_oneview_cli
+
+[report]
+include =
+  ironic_oneview_cli/*
+omit =
+  */tests/*

@@ -14,8 +14,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from __future__ import print_function
 
-def do_genrc(args):
+
+def do_genrc():
     """Generate the Ironic OneView CLI sample file."""
     print("#!/usr/bin/env bash")
     print("\n# Ironic OneView CLI")

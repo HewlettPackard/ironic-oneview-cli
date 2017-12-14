@@ -26,8 +26,8 @@ LOG = logging.getLogger(__name__)
 
 class FlavorCreator(object):
 
-    def __init__(self, facade):
-        self.facade = facade
+    def __init__(self, flavor_facade):
+        self.facade = flavor_facade
 
     def get_oneview_nodes(self):
         return common.get_oneview_nodes(self.facade.get_ironic_node_list())
@@ -46,7 +46,7 @@ class FlavorCreator(object):
 
         capabilities = node.properties.get("capabilities")
         match = re.search(
-            "server_profile_template_uri:(?P<uri>[a-zA-Z0-9\-\/]+)",
+            r"server_profile_template_uri:(?P<uri>[a-zA-Z0-9\-\/]+)",
             capabilities
         )
         server_profile_template_uri = match.group('uri')
@@ -54,35 +54,12 @@ class FlavorCreator(object):
             server_profile_template_uri
         )
 
-        flavor = self.set_flavor_properties(
+        flavor = common.set_flavor_properties(
             node, server_hardware_type,
             enclosure_group, server_profile_template
         )
 
-        return objects.Flavor(id=flavor_id, info=flavor)
-
-    def set_flavor_properties(self, node, server_hardware_type,
-                              enclosure_group, server_profile_template):
-        flavor = {}
-
-        flavor['ram_mb'] = node.properties.get('memory_mb')
-        flavor['cpus'] = node.properties.get('cpus')
-        flavor['disk'] = node.properties.get('local_gb')
-        flavor['cpu_arch'] = node.properties.get('cpu_arch')
-        flavor['server_hardware_type_name'] = (
-            common.get_attribute_from_dict(server_hardware_type, 'name'))
-        flavor['server_hardware_type_uri'] = (
-            common.get_attribute_from_dict(server_hardware_type, 'uri'))
-        flavor['enclosure_group_name'] = (
-            common.get_attribute_from_dict(enclosure_group, 'name'))
-        flavor['enclosure_group_uri'] = (
-            common.get_attribute_from_dict(enclosure_group, 'uri'))
-        flavor['server_profile_template_name'] = (
-            common.get_attribute_from_dict(server_profile_template, 'name'))
-        flavor['server_profile_template_uri'] = (
-            common.get_attribute_from_dict(server_profile_template, 'uri'))
-
-        return flavor
+        return objects.Flavor(flavor_id=flavor_id, info=flavor)
 
     def get_flavor_list(self, nodes):
         flavors = []
@@ -96,16 +73,9 @@ class FlavorCreator(object):
                 id_counter += 1
         return sorted(set(flavors), key=lambda x: x.cpus)
 
-    def create_flavor(self, name, ram, vcpus, disk, extra_specs={}):
-        attrs = {
-            'name': name,
-            'ram': ram,
-            'vcpus': vcpus,
-            'disk': disk
-        }
-
+    def create_flavor(self, flavor_dict, extra_specs=None):
         try:
-            flavor = self.facade.create_nova_flavor(**attrs)
+            flavor = self.facade.create_nova_flavor(**flavor_dict)
             flavor.set_keys(extra_specs)
         except Exception as e:
             raise e
@@ -195,12 +165,14 @@ def do_flavor_create(args):
         )
 
         flavor_name = common.set_flavor_name(flavor)
-
+        flavor_dict = {
+            'name': flavor_name,
+            'ram': flavor.get('ram_mb'),
+            'vcpus': flavor.get('cpus'),
+            'disk': flavor.get('disk')
+        }
         flavor_creator.create_flavor(
-            flavor_name,
-            flavor.get('ram_mb'),
-            flavor.get('cpus'),
-            flavor.get('disk'),
+            flavor_dict,
             flavor.get("flavor_obj").extra_specs()
         )
 

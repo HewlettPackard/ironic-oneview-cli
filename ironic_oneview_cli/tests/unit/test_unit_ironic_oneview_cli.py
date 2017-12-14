@@ -298,15 +298,11 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
         self.assertFalse(node_creator.is_enrolled_on_ironic(server_hardware))
 
     def test_is_server_profile_applied(self, mock_facade):
-        node_creator = create_node_cmd.NodeCreator(mock_facade)
-
-        self.assertTrue(node_creator.is_server_profile_applied(
+        self.assertTrue(common.is_server_profile_applied(
             POOL_OF_SERVER_HARDWARE[1]))
 
     def test_is_server_profile_applied_false(self, mock_facade):
-        node_creator = create_node_cmd.NodeCreator(mock_facade)
-
-        self.assertFalse(node_creator.is_server_profile_applied(
+        self.assertFalse(common.is_server_profile_applied(
             POOL_OF_SERVER_HARDWARE[0]))
 
     def test_list_server_hardware(self, mock_facade):
@@ -356,7 +352,7 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
 
         self.assertEqual.__self__.maxDiff = None
         self.assertEqual(result_flavor,
-                         flavor_objs.Flavor(id=12345, info=flavor))
+                         flavor_objs.Flavor(flavor_id=12345, info=flavor))
 
     def test_get_server_hardware_id_from_node(self, mock_facade):
         ironic_node = POOL_OF_STUB_IRONIC_NODES[1]

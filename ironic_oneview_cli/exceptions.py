@@ -27,17 +27,19 @@ class Unauthorized(ClientException):
     """Unauthorized."""
 
 
-class OneViewConnectionError(Exception):
-    def __init__(self, value):
-        self.value = value
+class OneViewConnectionError(ClientException):
+    def __init__(self, message=None):
+        self.message = message
+        super(OneViewConnectionError, self).__init__(message)
 
     def __str__(self):
-        return repr(self.value)
+        return repr(self.message)
 
 
-class OneViewResourceNotFoundError(Exception):
-    def __init__(self, value):
-        self.value = value
+class OneViewResourceNotFoundError(ClientException):
+    def __init__(self, message=None):
+        self.message = message
+        super(OneViewResourceNotFoundError, self).__init__(message)
 
     def __str__(self):
-        return repr(self.value)
+        return repr(self.message)
