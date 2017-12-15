@@ -33,6 +33,11 @@ class PortCreator(object):
         else:
             mac = self.get_server_hardware_mac(server_hardware)
 
+        if not common.validate_server_hardware_mac(mac, server_hardware):
+            print(("WARNING: mac %(mac)s doesn't match any server "
+                   "hardware's %(sh)s ports") %
+                  {"mac": mac, "sh": server_hardware.get('uuid')})
+
         self.verifify_existing_ports_for_node(ironic_node)
 
         attrs = common.create_attrs_for_port(ironic_node, mac)
