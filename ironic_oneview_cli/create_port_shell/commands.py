@@ -13,14 +13,15 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 from ironic_oneview_cli import common
 from ironic_oneview_cli import exceptions
 from ironic_oneview_cli import facade
 
 
 class PortCreator(object):
-    def __init__(self, facade):
-        self.facade = facade
+    def __init__(self, port_facade):
+        self.facade = port_facade
 
     def create_port(self, args, ironic_node):
         server_hardware_uri = ironic_node.driver_info.get(
@@ -30,19 +31,19 @@ class PortCreator(object):
         if args.mac:
             mac = args.mac
         else:
-            mac = self._get_server_hardware_mac(server_hardware)
+            mac = self.get_server_hardware_mac(server_hardware)
 
-        self._verifify_existing_ports_for_node(ironic_node)
+        self.verifify_existing_ports_for_node(ironic_node)
 
-        attrs = self._create_attrs_for_port(ironic_node, mac)
+        attrs = common.create_attrs_for_port(ironic_node, mac)
         return self.facade.create_ironic_port(**attrs)
 
-    def _get_server_hardware_mac(self, server_hardware):
+    def get_server_hardware_mac(self, server_hardware):
         if not server_hardware.get('portMap'):
             return self.facade.get_server_hardware_mac_from_ilo(
                 server_hardware)
 
-        sh_physical_port = self._get_first_ethernet_physical_port(
+        sh_physical_port = common.get_first_ethernet_physical_port(
             server_hardware)
         if sh_physical_port:
             for virtual_port in sh_physical_port.get('virtualPorts'):
@@ -56,47 +57,10 @@ class PortCreator(object):
                 "There is no Ethernet port on the Server Hardware: %s"
                 % server_hardware.get('uri'))
 
-    def _get_first_ethernet_physical_port(self, server_hardware):
-        for device in server_hardware.get('portMap').get(
-                'deviceSlots'):
-            for physical_port in device.get('physicalPorts', []):
-                if physical_port.get('type') == 'Ethernet':
-                    return physical_port
-
-    def _create_attrs_for_port(
-        self, ironic_node, mac
-    ):
-        attrs = {
-            'address': mac,
-            'node_uuid': ironic_node.uuid,
-            'portgroup_uuid': None,
-            "local_link_connection":
-                self._build_local_link_connection(ironic_node),
-            'pxe_enabled': True
-        }
-
-        return attrs
-
-    def _build_local_link_connection(self, ironic_node):
-        local_link_connection = {}
-        if ironic_node.driver_info.get('use_oneview_ml2_driver'):
-            server_hardware_id = common.get_server_hardware_id_from_node(
-                ironic_node)
-            switch_info = (
-                '{"server_hardware_id": "%(server_hardware_id)s", '
-                '"bootable": "%(bootable)s"}') % {
-                    'server_hardware_id': server_hardware_id,
-                    'bootable': True}
-            local_link_connection = {
-                "switch_id": "01:23:45:67:89:ab",
-                "port_id": "",
-                "switch_info": switch_info
-            }
-        return local_link_connection
-
-    def _verifify_existing_ports_for_node(self, ironic_node):
-        ports = filter(lambda p: p.node_uuid == ironic_node.uuid,
-                       self.facade.get_ironic_port_list())
+    def verifify_existing_ports_for_node(self, ironic_node):
+        ironic_ports = self.facade.get_ironic_port_list()
+        ports = [port for port in ironic_ports if
+                 port.node_uuid == ironic_node.uuid]
         if ports:
             print("There are created ports for this node already. The CLI "
                   "will try to create it as another port.")

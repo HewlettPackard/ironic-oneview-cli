@@ -22,14 +22,11 @@ from ironic_oneview_cli import facade
 
 
 class NodeCreator(object):
-    def __init__(self, facade):
-        self.facade = facade
+    def __init__(self, node_facade):
+        self.facade = node_facade
 
     def get_oneview_nodes(self):
         return common.get_oneview_nodes(self.facade.get_ironic_node_list())
-
-    def is_server_profile_applied(self, server_hardware):
-        return bool(server_hardware.get('serverProfileUri'))
 
     def is_enrolled_on_ironic(self, server_hardware):
         nodes = self.get_oneview_nodes()
@@ -89,9 +86,9 @@ class NodeCreator(object):
             server_hardware_list, key=lambda x: x.get('name').lower())
 
     def create_node(self, args, server_hardware, server_profile_template):
-        attrs = self._create_attrs_for_node(
+        attrs = common.create_attrs_for_node(
             args, server_hardware, server_profile_template)
-        self._update_attrs_for_node(attrs, args, server_hardware)
+        common.update_attrs_for_node(attrs, args, server_hardware)
         node = self.facade.create_ironic_node(**attrs)
 
         port_creator = port_cmd.PortCreator(self.facade)
@@ -100,62 +97,6 @@ class NodeCreator(object):
         print("Port %s was created" % port.uuid)
 
         return node
-
-    def _create_attrs_for_node(
-        self, args, server_hardware, server_profile_template
-    ):
-        attrs = {
-            # TODO(thiagop): turn 'name' into a valid server name
-            # 'name': server_hardware.name,
-            'driver_info': {
-                'deploy_kernel': args.os_ironic_deploy_kernel_uuid,
-                'deploy_ramdisk': args.os_ironic_deploy_ramdisk_uuid,
-                'server_hardware_uri': server_hardware.get('uri'),
-                'use_oneview_ml2_driver': args.use_oneview_ml2_driver,
-            },
-            'properties': {
-                'capabilities': 'server_hardware_type_uri:%s,'
-                                'server_profile_template_uri:%s' % (
-                                    server_hardware.get(
-                                        'serverHardwareTypeUri'),
-                                    server_profile_template.get('uri')
-                                )
-            }
-        }
-
-        if args.classic:
-            attrs['driver'] = args.os_ironic_node_driver
-        else:
-            attrs['driver'] = args.os_driver
-            attrs['power_interface'] = args.os_power_interface
-            attrs['management_interface'] = args.os_management_interface
-            attrs['inspect_interface'] = args.os_inspect_interface
-            attrs['deploy_interface'] = args.os_deploy_interface
-
-        return attrs
-
-    def _update_attrs_for_node(self, attributes, args, server_hardware):
-        if args.use_oneview_ml2_driver:
-            attributes['network_interface'] = 'neutron'
-
-        if server_hardware.get('serverGroupUri'):
-            enclosure_group_uri = (
-                ',enclosure_group_uri:%s' % server_hardware.get(
-                    'serverGroupUri')
-            )
-            attributes['properties']['capabilities'] += enclosure_group_uri
-
-        if not args.os_inspection_enabled:
-            cpus = (server_hardware.get('processorCoreCount') *
-                    server_hardware.get('processorCount'))
-            hardware_properties = {
-                'cpus': cpus,
-                'memory_mb': server_hardware.get('memoryMb'),
-                'local_gb': server_hardware.get('local_gb'),
-                'cpu_arch': server_hardware.get('cpu_arch')
-            }
-
-            attributes['properties'].update(hardware_properties)
 
 
 @common.arg(
@@ -278,7 +219,7 @@ def do_node_create(args):
                        'enrolled on Ironic.') % {'server_hardware':
                                                  node.get("uuid")})
             else:
-                if node_creator.is_server_profile_applied(node):
+                if common.is_server_profile_applied(node):
                     print(('Server Hardware %(server_hardware)s is in use by '
                            'OneView.') % {'server_hardware':
                                           node.get("uuid")})
@@ -356,7 +297,7 @@ def do_node_create(args):
                         'Server Hardware Type Name'
                     ]
                 )
-                if node_creator.is_server_profile_applied(
+                if common.is_server_profile_applied(
                         server_hardware_selected):
                     print('This Server Hardware is in use by OneView.')
 

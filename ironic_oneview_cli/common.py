@@ -16,13 +16,14 @@
 #    under the License.
 
 import os
+
+from builtins import input as builtin_input
 import prettytable
 import six
+from six.moves import urllib
 
-from builtins import input
 from oslo_utils import encodeutils
 from oslo_utils import importutils
-from six.moves.urllib import parse
 
 hpclient = importutils.try_import('hpOneView.oneview_client')
 
@@ -82,28 +83,24 @@ def env(*args, **kwargs):
 
     If all are empty, defaults to '' or keyword arg `default`.
     """
-    for arg in args:
-        value = os.environ.get(arg)
+    for argument in args:
+        value = os.environ.get(argument)
         if value:
             return value
     return kwargs.get('default', '')
 
 
-def _print_list(objs, fields, formatters=None, sortby_index=0,
-                mixed_case_fields=None, field_labels=None):
+def _print_list(objs, fields, sortby_index=0, field_labels=None):
     """Print a list or objects as a table, one row per object.
 
     :param objs: iterable of :class:`Resource`
     :param fields: attributes that correspond to columns, in order
-    :param formatters: `dict` of callables for field formatting
     :param sortby_index: index of the field for sorting table rows
-    :param mixed_case_fields: fields corresponding to object attributes that
-        have mixed case names (e.g., 'serverId')
     :param field_labels: Labels to use in the heading of the table, default to
         fields.
     """
-    formatters = formatters or {}
-    mixed_case_fields = mixed_case_fields or []
+    formatters = {}
+    mixed_case_fields = []
     field_labels = field_labels or fields
     if len(field_labels) != len(fields):
         raise ValueError(("Field labels list %(labels)s has different number "
@@ -142,11 +139,10 @@ def print_prompt(object_list, header_list, input_message=None,
     _print_list(
         object_list,
         header_list,
-        mixed_case_fields=[],
         field_labels=field_labels
     )
     if input_message is not None:
-        input_value = input(input_message)
+        input_value = builtin_input(input_message)
         return input_value
 
 
@@ -190,7 +186,7 @@ def set_flavor_name(flavor):
                                                   flavor.get('cpus'),
                                                   flavor.get('cpu_arch'),
                                                   flavor.get('disk'))
-    flavor_name = input(
+    flavor_name = builtin_input(
         "Insert a name for the Flavor. [%(default_name)s]> " %
         {'default_name': flavor_name_template}
     )
@@ -211,12 +207,11 @@ def get_attribute_from_dict(dictionary, keyword, default_value=''):
     """
     if dictionary:
         return dictionary.get(keyword, default_value)
-    else:
-        return default_value
+    return default_value
 
 
 def approve_command_prompt(message):
-    response = input(message)
+    response = builtin_input(message)
     return response.lower() == 'y'
 
 
@@ -227,12 +222,133 @@ def get_oneview_nodes(ironic_nodes):
     :returns: A list of Ironic Nodes with OneView compatible Drivers and
               Hardware types only.
     """
-    return filter(lambda x: x.driver in SUPPORTED_DRIVERS +
-                  SUPPORTED_HARDWARE_TYPES, ironic_nodes)
+    oneview_nodes = [node for node in ironic_nodes if node.driver in
+                     SUPPORTED_DRIVERS + SUPPORTED_HARDWARE_TYPES]
+    return oneview_nodes
+
+
+def is_server_profile_applied(server_hardware):
+    return bool(server_hardware.get('serverProfileUri'))
+
+
+def create_attrs_for_node(
+        args, server_hardware, server_profile_template):
+    attrs = {
+        'driver_info': {
+            'deploy_kernel': args.os_ironic_deploy_kernel_uuid,
+            'deploy_ramdisk': args.os_ironic_deploy_ramdisk_uuid,
+            'server_hardware_uri': server_hardware.get('uri'),
+            'use_oneview_ml2_driver': args.use_oneview_ml2_driver,
+        },
+        'properties': {
+            'capabilities': 'server_hardware_type_uri:%s,'
+                            'server_profile_template_uri:%s' % (
+                                server_hardware.get(
+                                    'serverHardwareTypeUri'),
+                                server_profile_template.get('uri')
+                            )
+        }
+    }
+
+    if args.classic:
+        attrs['driver'] = args.os_ironic_node_driver
+    else:
+        attrs['driver'] = args.os_driver
+        attrs['power_interface'] = args.os_power_interface
+        attrs['management_interface'] = args.os_management_interface
+        attrs['inspect_interface'] = args.os_inspect_interface
+        attrs['deploy_interface'] = args.os_deploy_interface
+
+    return attrs
+
+
+def update_attrs_for_node(attributes, args, server_hardware):
+    if args.use_oneview_ml2_driver:
+        attributes['network_interface'] = 'neutron'
+
+    if server_hardware.get('serverGroupUri'):
+        enclosure_group_uri = (
+            ',enclosure_group_uri:%s' % server_hardware.get(
+                'serverGroupUri')
+        )
+        attributes['properties']['capabilities'] += enclosure_group_uri
+
+    if not args.os_inspection_enabled:
+        cpus = (server_hardware.get('processorCoreCount') *
+                server_hardware.get('processorCount'))
+        hardware_properties = {
+            'cpus': cpus,
+            'memory_mb': server_hardware.get('memoryMb'),
+            'local_gb': server_hardware.get('local_gb'),
+            'cpu_arch': server_hardware.get('cpu_arch')
+        }
+
+        attributes['properties'].update(hardware_properties)
+
+
+def get_first_ethernet_physical_port(server_hardware):
+    for device in server_hardware.get('portMap').get(
+            'deviceSlots'):
+        for physical_port in device.get('physicalPorts', []):
+            if physical_port.get('type') == 'Ethernet':
+                return physical_port
+
+
+def create_attrs_for_port(ironic_node, mac):
+    attrs = {
+        'address': mac,
+        'node_uuid': ironic_node.uuid,
+        'portgroup_uuid': None,
+        "local_link_connection": build_local_link_connection(ironic_node),
+        'pxe_enabled': True
+    }
+
+    return attrs
+
+
+def set_flavor_properties(
+        node, server_hardware_type, enclosure_group, server_profile_template):
+    flavor = {}
+
+    flavor['ram_mb'] = node.properties.get('memory_mb')
+    flavor['cpus'] = node.properties.get('cpus')
+    flavor['disk'] = node.properties.get('local_gb')
+    flavor['cpu_arch'] = node.properties.get('cpu_arch')
+    flavor['server_hardware_type_name'] = (
+        get_attribute_from_dict(server_hardware_type, 'name'))
+    flavor['server_hardware_type_uri'] = (
+        get_attribute_from_dict(server_hardware_type, 'uri'))
+    flavor['enclosure_group_name'] = (
+        get_attribute_from_dict(enclosure_group, 'name'))
+    flavor['enclosure_group_uri'] = (
+        get_attribute_from_dict(enclosure_group, 'uri'))
+    flavor['server_profile_template_name'] = (
+        get_attribute_from_dict(server_profile_template, 'name'))
+    flavor['server_profile_template_uri'] = (
+        get_attribute_from_dict(server_profile_template, 'uri'))
+
+    return flavor
+
+
+def build_local_link_connection(ironic_node):
+    local_link_connection = {}
+    if ironic_node.driver_info.get('use_oneview_ml2_driver'):
+        server_hardware_id = get_server_hardware_id_from_node(ironic_node)
+        switch_info = (
+            '{"server_hardware_id": "%(server_hardware_id)s", '
+            '"bootable": "%(bootable)s"}') % {
+                'server_hardware_id': server_hardware_id,
+                'bootable': True}
+        local_link_connection = {
+            "switch_id": "01:23:45:67:89:ab",
+            "port_id": "",
+            "switch_info": switch_info
+        }
+    return local_link_connection
 
 
 def get_server_hardware_id_from_node(ironic_node):
-    """Get the Server Hardware id from a ironic_node
+    """Get the Server Hardware id from a ironic_node.
 
     :param ironic_node: A Ironic Node
     :return: The Server hardware id
@@ -257,7 +373,7 @@ def get_ilo_access(remote_console):
               example: ('1.2.3.4', 'a79659e3b3b7c8209c901ac3509a6719')
     """
     url = remote_console.get('remoteConsoleUrl')
-    url_parse = parse.urlparse(url)
-    host_ip = parse.parse_qs(url_parse.netloc).get('addr')[0]
-    token = parse.parse_qs(url_parse.netloc).get('sessionkey')[0]
+    url_parse = urllib.parse.urlparse(url)
+    host_ip = urllib.parse.parse_qs(url_parse.netloc).get('addr')[0]
+    token = urllib.parse.parse_qs(url_parse.netloc).get('sessionkey')[0]
     return host_ip, token

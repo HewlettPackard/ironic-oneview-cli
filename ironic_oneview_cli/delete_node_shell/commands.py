@@ -20,21 +20,27 @@ from ironic_oneview_cli import facade
 
 class NodeDelete(object):
 
-    def __init__(self, facade):
-        self.facade = facade
+    def __init__(self, delete_facade):
+        self.facade = delete_facade
 
-    def delete_ironic_nodes(self, number=None):
+    def manage_delete(self, number=None):
         nodes = self.facade.get_ironic_node_list()
         try:
             if number:
-                upper_limit = min(number, len(nodes))
-                for n in range(upper_limit):
-                    self.facade.node_delete(nodes[n].uuid)
+                self.delete_n_nodes(nodes, number)
             else:
                 for node in nodes:
                     self.facade.node_delete(node.uuid)
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
+
+    def delete_n_nodes(self, nodes, number):
+        upper_limit = min(number, len(nodes))
+        try:
+            for n in range(upper_limit):
+                self.facade.node_delete(nodes[n].uuid)
+        except Exception:
+            raise
 
 
 @common.arg(
@@ -55,10 +61,10 @@ def do_node_delete(args):
         message = '\nDo you really want to delete all nodes? [y/N] '
         response = common.approve_command_prompt(message)
         if response:
-            node_delete.delete_ironic_nodes()
+            node_delete.manage_delete()
             print('\nNodes deleted!')
     elif args.number:
-        node_delete.delete_ironic_nodes(args.number)
+        node_delete.manage_delete(args.number)
         print('\nNodes deleted!')
     else:
         print('\nNot implemented')

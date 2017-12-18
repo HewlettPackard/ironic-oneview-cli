@@ -18,16 +18,16 @@ import six
 
 
 class Flavor(object):
-    def __init__(self, id, info):
-        self.id = id
-        self._info = info
-        self._add_details(info)
+    def __init__(self, flavor_id, info):
+        self.id = flavor_id
+        self.info = info
+        self.add_details(info)
 
-    def _add_details(self, info):
+    def add_details(self, info):
         for (k, v) in six.iteritems(info):
             try:
                 setattr(self, k, v)
-                self._info[k] = v
+                self.info[k] = v
             except AttributeError:
                 pass
 
@@ -48,33 +48,13 @@ class Flavor(object):
         return extra_specs
 
     def __repr__(self):
-        return "<Flavor %s>" % self._info
+        return "<Flavor %s>" % self.info
 
     def __hash__(self):
         return hash(self.__repr__())
 
     def __eq__(self, other):
-        for (k, v) in six.iteritems(self._info):
+        for (k, _) in six.iteritems(self.info):
             if getattr(self, k) != getattr(other, k):
                 return False
         return True
-
-    def __setitem__(self, id):
-        self.id = id
-
-
-class ServerProfile(object):
-    def __init__(self, info):
-        self._info = info
-        self._add_details(info)
-
-    def _add_details(self, info):
-        for (k, v) in six.iteritems(info):
-            try:
-                setattr(self, k, v)
-                self._info[k] = v
-            except AttributeError:
-                pass
-
-    def __repr__(self):
-        return "<ServerProfile %s>" % self._info

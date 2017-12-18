@@ -117,8 +117,9 @@ class Facade(object):
 
         spt_list = self.hponeview_client.server_profile_templates.get_all()
         for spt in spt_list:
-            if (spt.get('serverHardwareTypeUri') in server_hardware_type_list
-               and spt.get('enclosureGroupUri') in server_group_list):
+            if (spt.get('serverHardwareTypeUri') in
+                    server_hardware_type_list and spt.get(
+                        'enclosureGroupUri') in server_group_list):
                 compatible_server_profile_list.append(spt)
         return compatible_server_profile_list
 
@@ -139,7 +140,7 @@ class Facade(object):
         return redfish.rest_client(base_url=base_url, sessionkey=ilo_token)
 
     def get_server_hardware_mac_from_ilo(self, server_hardware):
-        """Get the MAC address from a server hardware using iLO
+        """Get the MAC address from a server hardware using iLO.
 
         :param: server_hardware: a server hardware uuid or uri
         :return: the MAC address
