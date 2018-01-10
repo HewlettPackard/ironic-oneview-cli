@@ -18,14 +18,12 @@
 from builtins import input as builtin_input
 import os
 import re
-
-import prettytable
+import six
+from six.moves.urllib import parse
 
 from oslo_utils import encodeutils
 from oslo_utils import importutils
-
-import six
-from six.moves.urllib import parse
+import prettytable
 
 from ironicclient import client as ironic_client
 from keystoneauth1 import loading
