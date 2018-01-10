@@ -565,7 +565,11 @@ def main():
         print("... terminating OneView node creation tool", file=sys.stderr)
         sys.exit(130)
     except Exception as e:
-        print(encodeutils.safe_encode(six.text_type(e)), file=sys.stderr)
+        ex_content = (getattr(e, 'value', '') or getattr(e, 'message', '') or
+                      getattr(e, 'msg', '') or
+                      'The operation could not be performed')
+        msg = encodeutils.safe_encode(six.text_type(ex_content))
+        print(msg, file=sys.stderr)
         sys.exit(1)
 
 

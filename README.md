@@ -79,7 +79,19 @@ Once the necessary environment variables and command line parameters are set, Ir
 <td align="left"><blockquote>
 <p>port-create</p>
 </blockquote></td>
-<td align="left">Creates a new Ironic Port based on available Ironic nodes.</td>
+<td align="left">Creates a Ironic Port based on available Ironic nodes.</td>
+</tr>
+<tr class="even">
+<td align="left"><blockquote>
+<p>server-profile-template-list</p>
+</blockquote></td>
+<td align="left">Lists HPE OneView Server Profile Templates.</td>
+</tr>
+<tr class="odd">
+<td align="left"><blockquote>
+<p>server-hardware-list</p>
+</blockquote></td>
+<td align="left">Lists HPE OneView Server Hardware.</td>
 </tr>
 <tr class="even">
 <td align="left"><blockquote>
@@ -143,9 +155,9 @@ This command also creates an Ironic port to be used by the node, the port is cre
 
 * * * * *
 
-Alternatively, the `Server Profile Template` can be specified using the parameter `--server-profile-template` so that the tool prompts the list of `Server Hardware` to be used, as shown in the following command:
+Alternatively, the `Server Profile Template` and `Server Hardware` can be specified using the parameters `--server-profile-template` and `--server-hardware-uuid` respectively, as shown in the following command:
 
-    $ ironic-oneview node-create [--server-profile-template-name | -spt <spt_name>]
+    $ ironic-oneview node-create [--server-profile-template | -t <spt>] [--server-hardware-uuid | -s <server_hardware>]
 
 A collection of nodes sharing the same `Server Profile Template` can be set up in a batch by using the following command:
 
@@ -199,6 +211,10 @@ The tool will prompt with a list of possible new flavors, according to the confi
 
 After choosing a valid configuration, the user can optionally specify a name for the new flavor. If left blank, a default name will be used. Additional information from Server Hardware Type, Enclosure Group and Server Profile Template is automatically added by default to the flavor metadata. Use Horizon to delete the Enclosure Group info, for example, so that a flavor matches Server Hardware in all available enclosures.
 
+Alternatively, you can set a `Ironic node`, and optionally `flavor name` through the command:
+
+    $ ironic-oneview flavor-create [--node <node>] [--name <name>]
+
 * * * * *
 
 To list all flavors in Nova, use the command:
@@ -224,6 +240,18 @@ To list all ports in Ironic, use the command:
 For more information about the created Ironic port, use the following command:
 
     $ openstack baremetal port show <port>
+
+### Server Profile Template List
+
+The tool offers a command to list `Server Profile Templates`. For that use the following command:
+
+    $ ironic-oneview server-profile-template-list
+
+### Server Hardware List
+
+The tool offers a command to list `Server Hardware` compatible with a specific `Server Profile Template`. For that use the following command:
+
+    $ ironic-oneview server-hardware-list
 
 ### Node delete
 

@@ -330,9 +330,28 @@ POOL_OF_SERVER_HARDWARE = [
         'mpHostInfo': {}
     },
     {
-        'name': 'RackServer',
-        'uuid': '33333333-7777-8888-9999-111111',
+        'name': 'DDDDD',
+        'uuid': '44444444-7777-8888-9999-000000000000',
         'uri': '/rest/server-hardware/44444',
+        'powerState': 'Off',
+        'serverProfileUri': '',
+        'serverHardwareTypeUri':
+            '/rest/server-hardware-types/111111222223333',
+        'serverGroupUri': '/rest/enclosure-groups/1111112222233333',
+        'status': 'OK',
+        'state': 'Unknown',
+        'stateReason': '',
+        'locationUri': '/rest/enclosures/1111112222233333',
+        'processorCount': 12,
+        'processorCoreCount': 12,
+        'memoryMb': 16384,
+        'portMap': {},
+        'mpHostInfo': {}
+    },
+    {
+        'name': 'RackServer',
+        'uuid': '55555555-7777-8888-9999-111111',
+        'uri': '/rest/server-hardware/55555',
         'powerState': 'Off',
         'serverProfileUri': '',
         'serverHardwareTypeUri':
@@ -443,10 +462,14 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             classic=False,
             number=None,
             nodes=None,
-            mac=None
+            mac=None,
+            name=None,
+            node=None,
+            server_hardware_uuid=None,
+            server_profile_template=None
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_node_creation_no_args(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -478,8 +501,8 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
-    def test_node_creation_with_oneview_ml2_driver(
+    @mock.patch('ironic_oneview_cli.common.input')
+    def test_node_creation_with_oneview_ml2_driver_interactive(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
         self.args.use_oneview_ml2_driver = True
@@ -514,7 +537,43 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
+    def test_node_creation_with_oneview_ml2_driver_noninteractive(
+        self, mock_oneview_client, mock_ironic_client
+    ):
+        self.args.use_oneview_ml2_driver = True
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
+        )
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        spt_index = 0
+        sh_index = 3
+        oneview_client.server_hardware.get.return_value = (
+            POOL_OF_SERVER_HARDWARE[sh_index]
+        )
+        self.args.server_profile_template = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]['name']
+        )
+
+        selected_sh = POOL_OF_SERVER_HARDWARE[sh_index]
+        selected_spt = POOL_OF_SERVER_PROFILE_TEMPLATE[spt_index]
+        self.args.server_hardware_uuid = '44444'
+        self.args.mac = "00:29:15:80:4E:4A"
+        create_node_cmd.do_node_create(self.args)
+
+        attrs = self._create_attrs_for_node(selected_sh, selected_spt)
+
+        attrs['network_interface'] = 'neutron'
+
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.create.assert_called_with(
+            **attrs
+        )
+
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_node_creation_with_classic_flag(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -550,7 +609,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_node_creation_rack_servers(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -565,7 +624,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             POOL_OF_SERVER_HARDWARE[1]
         )
         spt_index = 0
-        sh_index = 3
+        sh_index = 4
         mock_input.side_effect = [
             str(spt_index + 1),
             str(sh_index + 1)
@@ -590,7 +649,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_node_creation_inspection_enabled(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -634,7 +693,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_node_creation_number_argument(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -663,7 +722,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             self.args.number, ironic_client.node.create.call_count
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_node_creation_spt_argument(
         self, mock_input, mock_oneview_client, mock_ironic_client
     ):
@@ -686,7 +745,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         sh_index = 0
         spt_index = 0
         mock_input.side_effect = [
-            str(sh_index + 1),
+            str(sh_index + 1), '1'
         ]
 
         create_node_cmd.do_node_create(self.args)
@@ -701,8 +760,9 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_node_creation_spt_and_number_arguments(
-        self, mock_oneview_client, mock_ironic_client
+        self, mock_input, mock_oneview_client, mock_ironic_client
     ):
         oneview_client = mock_oneview_client.return_value
         oneview_client.server_hardware.get_all.return_value = (
@@ -737,10 +797,12 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             self.args.number, ironic_client.node.create.call_count
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
+    @mock.patch('ironic_oneview_cli.common.input')
     @mock.patch('ironic_oneview_cli.openstack_client.get_nova_client')
-    def test_flavor_creation(self, mock_nova_client, mock_input,
-                             mock_oneview_client, mock_ironic_client):
+    def test_flavor_creation_interactive(
+        self, mock_nova_client, mock_input,
+        mock_oneview_client, mock_ironic_client
+    ):
         ironic_client = mock_ironic_client.return_value
         ironic_client.node.list.return_value = (
             POOL_OF_STUB_IRONIC_NODES
@@ -764,7 +826,34 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
-    @mock.patch('ironic_oneview_cli.common.builtin_input')
+    @mock.patch('ironic_oneview_cli.openstack_client.get_nova_client')
+    def test_flavor_creation_noninteractive(
+        self, mock_nova_client, mock_oneview_client, mock_ironic_client
+    ):
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.list.return_value = (
+            POOL_OF_STUB_IRONIC_NODES
+        )
+
+        # Nodes 0 and 1 doesn't have the required attributes, will not be shown
+        node_selected = POOL_OF_STUB_IRONIC_NODES[2]
+        self.args.name = 'my-flavor'
+        self.args.node = node_selected.uuid
+        create_flavor_cmd.do_flavor_create(self.args)
+
+        attrs = {
+            'name': self.args.name,
+            'ram': node_selected.properties.get('memory_mb'),
+            'vcpus': node_selected.properties.get('cpus'),
+            'disk': node_selected.properties.get('local_gb')
+        }
+
+        nova_client = mock_nova_client.return_value
+        nova_client.flavors.create.assert_called_with(
+            **attrs
+        )
+
+    @mock.patch('ironic_oneview_cli.common.input')
     def test_delete_node(self, mock_input,
                          mock_oneview_client, mock_ironic_client):
         ironic_client = mock_ironic_client.return_value
@@ -859,6 +948,73 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
+    @mock.patch('ironic_oneview_cli.common.print_prompt')
+    def test_template_list(
+        self, mock_prompt, mock_oneview_client, mock_ironic_client
+    ):
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
+        )
+        create_node_cmd.do_server_profile_template_list(self.args)
+
+        mock_prompt.called_with(
+            POOL_OF_SERVER_PROFILE_TEMPLATE,
+            [
+                'uuid',
+                'name',
+                'enclosure_group_name',
+                'server_hardware_type_name'
+            ],
+            field_labels=[
+                'UUID',
+                'Name',
+                'Enclosure Group Name',
+                'Server Hardware Type Name'
+            ]
+        )
+
+    @mock.patch('ironic_oneview_cli.common.print_prompt')
+    def test_hardware_list(
+        self, mock_prompt, mock_oneview_client, mock_ironic_client
+    ):
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_profile_templates.get_all.return_value = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE
+        )
+        oneview_client.server_hardware.get_all.return_value = (
+            POOL_OF_SERVER_HARDWARE
+        )
+        self.args.server_profile_template = (
+            POOL_OF_SERVER_PROFILE_TEMPLATE[0].get('name')
+        )
+        create_node_cmd.do_server_hardware_list(self.args)
+
+        mock_prompt.called_with(
+            POOL_OF_SERVER_HARDWARE,
+            [
+                'uuid',
+                'name',
+                'cpus',
+                'memory_mb',
+                'local_gb',
+                'enclosure_group_name',
+                'server_hardware_type_name'
+            ],
+            field_labels=[
+                'UUID',
+                'Name',
+                'CPUs',
+                'Memory MB',
+                'Local GB',
+                'Server Group Name',
+                'Server Hardware Type Name'
+            ]
+        )
+
     def _create_attrs_for_port(self, server_hardware, ironic_node, mac=None):
         if not mac:
             device_slot = server_hardware.get("portMap").get("deviceSlots")[0]
@@ -895,6 +1051,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         cpus = (server_hardware.get("processorCount") *
                 server_hardware.get("processorCoreCount"))
         attrs = {
+            'name': server_hardware.get('name'),
             'driver_info': {
                 'use_oneview_ml2_driver': self.args.use_oneview_ml2_driver,
                 'deploy_kernel': STUB_PARAMETERS.os_ironic_deploy_kernel_uuid,
@@ -915,7 +1072,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
                         server_hardware.get("serverHardwareTypeUri"),
                         server_profile_template.get("uri"),
                         server_hardware.get("serverGroupUri")
-                )
+                    )
             }
         }
         if self.args.classic:
