@@ -52,11 +52,9 @@ class PortCreator(object):
                 # to peform a deploy.
                 if virtual_port.get('portFunction') == 'a':
                     return virtual_port.get('mac').lower()
-            return None
-        else:
-            raise exceptions.OneViewResourceNotFoundError(
-                "There is no Ethernet port on the Server Hardware: %s"
-                % server_hardware.get('uri'))
+        raise exceptions.OneViewResourceNotFoundError(
+            "There is no Ethernet port on the Server Hardware: %s"
+            % server_hardware.get('uri'))
 
     def verifify_existing_ports_for_node(self, ironic_node):
         ironic_ports = self.facade.get_ironic_port_list()
