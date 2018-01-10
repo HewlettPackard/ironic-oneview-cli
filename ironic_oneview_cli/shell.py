@@ -383,7 +383,7 @@ class IronicOneView(object):
             return 0
 
         if args.func == genrc_commands.do_genrc:
-            genrc_commands.do_genrc(args)
+            genrc_commands.do_genrc()
             return 0
 
         if not (args.ironic_url or args.os_auth_url):
