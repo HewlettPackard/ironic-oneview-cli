@@ -97,13 +97,14 @@ class FlavorCreator(object):
                 id_counter += 1
         return sorted(set(flavors), key=lambda x: x.cpus)
 
-    def create_flavor(self, name, ram, vcpus, disk, extra_specs={}):
+    def create_flavor(self, flavor_name, flavor):
         attrs = {
-            'name': name,
-            'ram': ram,
-            'vcpus': vcpus,
-            'disk': disk
+            'name': flavor_name,
+            'ram': flavor.get('ram_mb'),
+            'vcpus': flavor.get('cpus'),
+            'disk': flavor.get('disk')
         }
+        extra_specs = flavor.get("flavor_obj").extra_specs()
 
         try:
             flavor = self.facade.create_nova_flavor(**attrs)
@@ -134,8 +135,8 @@ def do_flavor_create(args):
     nodes = flavor_creator.get_oneview_nodes()
 
     if args.name and not args.node:
-        print(("It is mandatory to specify an Ironic Node for flavor creation."
-              " Use --node"))
+        print("It is mandatory to specify an Ironic Node for flavor creation. "
+              "Use --node")
         return
     elif not nodes:
         print("No Ironic nodes running OneView drivers were found. "
@@ -146,8 +147,8 @@ def do_flavor_create(args):
     if args.node:
         nodes = [common.get_element(nodes, args.node)]
         if nodes[0] is None:
-            print(("Could not find an Ironic Node matching "
-                  "'%s'") % args.node)
+            print("Could not find an Ironic Node matching '%s'"
+                  % args.node)
             return
 
     flavor_list = flavor_creator.get_flavor_list(nodes)
@@ -231,10 +232,4 @@ def _create_flavor(flavor_creator, flavor, flavor_name=None):
         ]
     )
     flavor_name = flavor_name or common.set_flavor_name(flavor)
-    flavor_creator.create_flavor(
-        flavor_name,
-        flavor.get('ram_mb'),
-        flavor.get('cpus'),
-        flavor.get('disk'),
-        flavor.get("flavor_obj").extra_specs()
-    )
+    flavor_creator.create_flavor(flavor_name, flavor)

@@ -36,6 +36,12 @@ def do_genrc():
     print("read -sr OV_PASSWORD_INPUT")
     print("export OV_PASSWORD=$OV_PASSWORD_INPUT")
 
+    print("\n# Option to allow insecure connection with OneView.")
+    print("#export OV_INSECURE=False")
+
+    print("\n# Path to OneView CA certificate file.")
+    print("#export OV_CAFILE=")
+
     # OpenStack
 
     print("\n# Assume inspection is used for OneView nodes in Ironic.\n"
