@@ -109,8 +109,7 @@ class NodeCreator(object):
 
     @staticmethod
     def _create_attrs_for_node(
-        args, server_hardware, server_profile_template
-    ):
+            args, server_hardware, server_profile_template):
         if args.name and not common.is_valid_logical_name(args.name):
             msg = "The name '%s' is not a valid logical name." % args.name
             raise Exception(msg)
@@ -120,8 +119,8 @@ class NodeCreator(object):
         else:
             name = common.normalize_logical_name(server_hardware.get('name'))
 
-        attrs = common.create_attrs_for_node(args, server_hardware, (
-                                             server_profile_template))
+        attrs = common.create_attrs_for_node(
+            args, server_hardware, (server_profile_template))
         attrs['name'] = name
 
         return attrs
@@ -170,8 +169,8 @@ def do_node_create(args):
             facade_obj.get_server_hardware(args.server_hardware_uuid)
         )
     except Exception:
-        print(("Could not find a Server Hardware matching "
-              "'%s'") % args.server_hardware_uuid)
+        print(("Could not find a Server Hardware matching '%s'")
+              % args.server_hardware_uuid)
         return
 
     server_hardware_list = [server_hardware] if server_hardware else None
@@ -179,8 +178,8 @@ def do_node_create(args):
     try:
         spt_list = facade_obj.list_templates_compatible(server_hardware_list)
     except Exception:
-        print(("Unable to retrieve Server Profile Template "
-              "'%s'") % args.server_profile_template)
+        print(("Unable to retrieve Server Profile Template '%s'")
+              % args.server_profile_template)
         return
 
     node_creator.set_attributes_to_object(spt_list)
@@ -191,12 +190,10 @@ def do_node_create(args):
     else:
         templates = facade_obj.list_all_templates()
         node_creator.set_attributes_to_object(templates)
-        is_valid_spt = common.is_valid_spt(templates, (
-                                           args.server_profile_template))
 
-        if not is_valid_spt:
-            print(("Server Profile template is not valid "
-                  "'%s'") % args.server_profile_template)
+        if not common.is_valid_spt(templates, (args.server_profile_template)):
+            print(("Server Profile template is not valid '%s'")
+                  % args.server_profile_template)
             return
 
         template_selected = common.get_element(
@@ -226,8 +223,8 @@ def do_node_create(args):
             return
 
     if args.mac and not common.is_valid_mac_address(args.mac):
-        print(("The node could not be created. "
-              "'%s' is not a valid MAC address.") % args.mac)
+        print(("Node could not be created. '%s' is not a valid MAC address.")
+              % args.mac)
         return
 
     if args.number and not passed_server_hardware:
@@ -333,8 +330,8 @@ def do_server_hardware_list(args):
         )
 
         if template_selected is None:
-            print(("Could not find a Server Profile Template matching "
-                  "'%s'") % args.server_profile_template)
+            print(("Could not find a Server Profile Template matching '%s'")
+                  % args.server_profile_template)
             return
 
     s_hardware_list = node_creator.get_server_hardware_list(

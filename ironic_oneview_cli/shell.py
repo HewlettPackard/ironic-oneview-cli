@@ -24,6 +24,7 @@ import sys
 
 from oslo_utils import encodeutils
 
+import ironic_oneview_cli
 from ironic_oneview_cli import common
 from ironic_oneview_cli.create_flavor_shell import (
     commands as flavor_create_commands)
@@ -112,7 +113,7 @@ class IronicOneView(object):
 
         parser.add_argument('--version',
                             action='version',
-                            version=VERSION)
+                            version=ironic_oneview_cli.__version__)
 
         parser.add_argument('--os-username',
                             default=common.env('OS_USERNAME'),
@@ -265,6 +266,22 @@ class IronicOneView(object):
                                  'Defaults to env[OV_AUTH_URL]')
 
         parser.add_argument('--ov_auth_url',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-insecure',
+                            default=common.env('OV_INSECURE'),
+                            help='Option to allow insecure connection with '
+                                 'OneView. Defaults to env[OV_INSECURE]')
+
+        parser.add_argument('--ov_insecure',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--ov-cacert',
+                            default=common.env('OV_CACERT'),
+                            help='Path to OneView CA certificate file. '
+                                 'Defaults to env[OV_CACERT]')
+
+        parser.add_argument('--ov_cacert',
                             help=argparse.SUPPRESS)
 
         # OpenStack Images arguments
@@ -489,7 +506,8 @@ class IronicOneView(object):
             'os_username', 'os_password', 'os_tenant_id', 'os_tenant_name',
             'os_project_id', 'os_project_name', 'os_cert', 'os_cacert',
             'os_auth_url', 'ov_username', 'ov_password', 'ov_auth_url',
-            'insecure', 'debug', 'os_inspection_enabled', 'os_endpoint_type',
+            'ov_insecure', 'ov_cacert', 'insecure', 'debug',
+            'os_inspection_enabled', 'os_endpoint_type',
             'os_ironic_node_driver', 'os_driver', 'os_power_interface',
             'os_management_interface', 'os_inspect_interface',
             'os_deploy_interface', 'os_ironic_deploy_kernel_uuid',

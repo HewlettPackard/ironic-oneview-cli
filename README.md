@@ -211,7 +211,7 @@ The tool will prompt with a list of possible new flavors, according to the confi
 
 After choosing a valid configuration, the user can optionally specify a name for the new flavor. If left blank, a default name will be used. Additional information from Server Hardware Type, Enclosure Group and Server Profile Template is automatically added by default to the flavor metadata. Use Horizon to delete the Enclosure Group info, for example, so that a flavor matches Server Hardware in all available enclosures.
 
-Alternatively, you can set a `Ironic node`, and optionally `flavor name` through the command:
+Alternatively, you can set a Ironic `node`, and optionally flavor `name` through the command:
 
     $ ironic-oneview flavor-create [--node <node>] [--name <name>]
 
