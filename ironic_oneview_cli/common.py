@@ -491,20 +491,6 @@ def build_local_link_connection(ironic_node):
     return local_link_connection
 
 
-def validate_server_hardware_mac(mac, server_hardware):
-    physical_and_virtual_macs = []
-    for device in server_hardware.get(
-            'portMap', {}).get('deviceSlots', ()):
-        for physical_port in device.get('physicalPorts', ()):
-            if physical_port.get('type') == 'Ethernet':
-                mac_address = physical_port.get('mac', '').lower()
-                physical_and_virtual_macs.append(mac_address)
-                for virtual_port in physical_port.get('virtualPorts', ()):
-                    mac_address = virtual_port.get('mac', '').lower()
-                    physical_and_virtual_macs.append(mac_address)
-    return mac.lower() in physical_and_virtual_macs
-
-
 def get_server_hardware_id_from_node(ironic_node):
     """Get the Server Hardware id from a ironic_node.
 

@@ -33,15 +33,44 @@ class PortCreator(object):
         else:
             mac = self.get_server_hardware_mac(server_hardware)
 
-        if not common.validate_server_hardware_mac(mac, server_hardware):
+        if not self.validate_server_hardware_mac(mac, server_hardware):
             print(("WARNING: mac %(mac)s doesn't match any server "
                    "hardware's %(sh)s ports") %
                   {"mac": mac, "sh": server_hardware.get('uuid')})
+            return None
 
         self.verifify_existing_ports_for_node(ironic_node)
 
         attrs = common.create_attrs_for_port(ironic_node, mac)
         return self.facade.create_ironic_port(**attrs)
+
+    def validate_server_hardware_mac(self, mac, server_hardware):
+        """Validate if MAC exists for Server Hardware.
+
+        Verify if a MAC matches any Physical or Virtual MAC of a
+        Server Hardware.
+
+        :param mac: The MAC Address to be validated.
+        :param server_hardware: The Server Hardware used for the validation.
+        :returns: Wether it is a valid MAC or not.
+        """
+        physical_and_virtual_macs = []
+        port_map = server_hardware.get('portMap', {})
+        if port_map is not None:
+            for device in port_map.get('deviceSlots', ()):
+                for physical_port in device.get('physicalPorts', ()):
+                    if physical_port.get('type') == 'Ethernet':
+                        mac_address = physical_port.get('mac', '').lower()
+                        physical_and_virtual_macs.append(mac_address)
+                        for virtual_port in physical_port.get(
+                                'virtualPorts', ()):
+                            mac_address = virtual_port.get('mac', '').lower()
+                            physical_and_virtual_macs.append(mac_address)
+        else:
+            ilo_mac = self.facade.get_server_hardware_mac_from_ilo(
+                server_hardware)
+            physical_and_virtual_macs = [ilo_mac.lower()]
+        return mac.lower() in physical_and_virtual_macs
 
     def get_server_hardware_mac(self, server_hardware):
         if not server_hardware.get('portMap'):
@@ -92,4 +121,5 @@ def do_port_create(args):
     ironic_node = facade_obj.get_ironic_node(args.node)
     port = port_creator.create_port(args, ironic_node)
 
-    print("Created port %s" % port.uuid)
+    if port:
+        print("Created port %s" % port.uuid)

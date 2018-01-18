@@ -103,7 +103,8 @@ class NodeCreator(object):
         port_creator = port_cmd.PortCreator(self.facade)
         port = port_creator.create_port(args, node)
 
-        print("Port %s was created" % port.uuid)
+        if port:
+            print("Port %s was created" % port.uuid)
 
         return node
 

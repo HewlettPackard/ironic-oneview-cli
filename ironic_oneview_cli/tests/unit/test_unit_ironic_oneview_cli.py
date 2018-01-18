@@ -183,17 +183,7 @@ POOL_OF_SERVER_HARDWARE = [
         'processorCount': 12,
         'processorCoreCount': 12,
         'memoryMb': 16384,
-        'portMap': {
-            'deviceSlots': [{
-                'physicalPorts': [{
-                    'type': 'Ethernet',
-                    'virtualPorts': [{
-                        'portFunction': 'a',
-                        'mac': 'aa:bb:cc:dd:ee:ff'
-                    }]
-                }]
-            }]
-        },
+        'portMap': {},
         'mpHostInfo': {}
     },
     {
@@ -384,13 +374,3 @@ class UnitTestIronicOneviewCli(unittest.TestCase):
                          common.normalize_logical_name('Enclosure1, bay 2'))
         self.assertEqual('blade2', common.normalize_logical_name('blade2'))
         self.assertEqual(None, common.normalize_logical_name(None))
-
-    def test_validate_server_hardware_mac(self, mock_facade):
-        server_hardware = POOL_OF_SERVER_HARDWARE[0]
-        another_server_hardware = POOL_OF_SERVER_HARDWARE[1]
-        mac = "aa:bb:cc:dd:ee:ff"
-
-        self.assertFalse(
-            common.validate_server_hardware_mac(mac, server_hardware))
-        self.assertTrue(
-            common.validate_server_hardware_mac(mac, another_server_hardware))

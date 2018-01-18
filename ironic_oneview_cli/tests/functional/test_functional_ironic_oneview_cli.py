@@ -364,7 +364,7 @@ POOL_OF_SERVER_HARDWARE = [
         'processorCount': 12,
         'processorCoreCount': 12,
         'memoryMb': 16384,
-        'portMap': {},
+        'portMap': None,
         'mpHostInfo': {}
     }
 ]
@@ -539,11 +539,14 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
             **attrs
         )
 
+    @mock.patch('ironic_oneview_cli.facade.Facade.'
+                'get_server_hardware_mac_from_ilo')
     def test_node_creation_with_oneview_ml2_driver_noninteractive(
-        self, mock_oneview_client, mock_ironic_client
+        self, mock_mac_from_ilo, mock_oneview_client, mock_ironic_client
     ):
         self.args.use_oneview_ml2_driver = True
 
+        mock_mac_from_ilo.return_valur = 'aa:bb:cc:dd:ee:ff'
         oneview_client = mock_oneview_client.return_value
         oneview_client.server_hardware.get_all.return_value = (
             POOL_OF_SERVER_HARDWARE
@@ -899,7 +902,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         ironic_client.node.get.return_value = ironic_node
 
         self.args.node = ironic_node.uuid
-        self.args.mac = "01:23:45:67:89:ab"
+        self.args.mac = "aa:bb:cc:dd:ee:ff"
         port_create_cmd.do_port_create(self.args)
 
         attrs = self._create_attrs_for_port(server_hardware, ironic_node,
@@ -907,6 +910,23 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
         ironic_client.port.create.assert_called_with(
             **attrs
         )
+
+    def test_port_abort_creation_with_mac(
+        self, mock_oneview_client, mock_ironic_client
+    ):
+        server_hardware = POOL_OF_SERVER_HARDWARE[1]
+        ironic_node = POOL_OF_STUB_IRONIC_NODES[3]
+
+        oneview_client = mock_oneview_client.return_value
+        oneview_client.server_hardware.get.return_value = server_hardware
+        ironic_client = mock_ironic_client.return_value
+        ironic_client.node.get.return_value = ironic_node
+
+        self.args.node = ironic_node.uuid
+        self.args.mac = "01:23:45:67:89:ab"
+        port_create_cmd.do_port_create(self.args)
+
+        ironic_client.port.create.assert_not_called()
 
     def test_port_creation_with_oneview_ml2_driver(
         self, mock_oneview_client, mock_ironic_client
@@ -932,7 +952,7 @@ class FunctionalTestIronicOneviewCli(unittest.TestCase):
     def test_port_creation_rack_server(
         self, mock_mac_from_ilo, mock_oneview_client, mock_ironic_client
     ):
-        server_hardware = POOL_OF_SERVER_HARDWARE[0]
+        server_hardware = POOL_OF_SERVER_HARDWARE[4]
         ironic_node = POOL_OF_STUB_IRONIC_NODES[6]
         mac = "aa:bb:cc:dd:ee:ff"
 
