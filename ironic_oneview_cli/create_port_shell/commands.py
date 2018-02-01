@@ -35,7 +35,9 @@ class PortCreator(object):
 
         if not self.validate_server_hardware_mac(mac, server_hardware):
             print(("WARNING: mac %(mac)s doesn't match any server "
-                   "hardware's %(sh)s ports") %
+                   "hardware's %(sh)s ports.\n"
+                   "Use ironic-oneview port-create command with a valid MAC "
+                   "address to create an Ironic Port for this Ironic Node.") %
                   {"mac": mac, "sh": server_hardware.get('uuid')})
             return None
 
