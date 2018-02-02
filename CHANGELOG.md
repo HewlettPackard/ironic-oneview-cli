@@ -1,4 +1,4 @@
-# 1.2.0 (unreleased)
+# 1.2.0
 
 #### Notes
 - Update python-ilorest-library version to 2.1.0
