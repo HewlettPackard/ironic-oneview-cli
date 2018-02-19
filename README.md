@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/ironic-oneview-cli.svg)](https://badge.fury.io/py/ironic-oneview-cli)
 [![Build Status](https://travis-ci.org/HewlettPackard/ironic-oneview-cli.svg?branch=master)](https://travis-ci.org/HewlettPackard/ironic-oneview-cli)
-[![Coverage Status](https://coveralls.io/repos/github/HewlettPackard/ironic-oneview-cli/badge.svg)](https://coveralls.io/github/HewlettPackard/ironic-oneview-cli)
+[![Coverage Status](https://codecov.io/gh/HewlettPackard/ironic-oneview-cli/branch/master/graphs/badge.svg)](https://codecov.io/gh/HewlettPackard/ironic-oneview-cli)
 
 Ironic-OneView CLI
 ==================
