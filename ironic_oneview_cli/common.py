@@ -235,11 +235,12 @@ def _print_list(objs, fields, sortby_index=0, field_labels=None):
 
 
 def print_prompt(object_list, header_list, input_message=None,
-                 field_labels=None):
+                 field_labels=None, sortby_index=0):
     _print_list(
         object_list,
         header_list,
-        field_labels=field_labels
+        field_labels=field_labels,
+        sortby_index=sortby_index
     )
     if input_message:
         input_value = builtin_input(input_message)

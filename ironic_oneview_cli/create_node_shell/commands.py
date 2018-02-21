@@ -308,7 +308,8 @@ def do_server_profile_template_list(args):
             'Name',
             'Enclosure Group Name',
             'Server Hardware Type Name'
-        ]
+        ],
+        sortby_index=1
     )
 
 
@@ -359,7 +360,8 @@ def do_server_hardware_list(args):
             'Local GB',
             'Enclosure Group Name',
             'Server Hardware Type Name'
-        ]
+        ],
+        sortby_index=1
     )
 
 
