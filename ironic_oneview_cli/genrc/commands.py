@@ -40,7 +40,7 @@ def do_genrc():
     print("#export OV_INSECURE=False")
 
     print("\n# Path to OneView CA certificate file.")
-    print("#export OV_CAFILE=")
+    print("#export OV_CACERT=")
 
     # OpenStack
 
