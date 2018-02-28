@@ -1,3 +1,9 @@
+# 1.2.1 (unreleased)
+
+#### Bugfixes & Enhancements
+- Sort output of ironic-oneview-cli commands for SH and SPT
+- Fix certificate environment variable name on genrc
+
 # 1.2.0
 
 #### Notes
