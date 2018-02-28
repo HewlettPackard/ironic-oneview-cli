@@ -1,4 +1,4 @@
-# 1.2.1 (unreleased)
+# 1.2.1
 
 #### Bugfixes & Enhancements
 - Sort output of ironic-oneview-cli commands for SH and SPT
